@@ -26,6 +26,7 @@ interface DailyNewsSettings {
     outputFormat: 'detailed' | 'concise';
     enableNotifications: boolean;
     enableAnalysisContext: boolean; // New: Enable or disable "Analysis & Context" feature
+    enableDailyNoteLink: boolean; // New: Enable linking to Obsidian daily notes
     
     // Advanced settings
     dateRange: string;
@@ -61,6 +62,7 @@ const DEFAULT_SETTINGS: DailyNewsSettings = {
     outputFormat: 'detailed',
     enableNotifications: true,
     enableAnalysisContext: true, // Enable "Analysis & Context" feature by default
+    enableDailyNoteLink: true, // Enable daily note linking by default
     
     // Advanced settings
     dateRange: 'd3', // Changed from d2 to d3 for broader date range
@@ -287,6 +289,16 @@ class DailyNewsSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.enableNotifications)
                 .onChange(async (value) => {
                     this.plugin.settings.enableNotifications = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Enable daily note link')
+            .setDesc('Add a link to today\'s daily note in the news briefing')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.enableDailyNoteLink)
+                .onChange(async (value) => {
+                    this.plugin.settings.enableDailyNoteLink = value;
                     await this.plugin.saveSettings();
                 }));
 
@@ -1067,8 +1079,21 @@ Format your summary as bullet points with concrete facts:
                 return fileName; // Return the path even when file exists
             }
             
-            // Basic header content
-            let content = `*Generated at ${new Date().toLocaleTimeString()}*\n\n`;
+            // Add YAML frontmatter metadata
+            const now = new Date();
+            let content = `---\n`;
+            content += `MOC:\n`;
+            content += `language: en\n`;
+            content += `published_date: '${date}'\n`;
+            content += `scraped_date: '${now.toISOString()}'\n`;
+            content += `source: Daily-News-Briefing\n`;
+            content += `tags:\n`;
+            content += `- news\n`;
+            content += `- daily-briefing\n`;
+            this.settings.topics.forEach(topic => {
+                content += `- ${topic.toLowerCase().replace(/\s+/g, '-')}\n`;
+            });
+            content += `daily_note: '[[${date}]]'\n`;
             content += `---\n\n`;
 
             // Add table of contents
@@ -1273,6 +1298,24 @@ Format your summary as bullet points with concrete facts:
             console.error('Error opening or creating daily news:', error);
             new Notice('Unable to open or create daily news');
         }
+    }
+
+    // Helper method to generate daily note link
+    private generateDailyNoteLink(dateString: string): string {
+        // Try different common daily note formats
+        const date = new Date(dateString);
+        const formats = [
+            dateString, // YYYY-MM-DD
+            date.toISOString().split('T')[0], // YYYY-MM-DD (same as above, but explicit)
+            `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`, // YYYY-MM-DD
+            date.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-'), // MM-DD-YYYY format
+            date.toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-'), // DD-MM-YYYY format
+        ];
+        
+        // Return a link that tries multiple formats
+        const linkText = `📅 **Daily Note**: [[${dateString}]]`;
+        
+        return `> ${linkText}\n> *Link to today's daily note for additional context and tasks*`;
     }
 
     // Helper method to normalize paths for Obsidian's file system
