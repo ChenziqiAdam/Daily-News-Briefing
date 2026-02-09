@@ -139,8 +139,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
                     <div class="feature-box">
-                        <h5><i class="fa-solid fa-robot"></i> 6 AI Providers</h5>
-                        <p class="text-sm">Choose from Google Gemini (free), OpenAI, Grok, or Perplexity</p>
+                        <h5><i class="fa-solid fa-robot"></i> 8 AI Providers</h5>
+                        <p class="text-sm">Choose from Google Gemini (free), OpenAI, Grok, Perplexity, Anthropic, or OpenRouter</p>
                     </div>
                     <div class="feature-box">
                         <h5><i class="fa-solid fa-calendar"></i> Auto-Scheduled</h5>
@@ -182,7 +182,7 @@ graph LR
                 </ol>
 
                 <h3 id="pipelines">Step 2: Choose Your AI Pipeline</h3>
-                <p>The plugin supports <strong>6 different AI pipelines</strong> organized into two architectures:</p>
+                <p>The plugin supports <strong>8 different AI pipelines</strong> organized into two architectures:</p>
 
                 <h4>Architecture Comparison</h4>
 
@@ -253,6 +253,20 @@ graph LR
                             <td>• Pay-per-use<br>• Newer service</td>
                             <td>X/Twitter insights</td>
                         </tr>
+                        <tr>
+                            <td><strong>Anthropic Claude</strong><br><span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span></td>
+                            <td><code>claude-sonnet-4-5-20250929</code></td>
+                            <td>• High-quality summaries<br>• Web search built-in<br>• Advanced reasoning</td>
+                            <td>• Pay-per-use<br>• Higher cost</td>
+                            <td>Quality & depth</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenRouter</strong><br><span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span></td>
+                            <td><code>anthropic/claude-4.5-sonnet</code><br>(5 models available)</td>
+                            <td>• Multiple models<br>• Unified API<br>• Flexible pricing</td>
+                            <td>• Pay-per-use<br>• Model varies</td>
+                            <td>Model flexibility</td>
+                        </tr>
                     </tbody>
                 </table>
 
@@ -290,6 +304,20 @@ graph LR
                             <td><code>grok-4-fast</code></td>
                             <td>• Advanced control<br>• Fast processing<br>• Latest AI</td>
                             <td>xAI enthusiasts</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Google + Claude</strong><br><span class="badge badge-paid">Paid</span></td>
+                            <td>Google Custom Search</td>
+                            <td><code>claude-sonnet-4-5-20250929</code></td>
+                            <td>• Advanced control<br>• High quality<br>• Deep analysis</td>
+                            <td>Quality focus</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Google + OpenRouter</strong><br><span class="badge badge-paid">Paid</span></td>
+                            <td>Google Custom Search</td>
+                            <td><code>anthropic/claude-4.5-sonnet</code><br>(5 models available)</td>
+                            <td>• Advanced control<br>• Model flexibility<br>• Unified pricing</td>
+                            <td>Multi-model users</td>
                         </tr>
                     </tbody>
                 </table>
@@ -334,6 +362,38 @@ graph LR
                         <li>Paste your key in the <strong>"Grok API key"</strong> field</li>
                     </ol>
                     <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>grok-4-fast</code> with real-time X platform data</p>
+                </div>
+
+                <h4>Option C2: Anthropic Claude (Agentic Search)</h4>
+                <div class="feature-box">
+                    <h5>Setup Steps</h5>
+                    <ol>
+                        <li>Visit <a href="https://console.anthropic.com/" target="_blank">Anthropic Console</a></li>
+                        <li>Create or copy your API key</li>
+                        <li>In plugin settings, choose <strong>"Anthropic Claude (Agentic Search)"</strong></li>
+                        <li>Paste your key in the <strong>"Anthropic API key"</strong> field</li>
+                    </ol>
+                    <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>claude-sonnet-4-5-20250929</code> with advanced reasoning and web search</p>
+                </div>
+
+                <h4>Option C3: OpenRouter (Agentic Search)</h4>
+                <div class="feature-box">
+                    <h5>Setup Steps</h5>
+                    <ol>
+                        <li>Visit <a href="https://openrouter.ai/keys" target="_blank">OpenRouter API Keys</a></li>
+                        <li>Generate your API key</li>
+                        <li>In plugin settings, choose <strong>"OpenRouter (Agentic Search)"</strong></li>
+                        <li>Paste your key in the <strong>"OpenRouter API key"</strong> field</li>
+                        <li>Select your preferred model from the dropdown (5 models available)</li>
+                    </ol>
+                    <p class="text-sm text-gray-400 mt-4"><strong>Available Models:</strong></p>
+                    <ul class="text-sm text-gray-400">
+                        <li><code>anthropic/claude-4.5-sonnet</code> - Claude 4.5 Sonnet (default)</li>
+                        <li><code>openai/gpt-4o</code> - GPT-4o</li>
+                        <li><code>google/gemini-2.5-flash</code> - Gemini Flash 2.5</li>
+                        <li><code>mistralai/mistral-large</code> - Mistral Large</li>
+                        <li><code>meta-llama/llama-3.1-70b-instruct</code> - Llama 3.1 70B</li>
+                    </ul>
                 </div>
 
                 <h4>Option D: Google Search + Gemini (FREE Recommended)</h4>
@@ -402,6 +462,27 @@ graph LR
                     <p>In plugin settings, choose <strong>"Google Search + Grok Summarizer"</strong> and enter all three keys.</p>
                 </div>
 
+                <h4>Option G: Google Search + Claude Summarizer</h4>
+                <div class="feature-box">
+                    <h5>Setup Steps</h5>
+                    <p>Requires the same Google keys as Option D, plus:</p>
+                    <ul>
+                        <li><strong>Anthropic API Key:</strong> Get from <a href="https://console.anthropic.com/" target="_blank">Anthropic Console</a></li>
+                    </ul>
+                    <p>In plugin settings, choose <strong>"Google Search + Claude Summarizer"</strong> and enter all keys.</p>
+                </div>
+
+                <h4>Option H: Google Search + OpenRouter Summarizer</h4>
+                <div class="feature-box">
+                    <h5>Setup Steps</h5>
+                    <p>Requires the same Google keys as Option D, plus:</p>
+                    <ul>
+                        <li><strong>OpenRouter API Key:</strong> Get from <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a></li>
+                    </ul>
+                    <p>In plugin settings, choose <strong>"Google Search + OpenRouter Summarizer"</strong>, enter all keys, and select your preferred model.</p>
+                    <p class="text-sm text-gray-400 mt-4"><strong>Tip:</strong> OpenRouter gives you access to 5 different AI models through a single API key!</p>
+                </div>
+
             </section>
 
             <!-- Configuration -->
@@ -426,9 +507,13 @@ graph LR
                                 • Perplexity (Agentic)<br>
                                 • OpenAI GPT (Agentic)<br>
                                 • Grok (Agentic)<br>
+                                • Anthropic Claude (Agentic)<br>
+                                • OpenRouter (Agentic)<br>
                                 • Google + Gemini ⭐<br>
                                 • Google + GPT<br>
-                                • Google + Grok
+                                • Google + Grok<br>
+                                • Google + Claude<br>
+                                • Google + OpenRouter
                             </td>
                         </tr>
                         <tr>
@@ -1462,6 +1547,18 @@ graph LR
                             <td>No free tier</td>
                             <td>Pay-per-use</td>
                             <td>Check current pricing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Anthropic Claude</strong></td>
+                            <td>No free tier</td>
+                            <td>Pay-per-use</td>
+                            <td>Token-based pricing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenRouter</strong></td>
+                            <td>No free tier</td>
+                            <td>Pay-per-use</td>
+                            <td>Varies by model selected</td>
                         </tr>
                     </tbody>
                 </table>
