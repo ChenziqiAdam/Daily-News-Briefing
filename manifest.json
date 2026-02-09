@@ -1,7 +1,7 @@
 {
   "id": "daily-news-briefing",
   "name": "Daily News Briefing",
-  "version": "1.9.1",
+  "version": "1.10.0",
   "minAppVersion": "0.15.0",
   "description": "Get AI-powered daily news summaries in your vault. Features customizable topics, smart filtering, and automated scheduling.",
   "author": "Adam Chen",

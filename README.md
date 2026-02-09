@@ -66,12 +66,15 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## 📋 Changelog
 
-### v1.9.1
-- Fix metadata settings
+### v1.10.0
+- Support Anthropic and OpenRouter models
 
 ### Previous Versions
 <details>
 <summary>Click to view changelog history</summary>
+
+**1.9.1**
+- Fix metadata settings
 
 **1.9.0**
 - Support customizable template setting
@@ -183,7 +186,7 @@ Contributions welcome! We especially appreciate:
 
 ### Roadmap
 
-- [ ] **More Providers** - Support for more LLM options (Issue #6)
+- [x] **More Providers** - Support for more LLM options (Issue #6)
 - [ ] **Cache Daily News Content** - Avoid redundant generation
 - [ ] **More Web Search Choices** - Replacement of Google Search
 
