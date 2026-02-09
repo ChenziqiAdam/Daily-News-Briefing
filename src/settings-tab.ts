@@ -1,7 +1,7 @@
 import { App, PluginSettingTab, Setting, Notice } from 'obsidian';
 import type { DailyNewsSettings } from './types';
 import type DailyNewsPlugin from '../main';
-import { LANGUAGE_NAMES } from './constants';
+import { LANGUAGE_NAMES, OPENROUTER_MODELS } from './constants';
 import { TemplateEngine } from './template/template-engine';
 import { TEMPLATE_DESCRIPTIONS, TEMPLATE_EXAMPLE } from './template/template-presets';
 
@@ -28,11 +28,15 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 .addOption('google-gemini', 'Google Search + Gemini Summarizer')
                 .addOption('google-gpt', 'Google Search + GPT Summarizer')
                 .addOption('google-grok', 'Google Search + Grok Summarizer')
+                .addOption('google-claude', 'Google Search + Claude Summarizer')
+                .addOption('google-openrouter', 'Google Search + OpenRouter Summarizer')
                 .addOption('sonar', 'Perplexity (Agentic Search)')
                 .addOption('gpt', 'OpenAI GPT (Agentic Search)')
                 .addOption('grok', 'Grok (Agentic Search)')
+                .addOption('claude', 'Claude (Agentic Search)')
+                .addOption('openrouter', 'OpenRouter (Agentic Search)')
                 .setValue(this.plugin.settings.apiProvider)
-                .onChange(async (value: 'google-gemini' | 'google-gpt' | 'sonar' | 'gpt' | 'google-grok' | 'grok') => {
+                .onChange(async (value: 'google-gemini' | 'google-gpt' | 'sonar' | 'gpt' | 'google-grok' | 'grok' | 'claude' | 'openrouter' | 'google-claude' | 'google-openrouter') => {
                     this.plugin.settings.apiProvider = value;
                     await this.plugin.saveSettings();
                     this.display();
@@ -117,6 +121,47 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         this.plugin.settings.grokApiKey = value;
                         await this.plugin.saveSettings();
                     }));
+        }
+
+        if (provider === 'claude' || provider === 'google-claude') {
+            new Setting(containerEl)
+                .setName('Anthropic API key')
+                .setDesc('Your Anthropic API key for Claude')
+                .addText(text => text
+                    .setPlaceholder('Enter Anthropic API key')
+                    .setValue(this.plugin.settings.anthropicApiKey)
+                    .onChange(async (value) => {
+                        this.plugin.settings.anthropicApiKey = value;
+                        await this.plugin.saveSettings();
+                    }));
+        }
+
+        if (provider === 'openrouter' || provider === 'google-openrouter') {
+            new Setting(containerEl)
+                .setName('OpenRouter API key')
+                .setDesc('Your OpenRouter API key')
+                .addText(text => text
+                    .setPlaceholder('Enter OpenRouter API key')
+                    .setValue(this.plugin.settings.openrouterApiKey)
+                    .onChange(async (value) => {
+                        this.plugin.settings.openrouterApiKey = value;
+                        await this.plugin.saveSettings();
+                    }));
+
+            new Setting(containerEl)
+                .setName('OpenRouter Model')
+                .setDesc('Select the AI model to use for news generation')
+                .addDropdown(dropdown => {
+                    OPENROUTER_MODELS.forEach(model => {
+                        dropdown.addOption(model.id, model.name);
+                    });
+                    return dropdown
+                        .setValue(this.plugin.settings.openrouterModel)
+                        .onChange(async (value) => {
+                            this.plugin.settings.openrouterModel = value;
+                            await this.plugin.saveSettings();
+                        });
+                });
         }
 
         // News Configuration section

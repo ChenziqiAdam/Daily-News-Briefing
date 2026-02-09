@@ -18,5 +18,11 @@
   },
   "include": [
     "**/*.ts"
+  ],
+  "exclude": [
+    "tests/**/*",
+    "vitest.config.ts",
+    "vitest.setup.ts",
+    "node_modules"
   ]
 }

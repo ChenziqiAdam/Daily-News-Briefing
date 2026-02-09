@@ -8,6 +8,18 @@ data.json
 
 .DS_Store
 
+# Test coverage
+/coverage
+
+# Environment files
+.env*
+
+# IDE
+.vscode/
+.idea/
+
+# Agent context files
+AGENTS.md
 GEMINI.md
 CLAUDE.md
 PROCESS.md

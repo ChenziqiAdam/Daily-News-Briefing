@@ -6,7 +6,7 @@
 
 ## ✨ Features
 
-- 🤖 **6 AI Providers**: Google Gemini (free!), OpenAI GPT, Grok, Perplexity
+- 🤖 **6 AI Providers**: Google Gemini (free!), Anthropic, OpenAI, Grok, Perplexity, OpenRouter
 - 📅 **Auto-Scheduled**: Wake up to fresh news every day
 - 🎯 **Custom Topics**: Track exactly what matters to you
 - 🌍 **6 Languages**: English, French, German, Spanish, Italian, Chinese
@@ -41,6 +41,8 @@ For detailed setup instructions, API guides, and advanced features:
 - **Perplexity**: [perplexity.ai](https://perplexity.ai/)
 - **OpenAI GPT**: [platform.openai.com](https://platform.openai.com/api-keys)
 - **Grok (xAI)**: [x.ai](https://x.ai/)
+- **Anthropic**: [console.anthropic.com](https://console.anthropic.com/)
+- **OpenRouter**: [openrouter.ai](https://openrouter.ai/keys)
 
 ## 📱 Usage
 

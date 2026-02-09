@@ -95,7 +95,7 @@ export class MetadataUtils {
 
         if (settings.includeTags) {
             // Generate tags from topics and add some standard tags
-            const topicTags = settings.topics.map(topic => 
+            const topicTags = settings.topics.map(topic =>
                 topic.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
             );
             const standardTags = ['daily-news', settings.apiProvider];
@@ -110,12 +110,29 @@ export class MetadataUtils {
                 case 'google-gpt':
                     metadata.source = 'Google Search + OpenAI GPT';
                     break;
+                case 'google-grok':
+                    metadata.source = 'Google Search + Grok';
+                    break;
+                case 'google-claude':
+                    metadata.source = 'Google Search + Anthropic Claude';
+                    break;
+                case 'google-openrouter':
+                    metadata.source = 'Google Search + OpenRouter';
+                    break;
                 case 'sonar':
                     metadata.source = 'Perplexity Sonar';
                     break;
                 case 'gpt':
                     metadata.source = 'OpenAI GPT';
                     break;
+                case 'grok':
+                    metadata.source = 'Grok';
+                    break;
+                case 'claude':
+                    metadata.source = 'Anthropic Claude';
+                    break;
+                case 'openrouter':
+                    metadata.source = 'OpenRouter';
             }
         }
 

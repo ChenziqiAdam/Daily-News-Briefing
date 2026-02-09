@@ -1,6 +1,8 @@
+import { CLAUDE_MODEL_NAME } from './constants';
+
 export interface DailyNewsSettings {
     // API provider selection
-    apiProvider: 'google-gemini' | 'google-gpt' | 'sonar' | 'gpt' | 'google-grok' | 'grok';
+    apiProvider: 'google-gemini' | 'google-gpt' | 'sonar' | 'gpt' | 'google-grok' | 'grok' | 'claude' | 'openrouter' | 'google-claude' | 'google-openrouter';
 
     // Google API settings
     googleSearchApiKey: string;
@@ -15,6 +17,13 @@ export interface DailyNewsSettings {
 
     // Grok API settings
     grokApiKey: string;
+
+    // Anthropic API settings
+    anthropicApiKey: string;
+
+    // OpenRouter API settings
+    openrouterApiKey: string;
+    openrouterModel: string;
     
     // Core functionality
     topics: string[];
@@ -80,7 +89,14 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
 
     // Grok API settings
     grokApiKey: '',
-    
+
+    // Anthropic API settings
+    anthropicApiKey: '',
+
+    // OpenRouter API settings
+    openrouterApiKey: '',
+    openrouterModel: CLAUDE_MODEL_NAME,
+
     // Core functionality
     topics: ['Technology', 'World News'],
     scheduleTime: '08:00',
