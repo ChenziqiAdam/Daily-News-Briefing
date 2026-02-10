@@ -197,18 +197,18 @@ export default class DailyNewsPlugin extends Plugin {
 
             // Analyze results
             const analysis = ContentUtils.analyzeTopicResults(topicStatuses);
-                
-            // Decide whether to create the note
+
+            // Log warning if all topics failed, but still create the note
             if (analysis.allTopicsFailed || !analysis.atLeastOneSuccessfulTopic) {
-                const errorMessage = analysis.atLeastOneNewsItem 
-                    ? 'News was retrieved for some topics, but summarization failed for all of them.' 
+                const errorMessage = analysis.atLeastOneNewsItem
+                    ? 'News was retrieved for some topics, but summarization failed for all of them.'
                     : 'Failed to retrieve news for any topics.';
-                
+
+                console.warn(`${errorMessage} Creating note with error information.\nError details:\n${analysis.errorSummary}`);
+
                 if (this.settings.enableNotifications) {
-                    new Notice(`${errorMessage} No note was created.`, 5000);
+                    new Notice(`${errorMessage} Creating note with error details.`, 5000);
                 }
-                console.error(`${errorMessage} No note was created.\nError details:\n${analysis.errorSummary}`);
-                return null;
             }
 
             // Create folder if it doesn't exist
@@ -218,7 +218,7 @@ export default class DailyNewsPlugin extends Plugin {
                 }
             } catch (folderError) {
                 console.error("Failed to create folder:", folderError);
-                new Notice('Failed to create archive folder', 5000);
+                new Notice('Failed to create archive folder. Cannot create note.', 5000);
                 return null;
             }
 
@@ -296,30 +296,54 @@ export default class DailyNewsPlugin extends Plugin {
                 templateFileContent
             );
 
-            await this.app.vault.create(fileName, content);
+            // Always attempt to create the note with content (even if it contains errors)
+            try {
+                await this.app.vault.create(fileName, content);
 
-            // Clean up old cache entries (keep only today's caches)
-            const cacheKeys = Object.keys(this.settings.dailyTopicCache);
-            for (const key of cacheKeys) {
-                // Remove entries that don't start with today's date
-                if (!key.startsWith(date + '_')) {
-                    delete this.settings.dailyTopicCache[key];
+                // Clean up old cache entries (keep only today's caches)
+                const cacheKeys = Object.keys(this.settings.dailyTopicCache);
+                for (const key of cacheKeys) {
+                    // Remove entries that don't start with today's date
+                    if (!key.startsWith(date + '_')) {
+                        delete this.settings.dailyTopicCache[key];
+                    }
                 }
+
+                // Save settings to persist the cache
+                await this.saveSettings();
+
+                if (this.settings.enableNotifications) {
+                    if (analysis.allTopicsFailed || !analysis.atLeastOneSuccessfulTopic) {
+                        new Notice('Daily news note created with errors. Please check the note.', 4000);
+                    } else {
+                        new Notice('Daily news generated successfully', 3000);
+                    }
+                }
+
+                return fileName;
+            } catch (createError) {
+                console.error('Failed to create note file:', createError);
+                new Notice('Failed to create note file. Check console for details.', 5000);
+                return null;
             }
 
-            // Save settings to persist the cache
-            await this.saveSettings();
-
-            if (this.settings.enableNotifications) {
-                new Notice('Daily news generated successfully', 3000);
-            }
-
-            return fileName;
-            
         } catch (error) {
             console.error('Failed to generate news:', error);
-            new Notice('Failed to generate news. Check console for details.', 5000);
-            return null;
+
+            // Last resort: try to create a note with the error message
+            try {
+                const archiveFolder = FileUtils.normalizePath(this.settings.archiveFolder);
+                const fileName = `${archiveFolder}/Daily News - ${date}.md`;
+                const errorContent = `# Daily News - ${date}\n\n**Error generating news**\n\nAn unexpected error occurred:\n\n\`\`\`\n${error.message}\n\`\`\`\n\nPlease check the console for more details.`;
+
+                await this.app.vault.create(fileName, errorContent);
+                new Notice('Failed to generate news. Error note created.', 5000);
+                return fileName;
+            } catch (fallbackError) {
+                console.error('Failed to create error note:', fallbackError);
+                new Notice('Failed to generate news. Could not create error note.', 5000);
+                return null;
+            }
         }
     }
 
