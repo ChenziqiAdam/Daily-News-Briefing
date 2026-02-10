@@ -108,10 +108,10 @@ export default class DailyNewsPlugin extends Plugin {
 
         const date = new Date().toISOString().split('T')[0];
         const processingStartTime = Date.now();
-        
+
         try {
             new Notice('Generating daily news...');
-            
+
             // Normalize the path
             const archiveFolder = FileUtils.normalizePath(this.settings.archiveFolder);
             const fileName = `${archiveFolder}/Daily News - ${date}.md`;
@@ -127,6 +127,18 @@ export default class DailyNewsPlugin extends Plugin {
 
             // Process each topic
             for (const topic of this.settings.topics) {
+                // Create per-topic cache key
+                const topicCacheKey = `${date}_${this.settings.apiProvider}_${topic}`;
+
+                // Check if this topic is already cached
+                if (this.settings.dailyTopicCache[topicCacheKey]) {
+                    new Notice(`Using cached content for ${topic}...`);
+                    const cachedTopicContent = this.settings.dailyTopicCache[topicCacheKey];
+                    topicStatuses.push(cachedTopicContent.status);
+                    topicContents.push(cachedTopicContent);
+                    continue;
+                }
+
                 const topicStatus: TopicStatus = {
                     topic: topic,
                     retrievalSuccess: false,
@@ -170,12 +182,17 @@ export default class DailyNewsPlugin extends Plugin {
                     topicContent = `${LanguageUtils.getTranslation('errorRetrieving', this.settings.language)} ${topic}. Please try again later.\n\n`;
                 }
 
-                topicStatuses.push(topicStatus);
-                topicContents.push({
+                const topicContentObj: TopicContent = {
                     topic: topic,
                     content: topicContent,
                     status: topicStatus
-                });
+                };
+
+                topicStatuses.push(topicStatus);
+                topicContents.push(topicContentObj);
+
+                // Cache this topic's content
+                this.settings.dailyTopicCache[topicCacheKey] = topicContentObj;
             }
 
             // Analyze results
@@ -280,11 +297,23 @@ export default class DailyNewsPlugin extends Plugin {
             );
 
             await this.app.vault.create(fileName, content);
-            
+
+            // Clean up old cache entries (keep only today's caches)
+            const cacheKeys = Object.keys(this.settings.dailyTopicCache);
+            for (const key of cacheKeys) {
+                // Remove entries that don't start with today's date
+                if (!key.startsWith(date + '_')) {
+                    delete this.settings.dailyTopicCache[key];
+                }
+            }
+
+            // Save settings to persist the cache
+            await this.saveSettings();
+
             if (this.settings.enableNotifications) {
                 new Notice('Daily news generated successfully', 3000);
             }
-            
+
             return fileName;
             
         } catch (error) {

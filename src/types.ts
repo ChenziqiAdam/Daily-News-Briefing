@@ -73,6 +73,7 @@ export interface DailyNewsSettings {
 
     // Cache settings
     queryCache: { [topic: string]: string }; // AI-generated query cache: topic -> query
+    dailyTopicCache: { [cacheKey: string]: TopicContent }; // Per-topic cache: "date_provider_topic" -> TopicContent
 }
 
 export const DEFAULT_SETTINGS: DailyNewsSettings = {
@@ -147,7 +148,8 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
     templateFilePath: '',
 
     // Cache settings
-    queryCache: {}
+    queryCache: {},
+    dailyTopicCache: {}
 }
 export interface NewsItem {
     title: string;

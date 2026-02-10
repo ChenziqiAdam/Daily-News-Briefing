@@ -533,6 +533,19 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         }));
 
                 new Setting(containerEl)
+                    .setName('Clear daily topic cache')
+                    .setDesc(`Clear cached daily news topics (${Object.keys(this.plugin.settings.dailyTopicCache).length} topics cached)`)
+                    .addButton(button => button
+                        .setButtonText('Clear cache')
+                        .setWarning()
+                        .onClick(async () => {
+                            this.plugin.settings.dailyTopicCache = {};
+                            await this.plugin.saveSettings();
+                            new Notice('Daily topic cache cleared successfully');
+                            this.display();
+                        }));
+
+                new Setting(containerEl)
                     .setName('Search date range')
                     .setDesc('How far back to search (d1 = 1 day, d2 = 2 days, w1 = 1 week)')
                     .addText(text => text
