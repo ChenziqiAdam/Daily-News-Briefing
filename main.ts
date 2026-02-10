@@ -60,7 +60,10 @@ export default class DailyNewsPlugin extends Plugin {
     }
 
     private initializeNewsProvider() {
-        this.newsProvider = NewsProviderFactory.createProvider(this.settings);
+        this.newsProvider = NewsProviderFactory.createProvider(
+            this.settings,
+            async () => await this.saveSettings()
+        );
     }
 
     private buildTopicsSections(topicContents: TopicContent[]): string {

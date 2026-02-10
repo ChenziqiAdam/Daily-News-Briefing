@@ -14,40 +14,40 @@ import { PerplexityNewsProvider } from './agentic/perplexity-provider';
 import { SearchSummarizeCoordinator } from './coordinators/search-summarize-coordinator';
 
 export class NewsProviderFactory {
-    static createProvider(settings: DailyNewsSettings): BaseNewsProvider {
+    static createProvider(settings: DailyNewsSettings, saveSettingsCallback?: () => Promise<void>): BaseNewsProvider {
         switch (settings.apiProvider) {
             case 'google-gemini':
                 return new SearchSummarizeCoordinator(
                     settings,
-                    new GoogleSearchRetriever(settings),
+                    new GoogleSearchRetriever(settings, saveSettingsCallback),
                     new GeminiSummarizer(settings),
                     'Google Search + Gemini Summarizer'
                 );
             case 'google-gpt':
                 return new SearchSummarizeCoordinator(
                     settings,
-                    new GoogleSearchRetriever(settings),
+                    new GoogleSearchRetriever(settings, saveSettingsCallback),
                     new GptSummarizer(settings),
                     'Google Search + GPT Summarizer'
                 );
             case 'google-grok':
                 return new SearchSummarizeCoordinator(
                     settings,
-                    new GoogleSearchRetriever(settings),
+                    new GoogleSearchRetriever(settings, saveSettingsCallback),
                     new GrokSummarizer(settings),
                     'Google Search + Grok Summarizer'
                 );
             case 'google-claude':
                 return new SearchSummarizeCoordinator(
                     settings,
-                    new GoogleSearchRetriever(settings),
+                    new GoogleSearchRetriever(settings, saveSettingsCallback),
                     new ClaudeSummarizer(settings),
                     'Google Search + Claude Summarizer'
                 );
             case 'google-openrouter':
                 return new SearchSummarizeCoordinator(
                     settings,
-                    new GoogleSearchRetriever(settings),
+                    new GoogleSearchRetriever(settings, saveSettingsCallback),
                     new OpenRouterSummarizer(settings),
                     'Google Search + OpenRouter Summarizer'
                 );

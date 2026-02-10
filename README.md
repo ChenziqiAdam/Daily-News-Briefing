@@ -188,6 +188,7 @@ Contributions welcome! We especially appreciate:
 
 - [x] **More Providers** - Support for more LLM options (Issue #6)
 - [ ] **Cache Daily News Content** - Avoid redundant generation
+- [x] **Cache AI-generated Queries** - Reduce token cost
 - [ ] **More Web Search Choices** - Replacement of Google Search
 
 ### Contributors

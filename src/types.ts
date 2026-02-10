@@ -70,6 +70,9 @@ export interface DailyNewsSettings {
     templateType: 'default' | 'minimal' | 'detailed' | 'custom' | 'file';
     customTemplate: string; // Custom template with placeholders
     templateFilePath: string; // Path to template note file
+
+    // Cache settings
+    queryCache: { [topic: string]: string }; // AI-generated query cache: topic -> query
 }
 
 export const DEFAULT_SETTINGS: DailyNewsSettings = {
@@ -141,7 +144,10 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
     // Template settings
     templateType: 'default',
     customTemplate: '',
-    templateFilePath: ''
+    templateFilePath: '',
+
+    // Cache settings
+    queryCache: {}
 }
 export interface NewsItem {
     title: string;

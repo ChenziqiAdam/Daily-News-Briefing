@@ -6,10 +6,11 @@ import type { NewsRetriever } from './base-retriever';
 
 export class GoogleSearchRetriever implements NewsRetriever {
     private settings: DailyNewsSettings;
-    private searchCache: Map<string, string> = new Map();
+    private saveSettingsCallback?: () => Promise<void>;
 
-    constructor(settings: DailyNewsSettings) {
+    constructor(settings: DailyNewsSettings, saveSettingsCallback?: () => Promise<void>) {
         this.settings = settings;
+        this.saveSettingsCallback = saveSettingsCallback;
     }
 
     async fetchNews(topic: string): Promise<NewsItem[]> {
@@ -95,15 +96,17 @@ export class GoogleSearchRetriever implements NewsRetriever {
     }
 
     private async generateAISearchQuery(topic: string): Promise<string | null> {
-        if (this.searchCache.has(topic)) {
-            return this.searchCache.get(topic)!;
+        // Check persistent cache first
+        if (this.settings.queryCache[topic]) {
+            console.log(`Using cached query for topic: ${topic}`);
+            return this.settings.queryCache[topic];
         }
 
         try {
             if (!this.settings.geminiApiKey) {
                 return null;
             }
-            
+
             const genAI = new GoogleGenerativeAI(this.settings.geminiApiKey);
             const model = genAI.getGenerativeModel({
                 model: GEMINI_MODEL_NAME,
@@ -113,7 +116,7 @@ export class GoogleSearchRetriever implements NewsRetriever {
                     maxOutputTokens: 100
                 }
             });
-            
+
             const prompt = `You are a search optimization expert. Create a Google search query for the topic "${topic}" that will find recent news articles.
 The generated query should:
 1. Be broad enough to catch a variety of news on this topic
@@ -127,9 +130,17 @@ Only return the search query string itself, without any explanations or addition
 
             const result = await model.generateContent(prompt);
             const query = result.response.text().trim();
-            
+
             if (query && query.length > 0 && query.length < 200) {
-                this.searchCache.set(topic, query);
+                // Store in persistent cache (will be saved with settings)
+                this.settings.queryCache[topic] = query;
+                console.log(`Generated and cached new query for topic: ${topic}`);
+
+                // Save settings to persist cache
+                if (this.saveSettingsCallback) {
+                    await this.saveSettingsCallback();
+                }
+
                 return query;
             }
             return null;
