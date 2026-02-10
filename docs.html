@@ -77,6 +77,15 @@
 
         /* Mermaid diagram theming */
         .mermaid { background: #1a1a1a; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid #333; }
+
+        /* Collapsible details styling */
+        details { border: 1px solid #333; border-radius: 0.5rem; padding: 1rem; background: #161616; margin-bottom: 1rem; }
+        details[open] { background: #1a1a1a; }
+        details summary { cursor: pointer; user-select: none; font-weight: 600; }
+        details summary:hover { color: #d8b4fe; }
+        details summary i { transition: transform 0.2s; display: inline-block; }
+        details[open] summary i.fa-chevron-right { transform: rotate(90deg); }
+        details[open] summary i.fa-chevron-down { transform: rotate(0deg); }
     </style>
 </head>
 <body class="relative overflow-x-hidden">
@@ -121,6 +130,7 @@
                 <a href="#usage">Usage</a>
                 <a href="#workflow" class="pl-6">Workflow</a>
                 <a href="#languages">Languages</a>
+                <a href="#changelog">Changelog</a>
                 <a href="#troubleshooting">Troubleshooting</a>
                 <a href="#advanced">Advanced</a>
             </nav>
@@ -130,25 +140,41 @@
         <main class="flex-1 max-w-4xl docs-content">
 
             <h1 class="text-5xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-400">Documentation</h1>
-            <p class="text-xl text-gray-400 mb-12">Complete guide to Daily News Briefing for Obsidian</p>
+            <p class="text-xl text-gray-400 mb-8">Complete guide to Daily News Briefing for Obsidian</p>
+
+            <div class="alert alert-success mb-12">
+                <strong>🎉 Latest Update (v1.10.1):</strong> Reduced token costs with AI-generated query caching and daily news content caching. Now more efficient than ever!
+            </div>
 
             <!-- Overview -->
             <section id="overview">
                 <h2>Overview</h2>
                 <p>Daily News Briefing is an Obsidian plugin that automatically generates AI-powered news summaries on topics you care about, delivered directly to your vault as markdown notes.</p>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-8">
                     <div class="feature-box">
-                        <h5><i class="fa-solid fa-robot"></i> 8 AI Providers</h5>
-                        <p class="text-sm">Choose from Google Gemini (free), OpenAI, Grok, Perplexity, Anthropic, or OpenRouter</p>
+                        <h5><i class="fa-solid fa-robot mr-2"></i>6 AI Providers</h5>
+                        <p class="text-sm">Google Gemini (free!), Anthropic, OpenAI, Grok, Perplexity, OpenRouter</p>
                     </div>
                     <div class="feature-box">
-                        <h5><i class="fa-solid fa-calendar"></i> Auto-Scheduled</h5>
+                        <h5><i class="fa-solid fa-calendar mr-2"></i>Auto-Scheduled</h5>
                         <p class="text-sm">Set your time, wake up to fresh news every morning</p>
                     </div>
                     <div class="feature-box">
-                        <h5><i class="fa-solid fa-globe"></i> 6 Languages</h5>
+                        <h5><i class="fa-solid fa-language mr-2"></i>6 Languages</h5>
                         <p class="text-sm">English, French, German, Spanish, Italian, Chinese</p>
+                    </div>
+                    <div class="feature-box">
+                        <h5><i class="fa-solid fa-paint-brush mr-2"></i>Flexible Templates</h5>
+                        <p class="text-sm">5 presets + custom templates with 25 placeholders</p>
+                    </div>
+                    <div class="feature-box">
+                        <h5><i class="fa-solid fa-gauge-high mr-2"></i>Smart Caching</h5>
+                        <p class="text-sm">Reduced token cost with AI query & content caching</p>
+                    </div>
+                    <div class="feature-box">
+                        <h5><i class="fa-solid fa-hand-pointer mr-2"></i>One-Click Access</h5>
+                        <p class="text-sm">Sidebar button for instant news generation</p>
                     </div>
                 </div>
 
@@ -172,17 +198,20 @@ graph LR
             <!-- Installation -->
             <section id="installation">
                 <h2>Installation</h2>
+                <p>Get started in 3 easy steps - takes less than 5 minutes!</p>
 
-                <h3>Step 1: Install from Community Plugins</h3>
-                <ol>
-                    <li>Open Obsidian Settings</li>
-                    <li>Navigate to <strong>Community Plugins</strong> → Turn off <strong>Safe Mode</strong></li>
-                    <li>Click <strong>Browse</strong> → Search for <strong>"Daily News Briefing"</strong></li>
-                    <li>Click <strong>Install</strong> → <strong>Enable</strong></li>
-                </ol>
+                <h3>📦 Step 1: Install from Community Plugins</h3>
+                <div class="feature-box">
+                    <ol>
+                        <li>Open <strong>Obsidian Settings</strong> (gear icon)</li>
+                        <li>Navigate to <strong>Community Plugins</strong> → Turn off <strong>Safe Mode</strong></li>
+                        <li>Click <strong>Browse</strong> → Search for <strong>"Daily News Briefing"</strong></li>
+                        <li>Click <strong>Install</strong> → <strong>Enable</strong></li>
+                    </ol>
+                </div>
 
-                <h3 id="pipelines">Step 2: Choose Your AI Pipeline</h3>
-                <p>The plugin supports <strong>8 different AI pipelines</strong> organized into two architectures:</p>
+                <h3 id="pipelines">🤖 Step 2: Choose Your AI Pipeline</h3>
+                <p>The plugin offers <strong>8 AI pipelines</strong> across two architectures. Choose based on your needs:</p>
 
                 <h4>Architecture Comparison</h4>
 
@@ -326,114 +355,159 @@ graph LR
                     <strong>💡 Recommendation:</strong> We recommend <strong>Google + Gemini</strong> because it's completely free to operate using Google's generous free tiers. Perfect for getting started!
                 </div>
 
-                <h3 id="api-setup">Step 3: API Setup Guides</h3>
+                <h3 id="api-setup">🔑 Step 3: API Setup Guides</h3>
+                <p>Follow the setup guide for your chosen provider. Click to expand:</p>
 
-                <h4>Option A: Perplexity (Agentic Search)</h4>
-                <div class="feature-box">
-                    <h5>Setup Steps</h5>
-                    <ol>
-                        <li>Visit <a href="https://perplexity.ai/" target="_blank">Perplexity API</a> and create an account</li>
-                        <li>Navigate to API settings and generate your API key</li>
-                        <li>In plugin settings, choose <strong>"Perplexity (Agentic Search)"</strong></li>
-                        <li>Paste your key in the <strong>"Perplexity API key"</strong> field</li>
-                    </ol>
-                    <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>sonar</code> with built-in web search capabilities</p>
+                <div class="alert alert-info my-6">
+                    <strong>Quick Comparison:</strong><br>
+                    • <strong>Easiest:</strong> Perplexity, OpenAI, Grok, Anthropic, OpenRouter (1 API key)<br>
+                    • <strong>Free:</strong> Google + Gemini (3 free API keys)<br>
+                    • <strong>Best Quality:</strong> Google + GPT or Google + Claude (advanced control)<br>
+                    • <strong>Most Flexible:</strong> OpenRouter (5 models, 1 API key)
                 </div>
 
-                <h4>Option B: OpenAI GPT (Agentic Search)</h4>
-                <div class="feature-box">
-                    <h5>Setup Steps</h5>
-                    <ol>
-                        <li>Visit <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API</a></li>
-                        <li>Create or copy your API key</li>
-                        <li>In plugin settings, choose <strong>"OpenAI GPT (Agentic Search)"</strong></li>
-                        <li>Paste your key in the <strong>"OpenAI API key"</strong> field</li>
-                    </ol>
-                    <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>gpt-5-search-api</code> with integrated web search</p>
-                </div>
+                <details class="my-4">
+                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span>Option A: Perplexity (Agentic Search)</span>
+                        <span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span>
+                    </summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <h5>Setup Steps</h5>
+                        <ol>
+                            <li>Visit <a href="https://perplexity.ai/" target="_blank">Perplexity API</a> and create an account</li>
+                            <li>Navigate to API settings and generate your API key</li>
+                            <li>In plugin settings, choose <strong>"Perplexity (Agentic Search)"</strong></li>
+                            <li>Paste your key in the <strong>"Perplexity API key"</strong> field</li>
+                        </ol>
+                        <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>sonar</code> with built-in web search capabilities</p>
+                    </div>
+                </details>
 
-                <h4>Option C: Grok (Agentic Search)</h4>
-                <div class="feature-box">
-                    <h5>Setup Steps</h5>
-                    <ol>
-                        <li>Visit <a href="https://x.ai/" target="_blank">xAI Grok API</a></li>
-                        <li>Generate your API key</li>
-                        <li>In plugin settings, choose <strong>"Grok (Agentic Search)"</strong></li>
-                        <li>Paste your key in the <strong>"Grok API key"</strong> field</li>
-                    </ol>
-                    <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>grok-4-fast</code> with real-time X platform data</p>
-                </div>
+                <details class="my-4">
+                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span>Option B: OpenAI GPT (Agentic Search)</span>
+                        <span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span>
+                    </summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <h5>Setup Steps</h5>
+                        <ol>
+                            <li>Visit <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API</a></li>
+                            <li>Create or copy your API key</li>
+                            <li>In plugin settings, choose <strong>"OpenAI GPT (Agentic Search)"</strong></li>
+                            <li>Paste your key in the <strong>"OpenAI API key"</strong> field</li>
+                        </ol>
+                        <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>gpt-5-search-api</code> with integrated web search</p>
+                    </div>
+                </details>
 
-                <h4>Option C2: Anthropic Claude (Agentic Search)</h4>
-                <div class="feature-box">
-                    <h5>Setup Steps</h5>
-                    <ol>
-                        <li>Visit <a href="https://console.anthropic.com/" target="_blank">Anthropic Console</a></li>
-                        <li>Create or copy your API key</li>
-                        <li>In plugin settings, choose <strong>"Anthropic Claude (Agentic Search)"</strong></li>
-                        <li>Paste your key in the <strong>"Anthropic API key"</strong> field</li>
-                    </ol>
-                    <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>claude-sonnet-4-5-20250929</code> with advanced reasoning and web search</p>
-                </div>
+                <details class="my-4">
+                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span>Option C: Grok (Agentic Search)</span>
+                        <span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span>
+                    </summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <h5>Setup Steps</h5>
+                        <ol>
+                            <li>Visit <a href="https://x.ai/" target="_blank">xAI Grok API</a></li>
+                            <li>Generate your API key</li>
+                            <li>In plugin settings, choose <strong>"Grok (Agentic Search)"</strong></li>
+                            <li>Paste your key in the <strong>"Grok API key"</strong> field</li>
+                        </ol>
+                        <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>grok-4-fast</code> with real-time X platform data</p>
+                    </div>
+                </details>
 
-                <h4>Option C3: OpenRouter (Agentic Search)</h4>
-                <div class="feature-box">
-                    <h5>Setup Steps</h5>
-                    <ol>
-                        <li>Visit <a href="https://openrouter.ai/keys" target="_blank">OpenRouter API Keys</a></li>
-                        <li>Generate your API key</li>
-                        <li>In plugin settings, choose <strong>"OpenRouter (Agentic Search)"</strong></li>
-                        <li>Paste your key in the <strong>"OpenRouter API key"</strong> field</li>
-                        <li>Select your preferred model from the dropdown (5 models available)</li>
-                    </ol>
-                    <p class="text-sm text-gray-400 mt-4"><strong>Available Models:</strong></p>
-                    <ul class="text-sm text-gray-400">
-                        <li><code>anthropic/claude-4.5-sonnet</code> - Claude 4.5 Sonnet (default)</li>
-                        <li><code>openai/gpt-4o</code> - GPT-4o</li>
-                        <li><code>google/gemini-2.5-flash</code> - Gemini Flash 2.5</li>
-                        <li><code>mistralai/mistral-large</code> - Mistral Large</li>
-                        <li><code>meta-llama/llama-3.1-70b-instruct</code> - Llama 3.1 70B</li>
-                    </ul>
-                </div>
+                <details class="my-4">
+                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span>Option D: Anthropic Claude (Agentic Search)</span>
+                        <span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span>
+                    </summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <h5>Setup Steps</h5>
+                        <ol>
+                            <li>Visit <a href="https://console.anthropic.com/" target="_blank">Anthropic Console</a></li>
+                            <li>Create or copy your API key</li>
+                            <li>In plugin settings, choose <strong>"Anthropic Claude (Agentic Search)"</strong></li>
+                            <li>Paste your key in the <strong>"Anthropic API key"</strong> field</li>
+                        </ol>
+                        <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>claude-sonnet-4-5-20250929</code> with advanced reasoning and web search</p>
+                    </div>
+                </details>
 
-                <h4>Option D: Google Search + Gemini (FREE Recommended)</h4>
-                <div class="feature-box">
-                    <h5>Setup Steps (3 Free API Keys Required)</h5>
+                <details class="my-4">
+                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span>Option E: OpenRouter (Agentic Search)</span>
+                        <span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span>
+                    </summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <h5>Setup Steps</h5>
+                        <ol>
+                            <li>Visit <a href="https://openrouter.ai/keys" target="_blank">OpenRouter API Keys</a></li>
+                            <li>Generate your API key</li>
+                            <li>In plugin settings, choose <strong>"OpenRouter (Agentic Search)"</strong></li>
+                            <li>Paste your key in the <strong>"OpenRouter API key"</strong> field</li>
+                            <li>Select your preferred model from the dropdown (5 models available)</li>
+                        </ol>
+                        <p class="text-sm text-gray-400 mt-4"><strong>Available Models:</strong></p>
+                        <ul class="text-sm text-gray-400">
+                            <li><code>anthropic/claude-4.5-sonnet</code> - Claude 4.5 Sonnet (default)</li>
+                            <li><code>openai/gpt-4o</code> - GPT-4o</li>
+                            <li><code>google/gemini-2.5-flash</code> - Gemini Flash 2.5</li>
+                            <li><code>mistralai/mistral-large</code> - Mistral Large</li>
+                            <li><code>meta-llama/llama-3.1-70b-instruct</code> - Llama 3.1 70B</li>
+                        </ul>
+                    </div>
+                </details>
 
-                    <p><strong>1. Google Custom Search API Key (FREE):</strong></p>
-                    <ul>
-                        <li>Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
-                        <li>Create a new project or select existing</li>
-                        <li>Enable "Custom Search API"</li>
-                        <li>Go to Credentials → Create Credentials → API Key</li>
-                        <li>Copy the generated API key</li>
-                    </ul>
+                <details class="my-4" open>
+                    <summary class="cursor-pointer text-green-400 hover:text-green-300 font-semibold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-down"></i>
+                        <span>⭐ Option F: Google Search + Gemini (FREE - RECOMMENDED)</span>
+                        <span class="badge badge-free">FREE</span>
+                    </summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <h5>Setup Steps (3 Free API Keys Required)</h5>
 
-                    <p><strong>2. Google Search Engine ID (FREE):</strong></p>
-                    <ul>
-                        <li>Visit <a href="https://programmablesearchengine.google.com/controlpanel/all" target="_blank">Programmable Search Engine</a></li>
-                        <li>Click "Add" to create new search engine</li>
-                        <li>Under "Sites to search", select <strong>"Search the entire web"</strong></li>
-                        <li>Create the search engine</li>
-                        <li>Copy the Search Engine ID from the overview page</li>
-                    </ul>
+                        <p><strong>1. Google Custom Search API Key (FREE):</strong></p>
+                        <ul>
+                            <li>Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+                            <li>Create a new project or select existing</li>
+                            <li>Enable "Custom Search API"</li>
+                            <li>Go to Credentials → Create Credentials → API Key</li>
+                            <li>Copy the generated API key</li>
+                        </ul>
 
-                    <p><strong>3. Gemini API Key (FREE):</strong></p>
-                    <ul>
-                        <li>Go to <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></li>
-                        <li>Click "Get API Key"</li>
-                        <li>Create or select a project</li>
-                        <li>Copy the generated key</li>
-                    </ul>
+                        <p><strong>2. Google Search Engine ID (FREE):</strong></p>
+                        <ul>
+                            <li>Visit <a href="https://programmablesearchengine.google.com/controlpanel/all" target="_blank">Programmable Search Engine</a></li>
+                            <li>Click "Add" to create new search engine</li>
+                            <li>Under "Sites to search", select <strong>"Search the entire web"</strong></li>
+                            <li>Create the search engine</li>
+                            <li>Copy the Search Engine ID from the overview page</li>
+                        </ul>
 
-                    <p><strong>4. Configure in Plugin:</strong></p>
-                    <ul>
-                        <li>Choose <strong>"Google Search + Gemini Summarizer"</strong> as your News Pipeline</li>
-                        <li>Enter all three keys in their respective fields</li>
-                    </ul>
+                        <p><strong>3. Gemini API Key (FREE):</strong></p>
+                        <ul>
+                            <li>Go to <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></li>
+                            <li>Click "Get API Key"</li>
+                            <li>Create or select a project</li>
+                            <li>Copy the generated key</li>
+                        </ul>
 
-                    <p class="text-sm text-gray-400 mt-4"><strong>Models:</strong> Google Custom Search API + <code>gemini-2.5-flash</code></p>
-                </div>
+                        <p><strong>4. Configure in Plugin:</strong></p>
+                        <ul>
+                            <li>Choose <strong>"Google Search + Gemini Summarizer"</strong> as your News Pipeline</li>
+                            <li>Enter all three keys in their respective fields</li>
+                        </ul>
+
+                        <p class="text-sm text-gray-400 mt-4"><strong>Models:</strong> Google Custom Search API + <code>gemini-2.5-flash</code></p>
+                    </div>
+                </details>
 
                 <div class="alert alert-success">
                     <strong>✅ Free Tier Limits:</strong><br>
@@ -442,46 +516,70 @@ graph LR
                     • Perfect for daily news generation!
                 </div>
 
-                <h4>Option E: Google Search + GPT Summarizer</h4>
-                <div class="feature-box">
-                    <h5>Setup Steps</h5>
-                    <p>Requires the same Google keys as Option D, plus:</p>
-                    <ul>
-                        <li><strong>OpenAI API Key:</strong> Get from <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API</a></li>
-                    </ul>
-                    <p>In plugin settings, choose <strong>"Google Search + GPT Summarizer"</strong> and enter all three keys.</p>
-                </div>
+                <details class="my-4">
+                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span>Option G: Google Search + GPT Summarizer</span>
+                        <span class="badge badge-paid">Paid</span>
+                    </summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <h5>Setup Steps</h5>
+                        <p>Requires the same Google keys as Option F, plus:</p>
+                        <ul>
+                            <li><strong>OpenAI API Key:</strong> Get from <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API</a></li>
+                        </ul>
+                        <p>In plugin settings, choose <strong>"Google Search + GPT Summarizer"</strong> and enter all keys.</p>
+                    </div>
+                </details>
 
-                <h4>Option F: Google Search + Grok Summarizer</h4>
-                <div class="feature-box">
-                    <h5>Setup Steps</h5>
-                    <p>Requires the same Google keys as Option D, plus:</p>
-                    <ul>
-                        <li><strong>Grok API Key:</strong> Get from <a href="https://x.ai/" target="_blank">xAI</a></li>
-                    </ul>
-                    <p>In plugin settings, choose <strong>"Google Search + Grok Summarizer"</strong> and enter all three keys.</p>
-                </div>
+                <details class="my-4">
+                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span>Option H: Google Search + Grok Summarizer</span>
+                        <span class="badge badge-paid">Paid</span>
+                    </summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <h5>Setup Steps</h5>
+                        <p>Requires the same Google keys as Option F, plus:</p>
+                        <ul>
+                            <li><strong>Grok API Key:</strong> Get from <a href="https://x.ai/" target="_blank">xAI</a></li>
+                        </ul>
+                        <p>In plugin settings, choose <strong>"Google Search + Grok Summarizer"</strong> and enter all keys.</p>
+                    </div>
+                </details>
 
-                <h4>Option G: Google Search + Claude Summarizer</h4>
-                <div class="feature-box">
-                    <h5>Setup Steps</h5>
-                    <p>Requires the same Google keys as Option D, plus:</p>
-                    <ul>
-                        <li><strong>Anthropic API Key:</strong> Get from <a href="https://console.anthropic.com/" target="_blank">Anthropic Console</a></li>
-                    </ul>
-                    <p>In plugin settings, choose <strong>"Google Search + Claude Summarizer"</strong> and enter all keys.</p>
-                </div>
+                <details class="my-4">
+                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span>Option I: Google Search + Claude Summarizer</span>
+                        <span class="badge badge-paid">Paid</span>
+                    </summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <h5>Setup Steps</h5>
+                        <p>Requires the same Google keys as Option F, plus:</p>
+                        <ul>
+                            <li><strong>Anthropic API Key:</strong> Get from <a href="https://console.anthropic.com/" target="_blank">Anthropic Console</a></li>
+                        </ul>
+                        <p>In plugin settings, choose <strong>"Google Search + Claude Summarizer"</strong> and enter all keys.</p>
+                    </div>
+                </details>
 
-                <h4>Option H: Google Search + OpenRouter Summarizer</h4>
-                <div class="feature-box">
-                    <h5>Setup Steps</h5>
-                    <p>Requires the same Google keys as Option D, plus:</p>
-                    <ul>
-                        <li><strong>OpenRouter API Key:</strong> Get from <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a></li>
-                    </ul>
-                    <p>In plugin settings, choose <strong>"Google Search + OpenRouter Summarizer"</strong>, enter all keys, and select your preferred model.</p>
-                    <p class="text-sm text-gray-400 mt-4"><strong>Tip:</strong> OpenRouter gives you access to 5 different AI models through a single API key!</p>
-                </div>
+                <details class="my-4">
+                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span>Option J: Google Search + OpenRouter Summarizer</span>
+                        <span class="badge badge-paid">Paid</span>
+                    </summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <h5>Setup Steps</h5>
+                        <p>Requires the same Google keys as Option F, plus:</p>
+                        <ul>
+                            <li><strong>OpenRouter API Key:</strong> Get from <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a></li>
+                        </ul>
+                        <p>In plugin settings, choose <strong>"Google Search + OpenRouter Summarizer"</strong>, enter all keys, and select your preferred model.</p>
+                        <p class="text-sm text-gray-400 mt-4"><strong>Tip:</strong> OpenRouter gives you access to 5 different AI models through a single API key!</p>
+                    </div>
+                </details>
 
             </section>
 
@@ -490,7 +588,26 @@ graph LR
                 <h2>Configuration</h2>
                 <p>Access all settings via: <strong>Settings → Community Plugins → Daily News Briefing → ⚙️</strong></p>
 
-                <h3 id="basic-settings">Basic Settings</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                    <div class="feature-box">
+                        <h5>⚙️ Basic Settings</h5>
+                        <p class="text-sm">Provider, topics, schedule, language, folder</p>
+                    </div>
+                    <div class="feature-box">
+                        <h5>🔍 Search Settings</h5>
+                        <p class="text-sm">Results count, date range, AI features (Google only)</p>
+                    </div>
+                    <div class="feature-box">
+                        <h5>📝 Output Settings</h5>
+                        <p class="text-sm">Format, analysis, notifications, custom prompts</p>
+                    </div>
+                    <div class="feature-box">
+                        <h5>📋 Metadata Settings</h5>
+                        <p class="text-sm">YAML frontmatter customization</p>
+                    </div>
+                </div>
+
+                <h3 id="basic-settings">⚙️ Basic Settings</h3>
                 <table>
                     <thead>
                         <tr>
@@ -546,7 +663,7 @@ graph LR
                     </tbody>
                 </table>
 
-                <h3 id="search-settings">Search Settings (Google Providers Only)</h3>
+                <h3 id="search-settings">🔍 Search Settings (Google Providers Only)</h3>
                 <div class="alert alert-info">
                     <strong>ℹ️ Note:</strong> These settings only apply when using Google Search + Summarizer pipelines.
                 </div>
@@ -611,7 +728,7 @@ graph LR
                     Results are deduplicated, filtered by quality sources, and ranked by AI for best results.
                 </div>
 
-                <h3 id="output-settings">Output Settings</h3>
+                <h3 id="output-settings">📝 Output Settings</h3>
                 <table>
                     <thead>
                         <tr>
@@ -647,7 +764,7 @@ graph LR
                     </tbody>
                 </table>
 
-                <h3 id="metadata-settings">Metadata Settings</h3>
+                <h3 id="metadata-settings">📋 Metadata Settings</h3>
                 <p>Control what appears in the YAML frontmatter of generated notes:</p>
 
                 <table>
@@ -723,9 +840,13 @@ outputFormat: "detailed"
             <!-- Templates -->
             <section id="templates">
                 <h2>Templates</h2>
-                <p>Customize how your daily news notes are formatted using one of 5 template options with 25 dynamic placeholders.</p>
+                <p>Customize how your daily news notes are formatted using <strong>5 template options</strong> with <strong>25 dynamic placeholders</strong>.</p>
 
-                <h3 id="template-types">Template Types</h3>
+                <div class="alert alert-info my-6">
+                    <strong>💡 Quick Tip:</strong> All templates support the same 25 placeholders. Start with a preset, then customize or create your own!
+                </div>
+
+                <h3 id="template-types">📄 Template Types</h3>
 
                 <div class="grid grid-cols-1 gap-4 my-6">
                     <div class="feature-box">
@@ -797,7 +918,7 @@ outputFormat: "detailed"
                     </div>
                 </div>
 
-                <h3 id="placeholders">Available Placeholders (25 Total)</h3>
+                <h3 id="placeholders">🏷️ Available Placeholders (25 Total)</h3>
                 <p>All placeholders are case-sensitive and must be wrapped in double curly braces: <code>{{PLACEHOLDER_NAME}}</code></p>
 
                 <h4>Basic Placeholders (8)</h4>
@@ -1036,8 +1157,20 @@ Return items that together give a balanced, comprehensive view.</code></pre>
             <!-- Usage -->
             <section id="usage">
                 <h2>Usage</h2>
+                <p>Two ways to generate your daily news briefing:</p>
 
-                <h3>Automatic Mode (Recommended)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                    <div class="feature-box">
+                        <h5>🕐 Automatic Mode</h5>
+                        <p class="text-sm">Set it and forget it - news generates at your scheduled time</p>
+                    </div>
+                    <div class="feature-box">
+                        <h5>👆 Manual Generation</h5>
+                        <p class="text-sm">Generate on-demand via command palette or sidebar button</p>
+                    </div>
+                </div>
+
+                <h3>🕐 Automatic Mode (Recommended)</h3>
                 <p>Once configured, the plugin automatically generates news at your scheduled time:</p>
                 <ol>
                     <li>Set your schedule time in settings (e.g., <code>08:00</code>)</li>
@@ -1049,7 +1182,7 @@ Return items that together give a balanced, comprehensive view.</code></pre>
                     <strong>ℹ️ Note:</strong> Obsidian must be running for automatic generation. If closed, the plugin will generate news when you next open Obsidian (if after the scheduled time).
                 </div>
 
-                <h3>Manual Generation</h3>
+                <h3>👆 Manual Generation</h3>
                 <p>Generate news on-demand using two methods:</p>
 
                 <h4>Method 1: Command Palette</h4>
@@ -1208,11 +1341,169 @@ graph TD
                 </div>
             </section>
 
+            <!-- Changelog -->
+            <section id="changelog">
+                <h2>Changelog</h2>
+                <p>Recent updates and improvements to Daily News Briefing.</p>
+
+                <div class="feature-box">
+                    <h5>v1.10.1 - Performance & Cost Optimization</h5>
+                    <p><strong>Released:</strong> February 2026</p>
+                    <ul>
+                        <li><strong>Reduced Token Cost</strong>
+                            <ul>
+                                <li>✅ Fixed AI-generated query cache for better efficiency</li>
+                                <li>✅ Added daily news content caching per topic and provider</li>
+                                <li>💰 Significantly lower API costs with smart caching</li>
+                            </ul>
+                        </li>
+                        <li><strong>Bug Fixes</strong>
+                            <ul>
+                                <li>Fixed duplicate TOC title in templates</li>
+                                <li>Improved error handling for cached content</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="feature-box">
+                    <h5>v1.10.0 - More AI Providers</h5>
+                    <ul>
+                        <li>✅ Added Anthropic Claude support (Agentic Search)</li>
+                        <li>✅ Added OpenRouter support with 5 model options</li>
+                        <li>🎯 8 total AI pipelines now available</li>
+                    </ul>
+                </div>
+
+                <details class="my-6">
+                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-4">
+                        <i class="fa-solid fa-chevron-down mr-2"></i>View Previous Versions
+                    </summary>
+
+                    <div class="space-y-4 ml-4 mt-4">
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400"><strong>v1.9.1</strong> - Fixed metadata settings</p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400"><strong>v1.9.0</strong> - Customizable template settings</p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400"><strong>v1.8.2</strong> - Fixed Grok agentic search</p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400"><strong>v1.8.1</strong> - Added Grok support</p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.8.0</strong> - Refactored provider architecture<br>
+                                <span class="text-xs">Separated providers into agentic-search and search-then-summarize categories</span>
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.7.7</strong> - Fixed Google issues (extended timeout, improved limits)
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.7.6</strong> - Updated OpenAI to gpt-5-search-api
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.7.5</strong> - Replaced gemini-2.0-flash with gemini-2.5-flash
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.7.4</strong> - Reduced token consumption with prompt caching
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.7.3</strong> - Added OpenAI models support
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.7.2</strong> - Multi-language support (6 languages)
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.6.2</strong> - Toggle Analysis & Context section
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.6.1</strong> - Better failure handling
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.6.0</strong> - AI-powered news filtering
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.5.1</strong> - Upgraded to Gemini Flash 2.0
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.5.0</strong> - AI-generated search queries
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.4.0</strong> - Added Perplexity Sonar support
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.3.0</strong> - Added sidebar button
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400">
+                                <strong>v1.0.0</strong> - Initial release
+                            </p>
+                        </div>
+                    </div>
+                </details>
+
+                <div class="alert alert-info">
+                    <strong>🚀 Roadmap:</strong><br>
+                    • <s>Cache Daily News Content</s> ✅ Done in v1.10.1<br>
+                    • <s>Cache AI-generated Queries</s> ✅ Done in v1.10.1<br>
+                    • <strong>More Web Search Choices</strong> - Coming soon (alternatives to Google Search)
+                </div>
+            </section>
+
             <!-- Troubleshooting -->
             <section id="troubleshooting">
                 <h2>Troubleshooting</h2>
+                <p>Common issues and their solutions:</p>
 
-                <h3>"No news generated" or Empty Content</h3>
+                <h3>❌ "No news generated" or Empty Content</h3>
                 <div class="feature-box">
                     <h5>Possible Causes & Solutions</h5>
                     <ol>
@@ -1245,7 +1536,7 @@ graph TD
                     </ol>
                 </div>
 
-                <h3>"API Error" Messages</h3>
+                <h3>⚠️ "API Error" Messages</h3>
                 <table>
                     <thead>
                         <tr>
@@ -1299,7 +1590,7 @@ graph TD
                     </tbody>
                 </table>
 
-                <h3>"Template Validation Failed"</h3>
+                <h3>📄 "Template Validation Failed"</h3>
                 <div class="feature-box">
                     <h5>Solutions</h5>
                     <ul>
@@ -1311,7 +1602,7 @@ graph TD
                     </ul>
                 </div>
 
-                <h3>Plugin Not Working After Update</h3>
+                <h3>🔄 Plugin Not Working After Update</h3>
                 <ol>
                     <li>Reload Obsidian (<code>Ctrl/Cmd + R</code>)</li>
                     <li>Disable and re-enable the plugin in settings</li>
@@ -1320,7 +1611,7 @@ graph TD
                     <li>If issue persists, create a GitHub issue with error logs</li>
                 </ol>
 
-                <h3>News Quality Issues</h3>
+                <h3>📰 News Quality Issues</h3>
                 <div class="feature-box">
                     <h5>For Google-Based Providers:</h5>
                     <ul>
@@ -1340,7 +1631,7 @@ graph TD
                     </ul>
                 </div>
 
-                <h3>Getting Help</h3>
+                <h3>💬 Getting Help</h3>
                 <p>If you're still experiencing issues:</p>
                 <ol>
                     <li>📖 Check <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/issues" target="_blank">GitHub Issues</a> for similar problems</li>

@@ -45,7 +45,7 @@
     </script>
     <style>
         body { background-color: #0d0d0d; color: #e5e5e5; }
-        
+
         /* Smooth Text Rendering */
         * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
@@ -54,6 +54,37 @@
         ::-webkit-scrollbar-track { background: #0d0d0d; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #444; }
+
+        /* Mobile Menu Toggle */
+        #mobile-menu {
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+        #mobile-menu.active { display: block; }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+            .glass-card {
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+        }
+
+        /* Prevent horizontal scroll on mobile */
+        body {
+            overflow-x: hidden;
+        }
 
         /* Glass Cards */
         .glass-card {
@@ -120,7 +151,23 @@
                     <i class="fa-brands fa-github text-gray-400 group-hover:text-white transition"></i>
                     <span class="text-gray-300">1.8k+ Downloads</span>
                 </a>
-                <a href="obsidian://show-plugin?id=daily-news-briefing" class="px-4 py-2 bg-white text-black text-sm font-semibold rounded hover:bg-gray-100 transition shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]">
+                <a href="obsidian://show-plugin?id=daily-news-briefing" class="hidden sm:inline-block px-4 py-2 bg-white text-black text-sm font-semibold rounded hover:bg-gray-100 transition shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]">
+                    Get Plugin
+                </a>
+                <button id="mobile-menu-button" class="md:hidden text-gray-400 hover:text-white transition">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden border-t border-white/5 bg-[#0d0d0d]">
+            <div class="px-6 py-4 space-y-3">
+                <a href="#features" class="block text-sm text-gray-400 hover:text-white transition py-2">Features</a>
+                <a href="#pipelines" class="block text-sm text-gray-400 hover:text-white transition py-2">Pipelines</a>
+                <a href="#install" class="block text-sm text-gray-400 hover:text-white transition py-2">Install</a>
+                <a href="docs.html" class="block text-sm text-purple-400 hover:text-purple-300 transition py-2 font-semibold">Documentation</a>
+                <a href="obsidian://show-plugin?id=daily-news-briefing" class="block w-full text-center px-4 py-2 bg-white text-black text-sm font-semibold rounded hover:bg-gray-100 transition mt-4">
                     Get Plugin
                 </a>
             </div>
@@ -134,31 +181,31 @@
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
-                <span class="text-gray-300">New in v1.10.0: <span class="text-white font-medium">Support Anthropic and OpenRouter models</span></span>
+                <span class="text-gray-300">New in v1.10.1: <span class="text-white font-medium">Reduced token costs & improved caching</span></span>
             </div>
 
-            <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1]">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 md:mb-8 leading-[1.1] px-4">
                 Stop Searching.<br>
                 <span class="text-gradient">Start Knowing.</span>
             </h1>
-            
-            <p class="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-                Your AI-powered research assistant, living directly inside your <strong class="text-purple-400">Obsidian vault</strong>. 
+
+            <p class="text-base sm:text-lg md:text-xl text-gray-400 mb-8 md:mb-10 max-w-2xl mx-auto leading-relaxed px-4">
+                Your AI-powered research assistant, living directly inside your <strong class="text-purple-400">Obsidian vault</strong>.
             </p>
 
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-                <a href="obsidian://show-plugin?id=daily-news-briefing" class="w-full sm:w-auto px-8 py-3.5 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-500 transition shadow-lg shadow-purple-600/25 flex items-center justify-center gap-2">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 md:mb-20 px-4">
+                <a href="obsidian://show-plugin?id=daily-news-briefing" class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-purple-600 text-white text-sm sm:text-base font-semibold rounded-lg hover:bg-purple-500 transition shadow-lg shadow-purple-600/25 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-download"></i> Install for Obsidian
                 </a>
-                <a href="#how-it-works" class="w-full sm:w-auto px-8 py-3.5 bg-[#1a1a1a] text-gray-300 font-medium rounded-lg border border-white/10 hover:bg-white/5 transition flex items-center justify-center gap-2">
+                <a href="#how-it-works" class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-[#1a1a1a] text-gray-300 text-sm sm:text-base font-medium rounded-lg border border-white/10 hover:bg-white/5 transition flex items-center justify-center gap-2">
                     How it works <i class="fa-solid fa-arrow-right text-xs mt-0.5"></i>
                 </a>
             </div>
 
-            <div class="relative mx-auto max-w-5xl perspective-1000">
+            <div class="relative mx-auto max-w-5xl perspective-1000 px-4">
                 <div class="absolute inset-0 bg-gradient-to-t from-purple-900/40 to-transparent blur-3xl -z-10 rounded-[30px] transform scale-95 translate-y-10"></div>
-                
-                <div class="rounded-xl border border-white/10 bg-[#1e1e1e] shadow-2xl overflow-hidden flex flex-col md:flex-row h-[600px] text-left">
+
+                <div class="rounded-xl border border-white/10 bg-[#1e1e1e] shadow-2xl overflow-hidden flex flex-col md:flex-row h-[500px] md:h-[600px] text-left">
                     
                     <div class="hidden md:flex w-64 bg-[#111111] border-r border-black/50 flex-col">
                         <div class="p-4 border-b border-white/5 flex items-center gap-2">
@@ -244,9 +291,9 @@
 
     <section id="how-it-works" class="py-16 px-6 border-y border-white/5 bg-[#0f0f0f]">
         <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-sm font-bold text-purple-400 uppercase tracking-widest mb-2">The Workflow</h2>
-                <h3 class="text-3xl font-bold text-white">How it filters the web</h3>
+            <div class="text-center mb-12 md:mb-16 px-4">
+                <h2 class="text-xs md:text-sm font-bold text-purple-400 uppercase tracking-widest mb-2">The Workflow</h2>
+                <h3 class="text-2xl md:text-3xl font-bold text-white">How it filters the web</h3>
             </div>
 
             <div class="relative flex flex-col md:flex-row items-center justify-between gap-8 md:gap-0">
@@ -272,8 +319,8 @@
                         </div>
                     </div>
                     <div class="mt-6 text-center">
-                        <h4 class="text-white font-bold">1. Raw Sources</h4>
-                        <p class="text-sm text-gray-500">Google, RSS, Social Media</p>
+                        <h4 class="text-white font-bold text-sm md:text-base">1. Raw Sources</h4>
+                        <p class="text-xs md:text-sm text-gray-500">Google, RSS, Social Media</p>
                     </div>
                 </div>
 
@@ -293,8 +340,8 @@
                         <div class="absolute -bottom-3 -left-3 px-2 py-0.5 bg-black border border-blue-500/50 rounded text-[9px] text-blue-300">GPT</div>
                     </div>
                     <div class="mt-6 text-center">
-                        <h4 class="text-white font-bold">2. AI Processing</h4>
-                        <p class="text-sm text-gray-500">Summarization & Filtering</p>
+                        <h4 class="text-white font-bold text-sm md:text-base">2. AI Processing</h4>
+                        <p class="text-xs md:text-sm text-gray-500">Summarization & Filtering</p>
                     </div>
                 </div>
 
@@ -329,8 +376,8 @@
                         </div>
                     </div>
                     <div class="mt-6 text-center">
-                        <h4 class="text-white font-bold">3. Your Vault</h4>
-                        <p class="text-sm text-gray-500">Clean, Formatted Markdown</p>
+                        <h4 class="text-white font-bold text-sm md:text-base">3. Your Vault</h4>
+                        <p class="text-xs md:text-sm text-gray-500">Clean, Formatted Markdown</p>
                     </div>
                 </div>
 
@@ -340,72 +387,104 @@
 
     <section id="features" class="py-24 px-6 relative">
         <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4">Curated Intelligence</h2>
-                <p class="text-gray-400">Filters out the noise. Delivers the signal.</p>
+            <div class="text-center mb-12 md:mb-16 px-4">
+                <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">Curated Intelligence</h2>
+                <p class="text-sm md:text-base text-gray-400">Filters out the noise. Delivers the signal.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-6 md:grid-rows-2 gap-6 h-auto md:h-[600px]">
-                
-                <div class="glass-card md:col-span-4 md:row-span-2 rounded-2xl p-8 relative overflow-hidden group">
+            <div class="grid grid-cols-1 md:grid-cols-6 md:grid-rows-2 gap-4 md:gap-6 h-auto md:h-[600px]">
+
+                <div class="glass-card md:col-span-4 md:row-span-2 rounded-2xl p-6 md:p-8 relative overflow-hidden group">
                     <div class="relative z-10 h-full flex flex-col justify-between">
                         <div>
-                            <div class="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center mb-6 border border-purple-500/20">
-                                <i class="fa-solid fa-server text-purple-400 text-xl"></i>
+                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-purple-500/10 flex items-center justify-center mb-4 md:mb-6 border border-purple-500/20">
+                                <i class="fa-solid fa-server text-purple-400 text-lg md:text-xl"></i>
                             </div>
-                            <h3 class="text-2xl font-bold mb-2 text-white">Multi-Model AI Pipeline</h3>
-                            <p class="text-gray-400 max-w-sm leading-relaxed">
-                                Why stick to one brain? Switch seamlessly between top-tier models depending on your needs.
+                            <h3 class="text-xl md:text-2xl font-bold mb-2 text-white">6 AI Providers</h3>
+                            <p class="text-sm md:text-base text-gray-400 max-w-sm leading-relaxed">
+                                Switch seamlessly between Google Gemini, OpenAI, Anthropic, Perplexity, Grok, and OpenRouter depending on your needs.
                             </p>
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-4 mt-8">
-                            <div class="p-4 rounded-lg bg-black/40 border border-white/5 group-hover:border-purple-500/30 transition">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <i class="fa-brands fa-google text-white"></i>
-                                    <span class="font-bold text-sm">Google + Gemini</span>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-3 md:gap-4 mt-6 md:mt-8">
+                            <div class="p-3 md:p-4 rounded-lg bg-black/40 border border-white/5 group-hover:border-purple-500/30 transition">
+                                <div class="flex items-center gap-2 mb-1 md:mb-2">
+                                    <i class="fa-brands fa-google text-white text-sm md:text-base"></i>
+                                    <span class="font-bold text-xs md:text-sm">Google + Gemini</span>
                                 </div>
-                                <p class="text-xs text-gray-500">Free Tier Recommended</p>
+                                <p class="text-[10px] md:text-xs text-gray-500">Free Tier Recommended</p>
                             </div>
-                            <div class="p-4 rounded-lg bg-black/40 border border-white/5 group-hover:border-purple-500/30 transition">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <i class="fa-brands fa-openai text-white"></i>
-                                    <span class="font-bold text-sm">OpenAI GPT</span>
+                            <div class="p-3 md:p-4 rounded-lg bg-black/40 border border-white/5 group-hover:border-purple-500/30 transition">
+                                <div class="flex items-center gap-2 mb-1 md:mb-2">
+                                    <i class="fa-brands fa-openai text-white text-sm md:text-base"></i>
+                                    <span class="font-bold text-xs md:text-sm">OpenAI GPT</span>
                                 </div>
-                                <p class="text-xs text-gray-500">Deep Agentic Search</p>
+                                <p class="text-[10px] md:text-xs text-gray-500">Deep Agentic Search</p>
                             </div>
-                            <div class="p-4 rounded-lg bg-black/40 border border-white/5 group-hover:border-purple-500/30 transition">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <i class="fa-solid fa-p text-white"></i>
-                                    <span class="font-bold text-sm">Perplexity</span>
+                            <div class="p-3 md:p-4 rounded-lg bg-black/40 border border-white/5 group-hover:border-purple-500/30 transition">
+                                <div class="flex items-center gap-2 mb-1 md:mb-2">
+                                    <i class="fa-solid fa-p text-white text-sm md:text-base"></i>
+                                    <span class="font-bold text-xs md:text-sm">Perplexity</span>
                                 </div>
-                                <p class="text-xs text-gray-500">Real-time Speed</p>
+                                <p class="text-[10px] md:text-xs text-gray-500">Real-time Speed</p>
                             </div>
-                            <div class="p-4 rounded-lg bg-black/40 border border-white/5 group-hover:border-purple-500/30 transition">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <i class="fa-brands fa-x-twitter text-white"></i>
-                                    <span class="font-bold text-sm">Grok</span>
+                            <div class="p-3 md:p-4 rounded-lg bg-black/40 border border-white/5 group-hover:border-purple-500/30 transition">
+                                <div class="flex items-center gap-2 mb-1 md:mb-2">
+                                    <i class="fa-brands fa-x-twitter text-white text-sm md:text-base"></i>
+                                    <span class="font-bold text-xs md:text-sm">Grok</span>
                                 </div>
-                                <p class="text-xs text-gray-500">X Platform Data</p>
+                                <p class="text-[10px] md:text-xs text-gray-500">X Platform Data</p>
+                            </div>
+                            <div class="p-3 md:p-4 rounded-lg bg-black/40 border border-white/5 group-hover:border-purple-500/30 transition">
+                                <div class="flex items-center gap-2 mb-1 md:mb-2">
+                                    <i class="fa-solid fa-brain text-white text-sm md:text-base"></i>
+                                    <span class="font-bold text-xs md:text-sm">Anthropic</span>
+                                </div>
+                                <p class="text-[10px] md:text-xs text-gray-500">Claude Models</p>
+                            </div>
+                            <div class="p-3 md:p-4 rounded-lg bg-black/40 border border-white/5 group-hover:border-purple-500/30 transition">
+                                <div class="flex items-center gap-2 mb-1 md:mb-2">
+                                    <i class="fa-solid fa-route text-white text-sm md:text-base"></i>
+                                    <span class="font-bold text-xs md:text-sm">OpenRouter</span>
+                                </div>
+                                <p class="text-[10px] md:text-xs text-gray-500">Multi-Model Gateway</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-card md:col-span-2 rounded-2xl p-8 group">
-                    <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4 border border-blue-500/20">
-                        <i class="fa-regular fa-clock text-blue-400"></i>
+                <div class="glass-card md:col-span-2 rounded-2xl p-6 md:p-8 group">
+                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-blue-500/10 flex items-center justify-center mb-3 md:mb-4 border border-blue-500/20">
+                        <i class="fa-regular fa-clock text-blue-400 text-sm md:text-base"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Auto-Schedule</h3>
-                    <p class="text-sm text-gray-400">Set it to 8:00 AM. Your digest is generated silently in the background, ready when you open your vault.</p>
+                    <h3 class="text-lg md:text-xl font-bold mb-2">Auto-Schedule</h3>
+                    <p class="text-xs md:text-sm text-gray-400">Set it to 8:00 AM. Your digest is generated silently in the background, ready when you open your vault.</p>
                 </div>
 
-                <div class="glass-card md:col-span-2 rounded-2xl p-8 group">
-                    <div class="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center mb-4 border border-green-500/20">
-                        <i class="fa-solid fa-language text-green-400"></i>
+                <div class="glass-card md:col-span-2 rounded-2xl p-6 md:p-8 group">
+                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-green-500/10 flex items-center justify-center mb-3 md:mb-4 border border-green-500/20">
+                        <i class="fa-solid fa-language text-green-400 text-sm md:text-base"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Polyglot</h3>
-                    <p class="text-sm text-gray-400">Read global news in your language. Supports English, French, German, Spanish, Italian, and Chinese.</p>
+                    <h3 class="text-lg md:text-xl font-bold mb-2">Polyglot</h3>
+                    <p class="text-xs md:text-sm text-gray-400">Read global news in your language. Supports English, French, German, Spanish, Italian, and Chinese.</p>
+                </div>
+            </div>
+
+            <div class="mt-4 md:mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <div class="glass-card rounded-2xl p-6 md:p-8 group">
+                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center mb-3 md:mb-4 border border-yellow-500/20">
+                        <i class="fa-solid fa-file-lines text-yellow-400 text-sm md:text-base"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-bold mb-2">Custom Templates</h3>
+                    <p class="text-xs md:text-sm text-gray-400">5 preset templates or create your own with 25+ placeholders. Full control over your news format.</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 md:p-8 group">
+                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center mb-3 md:mb-4 border border-cyan-500/20">
+                        <i class="fa-solid fa-bolt text-cyan-400 text-sm md:text-base"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-bold mb-2">Optimized Caching</h3>
+                    <p class="text-xs md:text-sm text-gray-400">Smart caching for AI queries and daily content. Reduces token costs and speeds up generation.</p>
                 </div>
             </div>
         </div>
@@ -413,79 +492,79 @@
 
     <section id="pipelines" class="py-24 px-6 border-t border-white/5 bg-gradient-to-b from-[#0d0d0d] to-[#111111]">
         <div class="max-w-5xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold mb-4">Choose Your Engine</h2>
-                <p class="text-gray-400">We support both free research and premium agentic AI.</p>
+            <div class="text-center mb-12 md:mb-16 px-4">
+                <h2 class="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Choose Your Engine</h2>
+                <p class="text-sm md:text-base text-gray-400">We support both free research and premium agentic AI.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div class="glass-card p-1 rounded-2xl relative">
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg shadow-purple-600/40">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-[10px] md:text-xs font-bold px-2 md:px-3 py-1 rounded-full uppercase tracking-wider shadow-lg shadow-purple-600/40">
                         Recommended
                     </div>
-                    <div class="bg-[#161616] rounded-xl p-8 h-full flex flex-col border border-purple-500/30">
-                        <div class="flex justify-between items-start mb-6">
+                    <div class="bg-[#161616] rounded-xl p-6 md:p-8 h-full flex flex-col border border-purple-500/30">
+                        <div class="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-0 mb-4 md:mb-6">
                             <div>
-                                <h3 class="text-xl font-bold text-white">Google Search + Gemini</h3>
-                                <p class="text-purple-400 text-sm mt-1">The Cost-Effective Powerhouse</p>
+                                <h3 class="text-lg md:text-xl font-bold text-white">Google Search + Gemini</h3>
+                                <p class="text-purple-400 text-xs md:text-sm mt-1">The Cost-Effective Powerhouse</p>
                             </div>
-                            <div class="text-right">
-                                <span class="text-2xl font-bold text-white">Free</span>
-                                <p class="text-xs text-gray-500">Using Free Tier Keys</p>
+                            <div class="text-left sm:text-right">
+                                <span class="text-xl md:text-2xl font-bold text-white">Free</span>
+                                <p class="text-[10px] md:text-xs text-gray-500">Using Free Tier Keys</p>
                             </div>
                         </div>
                         
-                        <div class="space-y-4 mb-8 flex-1">
-                            <div class="flex gap-3 text-sm text-gray-300">
-                                <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                        <div class="space-y-3 md:space-y-4 mb-6 md:mb-8 flex-1">
+                            <div class="flex gap-2 md:gap-3 text-xs md:text-sm text-gray-300">
+                                <i class="fa-solid fa-check text-green-500 mt-1 text-xs md:text-sm"></i>
                                 <span>Totally free to operate (Google Free Tier)</span>
                             </div>
-                            <div class="flex gap-3 text-sm text-gray-300">
-                                <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                            <div class="flex gap-2 md:gap-3 text-xs md:text-sm text-gray-300">
+                                <i class="fa-solid fa-check text-green-500 mt-1 text-xs md:text-sm"></i>
                                 <span>Advanced search result filtering</span>
                             </div>
-                            <div class="flex gap-3 text-sm text-gray-300">
-                                <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                            <div class="flex gap-2 md:gap-3 text-xs md:text-sm text-gray-300">
+                                <i class="fa-solid fa-check text-green-500 mt-1 text-xs md:text-sm"></i>
                                 <span>High token limit for broad topics</span>
                             </div>
                         </div>
-                        
-                        <div class="p-4 bg-white/5 rounded border border-white/5 text-xs text-gray-400">
+
+                        <div class="p-3 md:p-4 bg-white/5 rounded border border-white/5 text-[10px] md:text-xs text-gray-400">
                             <strong>Requirement:</strong> 3 API Keys (Google Custom Search, Search Engine ID, Gemini). Setup takes ~5 mins.
                         </div>
                     </div>
                 </div>
 
                 <div class="glass-card p-1 rounded-2xl">
-                    <div class="bg-[#161616] rounded-xl p-8 h-full flex flex-col">
-                        <div class="flex justify-between items-start mb-6">
+                    <div class="bg-[#161616] rounded-xl p-6 md:p-8 h-full flex flex-col">
+                        <div class="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-0 mb-4 md:mb-6">
                             <div>
-                                <h3 class="text-xl font-bold text-white">Agentic Search</h3>
-                                <p class="text-blue-400 text-sm mt-1">Perplexity, GPT-4, Grok</p>
+                                <h3 class="text-lg md:text-xl font-bold text-white">Agentic Search</h3>
+                                <p class="text-blue-400 text-xs md:text-sm mt-1">Perplexity, GPT-4, Grok, Anthropic, OpenRouter</p>
                             </div>
-                            <div class="text-right">
-                                <span class="text-xl font-bold text-gray-300">Paid API</span>
-                                <p class="text-xs text-gray-500">Per request</p>
+                            <div class="text-left sm:text-right">
+                                <span class="text-lg md:text-xl font-bold text-gray-300">Paid API</span>
+                                <p class="text-[10px] md:text-xs text-gray-500">Per request</p>
                             </div>
                         </div>
-                        
-                        <div class="space-y-4 mb-8 flex-1">
-                            <div class="flex gap-3 text-sm text-gray-300">
-                                <i class="fa-solid fa-check text-blue-500 mt-1"></i>
+
+                        <div class="space-y-3 md:space-y-4 mb-6 md:mb-8 flex-1">
+                            <div class="flex gap-2 md:gap-3 text-xs md:text-sm text-gray-300">
+                                <i class="fa-solid fa-check text-blue-500 mt-1 text-xs md:text-sm"></i>
                                 <span>Simple setup (Just 1 API Key)</span>
                             </div>
-                            <div class="flex gap-3 text-sm text-gray-300">
-                                <i class="fa-solid fa-check text-blue-500 mt-1"></i>
+                            <div class="flex gap-2 md:gap-3 text-xs md:text-sm text-gray-300">
+                                <i class="fa-solid fa-check text-blue-500 mt-1 text-xs md:text-sm"></i>
                                 <span>State-of-the-art reasoning (Agentic)</span>
                             </div>
-                            <div class="flex gap-3 text-sm text-gray-300">
-                                <i class="fa-solid fa-check text-blue-500 mt-1"></i>
+                            <div class="flex gap-2 md:gap-3 text-xs md:text-sm text-gray-300">
+                                <i class="fa-solid fa-check text-blue-500 mt-1 text-xs md:text-sm"></i>
                                 <span>Real-time access to X (Grok) or Web (Perplexity)</span>
                             </div>
                         </div>
 
-                         <div class="p-4 bg-white/5 rounded border border-white/5 text-xs text-gray-400">
-                            <strong>Requirement:</strong> A funded API account with OpenAI, Perplexity, or xAI.
+                         <div class="p-3 md:p-4 bg-white/5 rounded border border-white/5 text-[10px] md:text-xs text-gray-400">
+                            <strong>Requirement:</strong> A funded API account with OpenAI, Perplexity, xAI, Anthropic, or OpenRouter.
                         </div>
                     </div>
                 </div>
@@ -495,48 +574,48 @@
 
     <section id="install" class="py-24 px-6 relative overflow-hidden">
         <div class="max-w-4xl mx-auto">
-             <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold mb-4">Get Started in Seconds</h2>
+             <div class="text-center mb-12 md:mb-16 px-4">
+                <h2 class="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Get Started in Seconds</h2>
             </div>
 
             <div class="relative">
                 <div class="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-purple-500/0 via-purple-500/50 to-purple-500/0 md:left-1/2"></div>
 
                 <div class="space-y-12">
-                    <div class="relative flex flex-col md:flex-row gap-8 md:items-center group">
+                    <div class="relative flex flex-col md:flex-row gap-6 md:gap-8 md:items-center group">
                         <div class="flex-1 md:text-right">
-                            <h3 class="text-xl font-bold text-white mb-2">Install Plugin</h3>
-                            <p class="text-gray-400 text-sm">Open Obsidian Settings > Community Plugins. Turn off Safe Mode and search for "Daily News Briefing".</p>
+                            <h3 class="text-lg md:text-xl font-bold text-white mb-2">Install Plugin</h3>
+                            <p class="text-gray-400 text-xs md:text-sm">Open Obsidian Settings > Community Plugins. Turn off Safe Mode and search for "Daily News Briefing".</p>
                         </div>
-                        <div class="absolute left-8 -translate-x-1/2 md:relative md:left-auto md:translate-x-0 w-4 h-4 rounded-full bg-black border-2 border-purple-500 z-10 shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
+                        <div class="absolute left-8 -translate-x-1/2 md:relative md:left-auto md:translate-x-0 w-3 h-3 md:w-4 md:h-4 rounded-full bg-black border-2 border-purple-500 z-10 shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
                         <div class="flex-1 pl-10 md:pl-0">
-                             <div class="bg-black/40 border border-white/10 p-4 rounded-lg font-mono text-xs text-gray-300">
+                             <div class="bg-black/40 border border-white/10 p-3 md:p-4 rounded-lg font-mono text-[10px] md:text-xs text-gray-300">
                                 <span class="text-green-400">➜</span> Click <span class="text-white font-bold">Install</span> and <span class="text-white font-bold">Enable</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="relative flex flex-col md:flex-row-reverse gap-8 md:items-center group">
+                    <div class="relative flex flex-col md:flex-row-reverse gap-6 md:gap-8 md:items-center group">
                         <div class="flex-1 md:text-left">
-                            <h3 class="text-xl font-bold text-white mb-2">Choose Provider</h3>
-                            <p class="text-gray-400 text-sm">Select "Google + Gemini" for the free tier, or paste your OpenAI/Perplexity/Grok key.</p>
+                            <h3 class="text-lg md:text-xl font-bold text-white mb-2">Choose Provider</h3>
+                            <p class="text-gray-400 text-xs md:text-sm">Select from 6 AI providers: Google + Gemini (free), OpenAI, Anthropic, Perplexity, Grok, or OpenRouter.</p>
                         </div>
-                        <div class="absolute left-8 -translate-x-1/2 md:relative md:left-auto md:translate-x-0 w-4 h-4 rounded-full bg-black border-2 border-purple-500 z-10 shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
+                        <div class="absolute left-8 -translate-x-1/2 md:relative md:left-auto md:translate-x-0 w-3 h-3 md:w-4 md:h-4 rounded-full bg-black border-2 border-purple-500 z-10 shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
                         <div class="flex-1 pl-10 md:pl-0 md:text-right">
-                            <div class="inline-block bg-black/40 border border-white/10 p-4 rounded-lg font-mono text-xs text-gray-300 text-left">
+                            <div class="inline-block bg-black/40 border border-white/10 p-3 md:p-4 rounded-lg font-mono text-[10px] md:text-xs text-gray-300 text-left">
                                 API Key: <span class="text-gray-500">sk-proj-................</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="relative flex flex-col md:flex-row gap-8 md:items-center group">
+                    <div class="relative flex flex-col md:flex-row gap-6 md:gap-8 md:items-center group">
                         <div class="flex-1 md:text-right">
-                            <h3 class="text-xl font-bold text-white mb-2">Define Topics</h3>
-                            <p class="text-gray-400 text-sm">Tell the AI what you care about. Be specific for better results.</p>
+                            <h3 class="text-lg md:text-xl font-bold text-white mb-2">Define Topics</h3>
+                            <p class="text-gray-400 text-xs md:text-sm">Tell the AI what you care about. Be specific for better results.</p>
                         </div>
-                        <div class="absolute left-8 -translate-x-1/2 md:relative md:left-auto md:translate-x-0 w-4 h-4 rounded-full bg-black border-2 border-purple-500 z-10 shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
+                        <div class="absolute left-8 -translate-x-1/2 md:relative md:left-auto md:translate-x-0 w-3 h-3 md:w-4 md:h-4 rounded-full bg-black border-2 border-purple-500 z-10 shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
                         <div class="flex-1 pl-10 md:pl-0">
-                             <div class="bg-black/40 border border-white/10 p-4 rounded-lg font-mono text-xs text-gray-300">
+                             <div class="bg-black/40 border border-white/10 p-3 md:p-4 rounded-lg font-mono text-[10px] md:text-xs text-gray-300">
                                 Topics: <span class="text-purple-400">"Nvidia, Bitcoin"</span>
                             </div>
                         </div>
@@ -544,31 +623,79 @@
                 </div>
             </div>
             
-            <div class="mt-20 text-center">
-                 <a href="obsidian://show-plugin?id=daily-news-briefing" class="inline-flex items-center gap-2 px-10 py-4 bg-white text-black font-bold rounded-lg hover:bg-purple-50 transition transform hover:scale-105 shadow-[0_0_30px_-5px_rgba(255,255,255,0.4)]">
+            <div class="mt-16 md:mt-20 text-center px-4">
+                 <a href="obsidian://show-plugin?id=daily-news-briefing" class="inline-flex items-center gap-2 px-8 md:px-10 py-3 md:py-4 bg-white text-black text-sm md:text-base font-bold rounded-lg hover:bg-purple-50 transition transform hover:scale-105 shadow-[0_0_30px_-5px_rgba(255,255,255,0.4)]">
                     <i class="fa-solid fa-download"></i> Open in Obsidian
                 </a>
-                <p class="mt-4 text-xs text-gray-500">Requires Obsidian v1.0.0+</p>
+                <p class="mt-3 md:mt-4 text-[10px] md:text-xs text-gray-500">Requires Obsidian v1.0.0+</p>
             </div>
         </div>
     </section>
 
-    <footer class="border-t border-white/5 bg-[#0a0a0a] py-12 px-6">
-        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+    <footer class="border-t border-white/5 bg-[#0a0a0a] py-8 md:py-12 px-6">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6">
             <div class="flex items-center gap-2">
-                 <i class="fa-solid fa-newspaper text-purple-500"></i>
-                 <span class="font-bold text-gray-200">Daily News Briefing</span>
+                 <i class="fa-solid fa-newspaper text-purple-500 text-sm md:text-base"></i>
+                 <span class="font-bold text-gray-200 text-sm md:text-base">Daily News Briefing</span>
             </div>
-            <div class="text-gray-500 text-sm text-center md:text-right">
-                <p class="mb-2">Built for the community. Open Source (MIT).</p>
-                <div class="flex items-center justify-center md:justify-end gap-6">
-                    <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" class="hover:text-white transition"><i class="fa-brands fa-github"></i> GitHub</a>
-                    <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/issues" class="hover:text-white transition">Report Bug</a>
-                    <a href="https://www.buymeacoffee.com/adamchen" class="hover:text-yellow-400 transition"><i class="fa-solid fa-mug-hot"></i> Donate</a>
+            <div class="text-gray-500 text-xs md:text-sm text-center md:text-right">
+                <p class="mb-2 md:mb-3">Built for the community. Open Source (MIT).</p>
+                <div class="flex items-center justify-center md:justify-end gap-4 md:gap-6 flex-wrap">
+                    <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" class="hover:text-white transition whitespace-nowrap"><i class="fa-brands fa-github"></i> GitHub</a>
+                    <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/issues" class="hover:text-white transition whitespace-nowrap">Report Bug</a>
+                    <a href="https://www.buymeacoffee.com/adamchen" class="hover:text-yellow-400 transition whitespace-nowrap"><i class="fa-solid fa-mug-hot"></i> Donate</a>
                 </div>
             </div>
         </div>
     </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('active');
+                const icon = mobileMenuButton.querySelector('i');
+                if (mobileMenu.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+
+            // Close menu when clicking on a link
+            const menuLinks = mobileMenu.querySelectorAll('a');
+            menuLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.remove('active');
+                    const icon = mobileMenuButton.querySelector('i');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                });
+            });
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#' && href.length > 1) {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>

@@ -66,12 +66,18 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## 📋 Changelog
 
-### v1.10.0
-- Support Anthropic and OpenRouter models
+### v1.10.1
+- Reduce token cost
+    - Fix AI-generated query cache
+    - Add daily news cache
+- Fix duplicate toc title
 
 ### Previous Versions
 <details>
 <summary>Click to view changelog history</summary>
+
+**1.10.0**
+- Support Anthropic and OpenRouter models
 
 **1.9.1**
 - Fix metadata settings
@@ -187,7 +193,7 @@ Contributions welcome! We especially appreciate:
 ### Roadmap
 
 - [x] **More Providers** - Support for more LLM options (Issue #6)
-- [ ] **Cache Daily News Content** - Avoid redundant generation
+- [x] **Cache Daily News Content** - Avoid redundant generation
 - [x] **Cache AI-generated Queries** - Reduce token cost
 - [ ] **More Web Search Choices** - Replacement of Google Search
 
