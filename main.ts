@@ -244,7 +244,7 @@ export default class DailyNewsPlugin extends Plugin {
                 timestamp: `${LanguageUtils.getTranslation('generatedAt', this.settings.language)} ${now.toLocaleTimeString()}`,
                 date: date,
                 time: now.toLocaleTimeString('en-US', { hour12: false }),
-                tableOfContents: `## ${LanguageUtils.getTranslation('tableOfContents', this.settings.language)}\n\n${ContentUtils.buildTableOfContents(this.settings.topics)}`,
+                tableOfContents: ContentUtils.buildTableOfContents(this.settings.topics),
                 topics: this.buildTopicsSections(topicContents),
                 topicContents: topicContents,
                 processingStatus: topicStatuses.some(status => status.error)
