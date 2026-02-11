@@ -3,7 +3,7 @@ import type { DailyNewsSettings } from './types';
 import type DailyNewsPlugin from '../main';
 import { LANGUAGE_NAMES, OPENROUTER_MODELS } from './constants';
 import { TemplateEngine } from './template/template-engine';
-import { TEMPLATE_DESCRIPTIONS, TEMPLATE_EXAMPLE } from './template/template-presets';
+import { TEMPLATE_DESCRIPTIONS, TEMPLATE_EXAMPLE, TEMPLATE_FILE_EXAMPLE } from './template/template-presets';
 
 export class DailyNewsSettingTab extends PluginSettingTab {
     plugin: DailyNewsPlugin;
@@ -585,6 +585,16 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     .onChange(async (value) => {
                         this.plugin.settings.templateFilePath = value;
                         await this.plugin.saveSettings();
+                    }));
+
+            new Setting(templateSection)
+                .setName('Copy template example')
+                .setDesc('Copy a template file example to clipboard')
+                .addButton(button => button
+                    .setButtonText('Copy example')
+                    .onClick(async () => {
+                        await navigator.clipboard.writeText(TEMPLATE_FILE_EXAMPLE);
+                        new Notice('Template example copied to clipboard!', 3000);
                     }));
 
             new Setting(templateSection)
