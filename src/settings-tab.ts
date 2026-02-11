@@ -8,21 +8,126 @@ import { TEMPLATE_DESCRIPTIONS, TEMPLATE_EXAMPLE } from './template/template-pre
 export class DailyNewsSettingTab extends PluginSettingTab {
     plugin: DailyNewsPlugin;
     showAdvanced: boolean = false;
+    showMetadataDetails: boolean = false;
+    showTemplatePlaceholders: boolean = false;
 
     constructor(app: App, plugin: DailyNewsPlugin) {
         super(app, plugin);
         this.plugin = plugin;
     }
 
+    private addStyles(containerEl: HTMLElement): void {
+        const styleEl = containerEl.createEl('style');
+        styleEl.textContent = `
+            .settings-section {
+                margin-bottom: 2em;
+                padding: 1.5em;
+                border: 1px solid var(--background-modifier-border);
+                border-radius: 8px;
+                background-color: var(--background-secondary);
+            }
+            .settings-section-title {
+                margin-top: 0 !important;
+                margin-bottom: 0.5em !important;
+                color: var(--text-accent);
+                font-size: 1.2em;
+            }
+            .settings-section-description {
+                margin-top: 0 !important;
+                margin-bottom: 1em !important;
+                color: var(--text-muted);
+                font-size: 0.95em;
+            }
+            .collapsible-header {
+                cursor: pointer;
+                user-select: none;
+                display: flex;
+                align-items: center;
+                gap: 0.5em;
+                padding: 0.5em;
+                background-color: var(--background-primary-alt);
+                border-radius: 4px;
+                margin-bottom: 0.5em;
+            }
+            .collapsible-header:hover {
+                background-color: var(--background-modifier-hover);
+            }
+            .collapsible-icon {
+                transition: transform 0.2s;
+            }
+            .collapsible-icon.expanded {
+                transform: rotate(90deg);
+            }
+            .collapsible-content {
+                margin-left: 1.5em;
+                margin-top: 0.5em;
+            }
+            .template-placeholder-info {
+                margin-top: 1em;
+                padding: 1em;
+                background-color: var(--background-primary-alt);
+                border-radius: 4px;
+                font-size: 0.9em;
+            }
+            .placeholder-category {
+                margin-bottom: 1em;
+            }
+            .placeholder-category ul {
+                margin-top: 0.5em;
+            }
+            .setting-item-heading {
+                font-weight: 600;
+                color: var(--text-normal);
+                margin-top: 1em;
+                margin-bottom: 0.5em;
+            }
+        `;
+    }
+
+    private createSection(containerEl: HTMLElement, title: string, description?: string): HTMLElement {
+        const section = containerEl.createDiv('settings-section');
+        section.createEl('h2', {text: title, cls: 'settings-section-title'});
+        if (description) {
+            section.createEl('p', {text: description, cls: 'settings-section-description'});
+        }
+        return section;
+    }
+
+    private createCollapsible(containerEl: HTMLElement, title: string, isExpanded: boolean, onToggle: (expanded: boolean) => void): { header: HTMLElement; content: HTMLElement } {
+        const header = containerEl.createDiv('collapsible-header');
+        const icon = header.createSpan({ text: '▶', cls: 'collapsible-icon' });
+        if (isExpanded) {
+            icon.addClass('expanded');
+        }
+        header.createSpan({ text: title });
+
+        const content = containerEl.createDiv('collapsible-content');
+        content.style.display = isExpanded ? 'block' : 'none';
+
+        header.addEventListener('click', () => {
+            const newState = !isExpanded;
+            icon.toggleClass('expanded', newState);
+            content.style.display = newState ? 'block' : 'none';
+            onToggle(newState);
+        });
+
+        return { header, content };
+    }
+
     display(): void {
         const {containerEl} = this;
         containerEl.empty();
 
-        containerEl.createEl('h2', {text: 'News Pipeline Configuration'});
-        containerEl.createEl('p', {text: 'Choose your news retrieval and summarization pipeline.'});
+        // Add custom styles
+        this.addStyles(containerEl);
 
-        new Setting(containerEl)
-            .setName('News Pipeline')
+        // =========================
+        // Pipeline Configuration
+        // =========================
+        const pipelineSection = this.createSection(containerEl, '🔌 News Pipeline', 'Choose your news retrieval and summarization pipeline');
+
+        new Setting(pipelineSection)
+            .setName('Pipeline')
             .setDesc('Select your preferred pipeline')
             .addDropdown(dropdown => dropdown
                 .addOption('google-gemini', 'Google Search + Gemini Summarizer')
@@ -42,14 +147,18 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     this.display();
                 }));
 
-        containerEl.createEl('h2', {text: 'API Configuration'});
-        containerEl.createEl('p', {text: 'API keys are required for your selected pipeline.'});
+        // =========================
+        // API Configuration
+        // =========================
+        const apiSection = this.createSection(containerEl, '🔑 API Configuration', 'Configure API keys for your selected pipeline');
 
         const provider = this.plugin.settings.apiProvider;
 
         if (provider.startsWith('google')) {
-            new Setting(containerEl)
-                .setName('Google Search API key')
+            apiSection.createEl('div', {text: 'Google Search API', cls: 'setting-item-heading'});
+
+            new Setting(apiSection)
+                .setName('API key')
                 .setDesc('Your Google Custom Search API key')
                 .addText(text => text
                     .setPlaceholder('Enter API key')
@@ -59,8 +168,8 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }));
 
-            new Setting(containerEl)
-                .setName('Google Search engine ID')
+            new Setting(apiSection)
+                .setName('Search engine ID')
                 .setDesc('Your Google Custom Search Engine ID')
                 .addText(text => text
                     .setPlaceholder('Enter search engine ID')
@@ -72,8 +181,9 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         }
 
         if (provider === 'google-gemini') {
-            new Setting(containerEl)
-                .setName('Gemini API key')
+            apiSection.createEl('div', {text: 'Gemini API', cls: 'setting-item-heading'});
+            new Setting(apiSection)
+                .setName('API key')
                 .setDesc('Your Google Gemini API key for news summarization')
                 .addText(text => text
                     .setPlaceholder('Enter Gemini API key')
@@ -85,8 +195,9 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         }
 
         if (provider === 'google-gpt' || provider === 'gpt') {
-            new Setting(containerEl)
-                .setName('OpenAI API key')
+            apiSection.createEl('div', {text: 'OpenAI API', cls: 'setting-item-heading'});
+            new Setting(apiSection)
+                .setName('API key')
                 .setDesc('Your OpenAI API key')
                 .addText(text => text
                     .setPlaceholder('Enter OpenAI API key')
@@ -98,8 +209,9 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         }
 
         if (provider === 'sonar') {
-            new Setting(containerEl)
-                .setName('Perplexity API key')
+            apiSection.createEl('div', {text: 'Perplexity API', cls: 'setting-item-heading'});
+            new Setting(apiSection)
+                .setName('API key')
                 .setDesc('Your Perplexity API key')
                 .addText(text => text
                     .setPlaceholder('Enter Perplexity API key')
@@ -111,8 +223,9 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         }
 
         if (provider === 'google-grok' || provider === 'grok') {
-            new Setting(containerEl)
-                .setName('Grok API key')
+            apiSection.createEl('div', {text: 'Grok API', cls: 'setting-item-heading'});
+            new Setting(apiSection)
+                .setName('API key')
                 .setDesc('Your Grok API key')
                 .addText(text => text
                     .setPlaceholder('Enter Grok API key')
@@ -124,8 +237,9 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         }
 
         if (provider === 'claude' || provider === 'google-claude') {
-            new Setting(containerEl)
-                .setName('Anthropic API key')
+            apiSection.createEl('div', {text: 'Anthropic API', cls: 'setting-item-heading'});
+            new Setting(apiSection)
+                .setName('API key')
                 .setDesc('Your Anthropic API key for Claude')
                 .addText(text => text
                     .setPlaceholder('Enter Anthropic API key')
@@ -137,8 +251,9 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         }
 
         if (provider === 'openrouter' || provider === 'google-openrouter') {
-            new Setting(containerEl)
-                .setName('OpenRouter API key')
+            apiSection.createEl('div', {text: 'OpenRouter API', cls: 'setting-item-heading'});
+            new Setting(apiSection)
+                .setName('API key')
                 .setDesc('Your OpenRouter API key')
                 .addText(text => text
                     .setPlaceholder('Enter OpenRouter API key')
@@ -148,9 +263,9 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }));
 
-            new Setting(containerEl)
-                .setName('OpenRouter Model')
-                .setDesc('Select the AI model to use for news generation')
+            new Setting(apiSection)
+                .setName('Model')
+                .setDesc('Select the AI model to use')
                 .addDropdown(dropdown => {
                     OPENROUTER_MODELS.forEach(model => {
                         dropdown.addOption(model.id, model.name);
@@ -164,17 +279,19 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 });
         }
 
-        // News Configuration section
-        containerEl.createEl('h2', {text: 'News Configuration'});
-        
-        new Setting(containerEl)
+        // =========================
+        // News Configuration
+        // =========================
+        const newsSection = this.createSection(containerEl, '📰 News Configuration', 'Configure news topics, language, and output preferences');
+
+        new Setting(newsSection)
             .setName('Language')
             .setDesc('Language for news content and UI elements')
             .addDropdown(dropdown => {
                 Object.entries(LANGUAGE_NAMES).forEach(([code, name]) => {
                     dropdown.addOption(code, name);
                 });
-                
+
                 return dropdown
                     .setValue(this.plugin.settings.language)
                     .onChange(async (value) => {
@@ -182,8 +299,8 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     });
             });
-        
-        new Setting(containerEl)
+
+        new Setting(newsSection)
             .setName('Topics')
             .setDesc('News topics to follow (comma-separated)')
             .addText(text => text
@@ -194,32 +311,32 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
-        new Setting(containerEl)
-            .setName('Schedule time')
-            .setDesc('When to generate daily news (24-hour format)')
-            .addText(text => text
-                .setPlaceholder('HH:MM')
-                .setValue(this.plugin.settings.scheduleTime)
-                .onChange(async (value) => {
-                    this.plugin.settings.scheduleTime = value;
+        new Setting(newsSection)
+            .setName('Output style')
+            .setDesc('Choose level of detail for news summaries')
+            .addDropdown(dropdown => dropdown
+                .addOption('detailed', 'Detailed - with analysis')
+                .addOption('concise', 'Concise - just facts')
+                .setValue(this.plugin.settings.outputFormat)
+                .onChange(async (value: 'detailed' | 'concise') => {
+                    this.plugin.settings.outputFormat = value;
                     await this.plugin.saveSettings();
                 }));
-                
-        new Setting(containerEl)
-            .setName('Archive folder')
-            .setDesc('Folder to store daily news notes')
-            .addText(text => text
-                .setPlaceholder('News Archive')
-                .setValue(this.plugin.settings.archiveFolder)
+
+        new Setting(newsSection)
+            .setName('Enable analysis & context')
+            .setDesc('Include analytical section in detailed news summaries')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.enableAnalysisContext)
                 .onChange(async (value) => {
-                    this.plugin.settings.archiveFolder = value;
+                    this.plugin.settings.enableAnalysisContext = value;
                     await this.plugin.saveSettings();
                 }));
 
         if (provider.startsWith('google')) {
-            containerEl.createEl('h2', {text: 'Search Configuration'});
-            
-            new Setting(containerEl)
+            newsSection.createEl('div', {text: 'Search Settings', cls: 'setting-item-heading'});
+
+            new Setting(newsSection)
                 .setName('News items per topic')
                 .setDesc('Maximum number of news items to include per topic')
                 .addSlider(slider => slider
@@ -230,8 +347,8 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         this.plugin.settings.resultsPerTopic = value;
                         await this.plugin.saveSettings();
                     }));
-                    
-            new Setting(containerEl)
+
+            new Setting(newsSection)
                 .setName('Maximum search results')
                 .setDesc('Total search results to fetch (higher values give more options but use more API quota)')
                 .addSlider(slider => slider
@@ -244,29 +361,34 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
-        new Setting(containerEl)
-            .setName('Output style')
-            .setDesc('Choose level of detail for news summaries')
-            .addDropdown(dropdown => dropdown
-                .addOption('detailed', 'Detailed - with analysis')
-                .addOption('concise', 'Concise - just facts')
-                .setValue(this.plugin.settings.outputFormat)
-                .onChange(async (value: 'detailed' | 'concise') => {
-                    this.plugin.settings.outputFormat = value;
-                    await this.plugin.saveSettings();
-                }));
-                    
-        new Setting(containerEl)
-            .setName('Enable analysis & context')
-            .setDesc('Include analytical section in detailed news summaries')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.enableAnalysisContext)
+        // =========================
+        // Scheduling & Storage
+        // =========================
+        const scheduleSection = this.createSection(containerEl, '⏰ Scheduling & Storage', 'Configure when and where to generate news');
+
+        new Setting(scheduleSection)
+            .setName('Schedule time')
+            .setDesc('When to generate daily news (24-hour format, e.g., 08:00)')
+            .addText(text => text
+                .setPlaceholder('HH:MM')
+                .setValue(this.plugin.settings.scheduleTime)
                 .onChange(async (value) => {
-                    this.plugin.settings.enableAnalysisContext = value;
+                    this.plugin.settings.scheduleTime = value;
                     await this.plugin.saveSettings();
                 }));
-                
-        new Setting(containerEl)
+
+        new Setting(scheduleSection)
+            .setName('Archive folder')
+            .setDesc('Folder to store daily news notes')
+            .addText(text => text
+                .setPlaceholder('News Archive')
+                .setValue(this.plugin.settings.archiveFolder)
+                .onChange(async (value) => {
+                    this.plugin.settings.archiveFolder = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(scheduleSection)
             .setName('Enable notifications')
             .setDesc('Show notifications when news is generated')
             .addToggle(toggle => toggle
@@ -276,11 +398,12 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
+        // =========================
         // Metadata Configuration
-        containerEl.createEl('h2', {text: 'Metadata Configuration'});
-        containerEl.createEl('p', {text: 'Configure YAML frontmatter metadata for generated news files.'});
+        // =========================
+        const metadataSection = this.createSection(containerEl, '📋 Metadata Configuration', 'Configure YAML frontmatter metadata for generated news files');
 
-        new Setting(containerEl)
+        new Setting(metadataSection)
             .setName('Enable metadata')
             .setDesc('Add YAML frontmatter metadata to generated news files')
             .addToggle(toggle => toggle
@@ -292,7 +415,14 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 }));
 
         if (this.plugin.settings.enableMetadata) {
-            new Setting(containerEl)
+            const { content: metadataContent } = this.createCollapsible(
+                metadataSection,
+                'Metadata Fields',
+                this.showMetadataDetails,
+                (expanded) => { this.showMetadataDetails = expanded; }
+            );
+
+            new Setting(metadataContent)
                 .setName('Include date')
                 .setDesc('Add date field (YYYY-MM-DD)')
                 .addToggle(toggle => toggle
@@ -302,7 +432,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }));
 
-            new Setting(containerEl)
+            new Setting(metadataContent)
                 .setName('Include time')
                 .setDesc('Add time field (HH:MM:SS)')
                 .addToggle(toggle => toggle
@@ -312,7 +442,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }));
 
-            new Setting(containerEl)
+            new Setting(metadataContent)
                 .setName('Include topics')
                 .setDesc('Add topics array')
                 .addToggle(toggle => toggle
@@ -322,7 +452,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }));
 
-            new Setting(containerEl)
+            new Setting(metadataContent)
                 .setName('Include tags')
                 .setDesc('Add tags array (auto-generated from topics)')
                 .addToggle(toggle => toggle
@@ -332,7 +462,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }));
 
-            new Setting(containerEl)
+            new Setting(metadataContent)
                 .setName('Include language')
                 .setDesc('Add language code')
                 .addToggle(toggle => toggle
@@ -342,7 +472,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }));
 
-            new Setting(containerEl)
+            new Setting(metadataContent)
                 .setName('Include source')
                 .setDesc('Add news source/provider information')
                 .addToggle(toggle => toggle
@@ -352,7 +482,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }));
 
-            new Setting(containerEl)
+            new Setting(metadataContent)
                 .setName('Include processing time')
                 .setDesc('Add processing duration')
                 .addToggle(toggle => toggle
@@ -362,7 +492,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }));
 
-            new Setting(containerEl)
+            new Setting(metadataContent)
                 .setName('Include output format')
                 .setDesc('Add output format (detailed/concise)')
                 .addToggle(toggle => toggle
@@ -373,10 +503,12 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
+        // =========================
         // Template Configuration
-        containerEl.createEl('h2', {text: 'Template Configuration'});
+        // =========================
+        const templateSection = this.createSection(containerEl, '📝 Template Configuration', 'Customize the format of your daily news notes');
 
-        new Setting(containerEl)
+        new Setting(templateSection)
             .setName('Template type')
             .setDesc('Choose a template style for your daily news notes')
             .addDropdown(dropdown => dropdown
@@ -393,7 +525,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 }));
 
         if (this.plugin.settings.templateType === 'custom') {
-            new Setting(containerEl)
+            new Setting(templateSection)
                 .setName('Custom template')
                 .setDesc('Define your own template using placeholders')
                 .addTextArea(text => {
@@ -408,7 +540,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     return text;
                 });
 
-            new Setting(containerEl)
+            new Setting(templateSection)
                 .setName('Validate template')
                 .setDesc('Check if your custom template is valid')
                 .addButton(button => button
@@ -416,16 +548,20 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     .onClick(() => {
                         const validation = TemplateEngine.validateTemplate(this.plugin.settings.customTemplate);
                         if (validation.valid) {
-                            new Notice('Template is valid!', 3000);
+                            new Notice('✓ Template is valid!', 3000);
                         } else {
-                            new Notice(`Template errors:\n${validation.errors.join('\n')}`, 5000);
+                            new Notice(`✗ Template errors:\n${validation.errors.join('\n')}`, 5000);
                         }
                     }));
 
-            // Show placeholder info
-            const placeholderInfoEl = containerEl.createDiv('template-placeholder-info');
-            placeholderInfoEl.createEl('h4', {text: 'Available Placeholders:'});
+            const { content: placeholdersContent } = this.createCollapsible(
+                templateSection,
+                'Available Placeholders',
+                this.showTemplatePlaceholders,
+                (expanded) => { this.showTemplatePlaceholders = expanded; }
+            );
 
+            const placeholderInfoEl = placeholdersContent.createDiv('template-placeholder-info');
             TemplateEngine.getPlaceholderInfo().forEach(category => {
                 const categoryEl = placeholderInfoEl.createEl('div', {cls: 'placeholder-category'});
                 categoryEl.createEl('strong', {text: category.category + ':'});
@@ -440,7 +576,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         }
 
         if (this.plugin.settings.templateType === 'file') {
-            new Setting(containerEl)
+            new Setting(templateSection)
                 .setName('Template file path')
                 .setDesc('Path to your template note (e.g., "Templates/Daily News.md")')
                 .addText(text => text
@@ -451,7 +587,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }));
 
-            new Setting(containerEl)
+            new Setting(templateSection)
                 .setName('Validate template file')
                 .setDesc('Check if your template file exists and is valid')
                 .addButton(button => button
@@ -463,24 +599,29 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         );
 
                         if (!fileContent) {
-                            new Notice(`Template file not found: ${this.plugin.settings.templateFilePath}`, 5000);
+                            new Notice(`✗ Template file not found: ${this.plugin.settings.templateFilePath}`, 5000);
                             return;
                         }
 
                         const validation = TemplateEngine.validateTemplate(fileContent);
                         if (validation.valid) {
-                            new Notice('Template file is valid!', 3000);
+                            new Notice('✓ Template file is valid!', 3000);
                         } else {
-                            new Notice(`Template errors:\n${validation.errors.join('\n')}`, 5000);
+                            new Notice(`✗ Template errors:\n${validation.errors.join('\n')}`, 5000);
                         }
                     }));
 
-            // Show placeholder info for file templates too
-            const placeholderInfoEl = containerEl.createDiv('template-placeholder-info');
-            placeholderInfoEl.createEl('h4', {text: 'Available Placeholders:'});
+            const { content: placeholdersContent } = this.createCollapsible(
+                templateSection,
+                'Available Placeholders',
+                this.showTemplatePlaceholders,
+                (expanded) => { this.showTemplatePlaceholders = expanded; }
+            );
+
+            const placeholderInfoEl = placeholdersContent.createDiv('template-placeholder-info');
             placeholderInfoEl.createEl('p', {
-                text: 'Use these placeholders in your template file. See example below.',
-                cls: 'setting-item-description'
+                text: 'Use these placeholders in your template file.',
+                cls: 'settings-section-description'
             });
 
             TemplateEngine.getPlaceholderInfo().forEach(category => {
@@ -496,10 +637,14 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             });
         }
 
-        containerEl.createEl('h2', {text: 'Advanced Configuration'});
+        // =========================
+        // Advanced Configuration
+        // =========================
+        const advancedSection = this.createSection(containerEl, '⚙️ Advanced Configuration', 'Advanced settings for fine-tuning');
 
-        new Setting(containerEl)
-            .setName('Show advanced configuration')
+        new Setting(advancedSection)
+            .setName('Show advanced settings')
+            .setDesc('Toggle advanced configuration options')
             .addToggle(toggle => toggle
                 .setValue(this.showAdvanced)
                 .onChange(value => {
@@ -509,17 +654,56 @@ export class DailyNewsSettingTab extends PluginSettingTab {
 
         if (this.showAdvanced) {
             if (provider.startsWith('google')) {
-                new Setting(containerEl)
-                .setName('Use AI for search queries')
-                .setDesc('Use AI to generate optimized search queries (uses Gemini API)')
-                .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.useAIForQueries)
-                    .onChange(async (value) => {
-                        this.plugin.settings.useAIForQueries = value;
-                        await this.plugin.saveSettings();
-                    }));
+                advancedSection.createEl('div', {text: 'Search Optimization', cls: 'setting-item-heading'});
 
-                new Setting(containerEl)
+                new Setting(advancedSection)
+                    .setName('Use AI for search queries')
+                    .setDesc('Use AI to generate optimized search queries (uses Gemini API)')
+                    .addToggle(toggle => toggle
+                        .setValue(this.plugin.settings.useAIForQueries)
+                        .onChange(async (value) => {
+                            this.plugin.settings.useAIForQueries = value;
+                            await this.plugin.saveSettings();
+                        }));
+
+                new Setting(advancedSection)
+                    .setName('Use AI news judgment')
+                    .setDesc('Let AI evaluate and select the most relevant news items')
+                    .addToggle(toggle => toggle
+                        .setValue(this.plugin.settings.useAIJudge)
+                        .onChange(async (value) => {
+                            this.plugin.settings.useAIJudge = value;
+                            await this.plugin.saveSettings();
+                            this.display();
+                        }));
+
+                if (this.plugin.settings.useAIJudge) {
+                    new Setting(advancedSection)
+                        .setName('Custom AI judge prompt')
+                        .setDesc('Optional: Custom prompt for AI news evaluation (use {{NEWS_TEXT}} and {{TOPIC}} as placeholders)')
+                        .addTextArea(text => text
+                            .setPlaceholder('Leave empty to use default prompt...')
+                            .setValue(this.plugin.settings.aiJudgePrompt || '')
+                            .onChange(async (value) => {
+                                this.plugin.settings.aiJudgePrompt = value;
+                                await this.plugin.saveSettings();
+                            }));
+                }
+
+                new Setting(advancedSection)
+                    .setName('Search date range')
+                    .setDesc('How far back to search (d1 = 1 day, d2 = 2 days, w1 = 1 week)')
+                    .addText(text => text
+                        .setPlaceholder('d2')
+                        .setValue(this.plugin.settings.dateRange)
+                        .onChange(async (value) => {
+                            this.plugin.settings.dateRange = value;
+                            await this.plugin.saveSettings();
+                        }));
+
+                advancedSection.createEl('div', {text: 'Cache Management', cls: 'setting-item-heading'});
+
+                new Setting(advancedSection)
                     .setName('Clear query cache')
                     .setDesc(`Clear cached AI-generated search queries (${Object.keys(this.plugin.settings.queryCache).length} cached)`)
                     .addButton(button => button
@@ -532,7 +716,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                             this.display();
                         }));
 
-                new Setting(containerEl)
+                new Setting(advancedSection)
                     .setName('Clear daily topic cache')
                     .setDesc(`Clear cached daily news topics (${Object.keys(this.plugin.settings.dailyTopicCache).length} topics cached)`)
                     .addButton(button => button
@@ -544,44 +728,11 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                             new Notice('Daily topic cache cleared successfully');
                             this.display();
                         }));
-
-                new Setting(containerEl)
-                    .setName('Search date range')
-                    .setDesc('How far back to search (d1 = 1 day, d2 = 2 days, w1 = 1 week)')
-                    .addText(text => text
-                        .setPlaceholder('d2')
-                        .setValue(this.plugin.settings.dateRange)
-                        .onChange(async (value) => {
-                            this.plugin.settings.dateRange = value;
-                            await this.plugin.saveSettings();
-                        }));
-
-                new Setting(containerEl)
-                    .setName('Use AI news judgment')
-                    .setDesc('Let AI evaluate and select the most relevant news items')
-                    .addToggle(toggle => toggle
-                        .setValue(this.plugin.settings.useAIJudge)
-                        .onChange(async (value) => {
-                            this.plugin.settings.useAIJudge = value;
-                            await this.plugin.saveSettings();
-                            this.display(); 
-                        }));
-                
-                if (this.plugin.settings.useAIJudge) {
-                    new Setting(containerEl)
-                        .setName('Custom AI judge prompt')
-                        .setDesc('Optional: Custom prompt for AI news evaluation (use {{NEWS_TEXT}} and {{TOPIC}} as placeholders)')
-                        .addTextArea(text => text
-                            .setPlaceholder('Leave empty to use default prompt...')
-                            .setValue(this.plugin.settings.aiJudgePrompt || '')
-                            .onChange(async (value) => {
-                                this.plugin.settings.aiJudgePrompt = value;
-                                await this.plugin.saveSettings();
-                            }));
-                }
             }
-            
-            new Setting(containerEl)
+
+            advancedSection.createEl('div', {text: 'Custom Prompts', cls: 'setting-item-heading'});
+
+            new Setting(advancedSection)
                 .setName('Use custom AI prompt')
                 .setDesc('Enable to use your own custom AI prompt for summarization')
                 .addToggle(toggle => toggle
@@ -591,7 +742,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                         this.display();
                     }));
-                    
+
             if (this.plugin.settings.useCustomPrompt) {
                 let customPromptDesc = 'Your custom prompt for the AI.';
                 if (provider.startsWith('google')) {
@@ -599,24 +750,30 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 } else {
                     customPromptDesc += ' For agentic providers, this is used as the main instruction (e.g. "What is the latest news on {{TOPIC}}?")';
                 }
-                
-                new Setting(containerEl)
+
+                new Setting(advancedSection)
                     .setName('Custom AI prompt')
                     .setDesc(customPromptDesc)
-                    .addTextArea(text => text
-                        .setPlaceholder('You are a professional news analyst...')
-                        .setValue(this.plugin.settings.customPrompt)
-                        .onChange(async (value) => {
-                            this.plugin.settings.customPrompt = value;
-                            await this.plugin.saveSettings();
-                        }));
+                    .addTextArea(text => {
+                        text.setPlaceholder('You are a professional news analyst...')
+                            .setValue(this.plugin.settings.customPrompt)
+                            .onChange(async (value) => {
+                                this.plugin.settings.customPrompt = value;
+                                await this.plugin.saveSettings();
+                            });
+                        text.inputEl.rows = 6;
+                        return text;
+                    });
             }
-                    
-            new Setting(containerEl)
+
+            advancedSection.createEl('div', {text: 'Manual Actions', cls: 'setting-item-heading'});
+
+            new Setting(advancedSection)
                 .setName('Generate news now')
                 .setDesc('Manually trigger news generation')
                 .addButton(button => button
                     .setButtonText('Generate')
+                    .setCta()
                     .onClick(async () => {
                         new Notice('Generating news...');
                         await this.plugin.generateDailyNews();
