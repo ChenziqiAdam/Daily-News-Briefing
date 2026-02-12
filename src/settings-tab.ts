@@ -725,20 +725,32 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                             new Notice('Query cache cleared successfully');
                             this.display();
                         }));
-
-                new Setting(advancedSection)
-                    .setName('Clear daily topic cache')
-                    .setDesc(`Clear cached daily news topics (${Object.keys(this.plugin.settings.dailyTopicCache).length} topics cached)`)
-                    .addButton(button => button
-                        .setButtonText('Clear cache')
-                        .setWarning()
-                        .onClick(async () => {
-                            this.plugin.settings.dailyTopicCache = {};
-                            await this.plugin.saveSettings();
-                            new Notice('Daily topic cache cleared successfully');
-                            this.display();
-                        }));
             }
+
+            // Daily topic cache (available for all providers)
+            advancedSection.createEl('div', {text: 'Content Cache', cls: 'setting-item-heading'});
+
+            // Count cache entries for current provider
+            const currentProvider = this.plugin.settings.apiProvider;
+            const allCacheKeys = Object.keys(this.plugin.settings.dailyTopicCache);
+            const providerCacheCount = allCacheKeys.filter(key => key.includes(`_${currentProvider}_`)).length;
+
+            new Setting(advancedSection)
+                .setName('Clear daily topic cache')
+                .setDesc(`Clear cached daily news topics for current provider (${providerCacheCount} topics cached)`)
+                .addButton(button => button
+                    .setButtonText('Clear cache')
+                    .setWarning()
+                    .onClick(async () => {
+                        // Clear only current provider's cache entries
+                        const keysToDelete = allCacheKeys.filter(key => key.includes(`_${currentProvider}_`));
+                        keysToDelete.forEach(key => {
+                            delete this.plugin.settings.dailyTopicCache[key];
+                        });
+                        await this.plugin.saveSettings();
+                        new Notice(`Cleared ${keysToDelete.length} cached topics for ${currentProvider}`);
+                        this.display();
+                    }));
 
             advancedSection.createEl('div', {text: 'Custom Prompts', cls: 'setting-item-heading'});
 

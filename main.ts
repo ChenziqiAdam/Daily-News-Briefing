@@ -14,10 +14,13 @@ export default class DailyNewsPlugin extends Plugin {
 
     async onload() {
         await this.loadSettings();
-        
+
+        // Clean up old cache entries on startup
+        await this.cleanupOldCache();
+
         // Initialize news provider
         this.initializeNewsProvider();
-        
+
         // Add settings tab
         this.addSettingTab(new DailyNewsSettingTab(this.app, this));
 
@@ -64,6 +67,25 @@ export default class DailyNewsPlugin extends Plugin {
             this.settings,
             async () => await this.saveSettings()
         );
+    }
+
+    private async cleanupOldCache() {
+        const today = new Date().toISOString().split('T')[0];
+        const cacheKeys = Object.keys(this.settings.dailyTopicCache);
+        let cleaned = 0;
+
+        for (const key of cacheKeys) {
+            // Remove entries that don't start with today's date
+            if (!key.startsWith(today + '_')) {
+                delete this.settings.dailyTopicCache[key];
+                cleaned++;
+            }
+        }
+
+        if (cleaned > 0) {
+            await this.saveSettings();
+            console.log(`Cleaned ${cleaned} old cache entries from previous days`);
+        }
     }
 
     private buildTopicsSections(topicContents: TopicContent[]): string {
