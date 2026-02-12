@@ -133,6 +133,10 @@
                 <a href="#changelog">Changelog</a>
                 <a href="#troubleshooting">Troubleshooting</a>
                 <a href="#advanced">Advanced</a>
+                <a href="#technical">Technical</a>
+                <a href="#architecture" class="pl-6">Architecture</a>
+                <a href="#file-structure" class="pl-6">File Structure</a>
+                <a href="#contributing" class="pl-6">Contributing</a>
             </nav>
         </aside>
 
@@ -1886,6 +1890,321 @@ graph LR
                     <strong>💡 Quota Management:</strong> For daily news generation with 3 topics, Google + Gemini typically uses:<br>
                     • ~15-25 Google Search queries (well within 100/day limit)<br>
                     • ~5-10 Gemini API calls (well within 1,500/day limit)
+                </div>
+            </section>
+
+            <!-- Technical Documentation -->
+            <section id="technical">
+                <h2>Technical Documentation</h2>
+                <p>This section provides technical details about the plugin architecture, file structure, and contribution guidelines for developers.</p>
+
+                <h3 id="architecture">🏗️ Architecture Overview</h3>
+                <p>The plugin follows a modular provider-based architecture with clear separation of concerns:</p>
+
+                <div class="mermaid">
+graph TD
+    A[Plugin Main Entry] --> B[News Provider Factory]
+    B --> C1[Agentic Providers]
+    B --> C2[Search-Summarize Coordinators]
+
+    C1 --> D1[Perplexity]
+    C1 --> D2[GPT Agentic]
+    C1 --> D3[Grok Agentic]
+    C1 --> D4[Claude Agentic]
+    C1 --> D5[OpenRouter Agentic]
+
+    C2 --> E[Search + Summarize]
+    E --> F1[Google Search Retriever]
+    E --> F2[Gemini Summarizer]
+    E --> F3[GPT Summarizer]
+    E --> F4[Grok Summarizer]
+    E --> F5[Claude Summarizer]
+    E --> F6[OpenRouter Summarizer]
+
+    A --> G[Template Engine]
+    A --> H[Settings Tab]
+    A --> I[Utils]
+
+    style A fill:#a855f7,stroke:#d8b4fe,color:#fff
+    style B fill:#3b82f6,stroke:#93c5fd,color:#fff
+    style G fill:#22c55e,stroke:#86efac,color:#fff
+                </div>
+
+                <h4>Design Patterns</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pattern</th>
+                            <th>Implementation</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Factory Pattern</strong></td>
+                            <td><code>NewsProviderFactory</code></td>
+                            <td>Creates appropriate provider instances based on user settings</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Abstract Base Classes</strong></td>
+                            <td><code>BaseNewsProvider</code>, <code>BaseRetriever</code>, <code>BaseSummarizer</code></td>
+                            <td>Defines common interfaces for all providers</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Strategy Pattern</strong></td>
+                            <td>Agentic vs Search-Summarize pipelines</td>
+                            <td>Supports different news generation strategies</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Template Pattern</strong></td>
+                            <td><code>TemplateEngine</code></td>
+                            <td>Handles template rendering with placeholders</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Pipeline Types</h4>
+
+                <div class="feature-box">
+                    <h5>Agentic Pipeline (Single API Call)</h5>
+                    <p><strong>Providers:</strong> Perplexity, GPT, Grok, Claude, OpenRouter</p>
+                    <p><strong>Flow:</strong> Topic → AI Provider (handles search + summary) → Formatted News</p>
+                    <p><strong>Pros:</strong> Simpler, fewer API calls, integrated search</p>
+                    <p><strong>Cons:</strong> Less control over search, single provider dependency</p>
+                </div>
+
+                <div class="feature-box">
+                    <h5>Search-Summarize Pipeline (Coordinator)</h5>
+                    <p><strong>Providers:</strong> Google Search + Any Summarizer (Gemini/GPT/Grok/Claude/OpenRouter)</p>
+                    <p><strong>Flow:</strong> Topic → Google Search → Filter & Rank → AI Summarizer → Formatted News</p>
+                    <p><strong>Pros:</strong> More control, advanced search strategies, mix & match components</p>
+                    <p><strong>Cons:</strong> More API calls, requires Google setup</p>
+                </div>
+
+                <h3 id="file-structure">📁 File Structure</h3>
+                <p>Understanding the codebase organization:</p>
+
+                <pre><code>Daily-News-Briefing/
+├── main.ts                          # Plugin entry point
+├── manifest.json                    # Plugin metadata
+├── package.json                     # Dependencies & scripts
+├── tsconfig.json                    # TypeScript config
+├── esbuild.config.mjs               # Build configuration
+│
+├── src/
+│   ├── types.ts                     # Type definitions & settings interface
+│   ├── constants.ts                 # Language translations & constants
+│   ├── utils.ts                     # Utility functions (file, language, content, metadata)
+│   ├── settings-tab.ts              # Plugin settings UI
+│   │
+│   ├── providers/
+│   │   ├── base-news-provider.ts              # Abstract base class for all providers
+│   │   ├── news-provider-factory.ts           # Factory for creating provider instances
+│   │   │
+│   │   ├── agentic/                           # Single-call AI providers
+│   │   │   ├── perplexity-provider.ts         # Perplexity Sonar
+│   │   │   ├── gpt-agentic-provider.ts        # OpenAI GPT with web search
+│   │   │   ├── grok-agentic-provider.ts       # Grok with web search
+│   │   │   ├── claude-agentic-provider.ts     # Claude with web search
+│   │   │   └── openrouter-agentic-provider.ts # OpenRouter with web search
+│   │   │
+│   │   ├── coordinators/
+│   │   │   └── search-summarize-coordinator.ts # Coordinates retriever + summarizer
+│   │   │
+│   │   ├── retrievers/
+│   │   │   ├── base-retriever.ts              # Abstract retriever interface
+│   │   │   └── google-search-retriever.ts     # Google Custom Search implementation
+│   │   │
+│   │   └── summarizers/
+│   │       ├── base-summarizer.ts             # Abstract summarizer interface
+│   │       ├── gemini-summarizer.ts           # Google Gemini
+│   │       ├── gpt-summarizer.ts              # OpenAI GPT
+│   │       ├── grok-summarizer.ts             # xAI Grok
+│   │       ├── claude-summarizer.ts           # Anthropic Claude
+│   │       └── openrouter-summarizer.ts       # OpenRouter
+│   │
+│   └── template/
+│       ├── template-engine.ts                 # Template rendering engine
+│       └── template-presets.ts                # Preset template definitions
+│
+├── docs.html                        # Documentation website
+└── index.html                       # Landing page</code></pre>
+
+                <h4>Key Files Explained</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>File</th>
+                            <th>Responsibility</th>
+                            <th>Key Functions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>main.ts</code></td>
+                            <td>Plugin entry point, lifecycle management</td>
+                            <td>Load settings, schedule tasks, handle commands, initialize providers</td>
+                        </tr>
+                        <tr>
+                            <td><code>src/types.ts</code></td>
+                            <td>Type definitions</td>
+                            <td>Define <code>DailyNewsSettings</code>, <code>TemplateData</code>, <code>TopicContent</code>, etc.</td>
+                        </tr>
+                        <tr>
+                            <td><code>src/utils.ts</code></td>
+                            <td>Shared utilities</td>
+                            <td><code>FileUtils</code>, <code>LanguageUtils</code>, <code>ContentUtils</code>, <code>MetadataUtils</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>src/settings-tab.ts</code></td>
+                            <td>Plugin configuration UI</td>
+                            <td>Render settings UI, validate inputs, save settings</td>
+                        </tr>
+                        <tr>
+                            <td><code>src/providers/news-provider-factory.ts</code></td>
+                            <td>Provider instantiation</td>
+                            <td>Select and create appropriate provider based on settings</td>
+                        </tr>
+                        <tr>
+                            <td><code>src/template/template-engine.ts</code></td>
+                            <td>Template processing</td>
+                            <td>Replace placeholders, handle custom templates, apply presets</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 id="contributing">🤝 Contributing Guidelines</h3>
+                <p>We welcome contributions! Here's how to get started:</p>
+
+                <h4>Development Setup</h4>
+                <pre><code># Clone the repository
+git clone https://github.com/ChenziqiAdam/Daily-News-Briefing.git
+cd Daily-News-Briefing
+
+# Install dependencies
+npm install
+
+# Development build (watches for changes)
+npm run dev
+
+# Production build (with type checking)
+npm run build</code></pre>
+
+                <h4>Testing Your Changes</h4>
+                <ol>
+                    <li><strong>Build the plugin:</strong> Run <code>npm run build</code> to compile TypeScript</li>
+                    <li><strong>Copy to Obsidian:</strong> Copy <code>main.js</code>, <code>manifest.json</code>, <code>styles.css</code> to your vault's <code>.obsidian/plugins/daily-news-briefing/</code> folder</li>
+                    <li><strong>Reload Obsidian:</strong> Use Ctrl/Cmd+R to reload the plugin</li>
+                    <li><strong>Test functionality:</strong> Try manual news generation with different settings</li>
+                </ol>
+
+                <h4>Adding a New AI Provider</h4>
+
+                <details>
+                    <summary><i class="fa-solid fa-chevron-right mr-2"></i>Agentic Provider (Single API Call)</summary>
+                    <div class="mt-4">
+                        <ol>
+                            <li>Create <code>src/providers/agentic/newprovider-agentic-provider.ts</code></li>
+                            <li>Extend <code>BaseNewsProvider</code></li>
+                            <li>Implement <code>generateNews(topics, language)</code> method</li>
+                            <li>Add provider to <code>NewsProviderFactory</code></li>
+                            <li>Add settings UI in <code>settings-tab.ts</code></li>
+                            <li>Update types in <code>types.ts</code></li>
+                        </ol>
+
+                        <pre><code>// Example structure
+import { BaseNewsProvider } from '../base-news-provider';
+
+export class NewProviderAgenticProvider extends BaseNewsProvider {
+    async generateNews(topics: string[], language: string): Promise&lt;TopicContent[]&gt; {
+        // Your implementation
+        // Should return array of topic content with headlines
+    }
+}</code></pre>
+                    </div>
+                </details>
+
+                <details>
+                    <summary><i class="fa-solid fa-chevron-right mr-2"></i>Search-Summarize Provider</summary>
+                    <div class="mt-4">
+                        <p><strong>Add a new Summarizer:</strong></p>
+                        <ol>
+                            <li>Create <code>src/providers/summarizers/newprovider-summarizer.ts</code></li>
+                            <li>Extend <code>BaseSummarizer</code></li>
+                            <li>Implement <code>summarize(topic, articles, language)</code></li>
+                            <li>Add to factory in <code>search-summarize-coordinator.ts</code></li>
+                        </ol>
+
+                        <p class="mt-4"><strong>Add a new Retriever:</strong></p>
+                        <ol>
+                            <li>Create <code>src/providers/retrievers/newsource-retriever.ts</code></li>
+                            <li>Extend <code>BaseRetriever</code></li>
+                            <li>Implement <code>search(topic, language, maxResults)</code></li>
+                            <li>Add to coordinator factory</li>
+                        </ol>
+                    </div>
+                </details>
+
+                <h4>Pull Request Guidelines</h4>
+                <ol>
+                    <li>Fork the repository and create a feature branch</li>
+                    <li>Make your changes with clear, descriptive commits</li>
+                    <li>Ensure <code>npm run build</code> passes without errors</li>
+                    <li>Test your changes in Obsidian</li>
+                    <li>Update documentation if needed (README.md, docs.html)</li>
+                    <li>Submit PR with description of changes and testing done</li>
+                </ol>
+
+                <div class="alert alert-info">
+                    <strong>💡 Good First Issues:</strong><br>
+                    • Add new language translations in <code>constants.ts</code><br>
+                    • Create new template presets in <code>template-presets.ts</code><br>
+                    • Improve error messages and user feedback<br>
+                    • Add more template placeholders<br>
+                    • Enhance documentation with examples
+                </div>
+
+                <h4>Reporting Issues</h4>
+                <p>When reporting bugs, please include:</p>
+                <ul>
+                    <li>Obsidian version and OS</li>
+                    <li>Plugin version (from manifest.json)</li>
+                    <li>Provider and settings configuration</li>
+                    <li>Steps to reproduce the issue</li>
+                    <li>Console logs (Ctrl/Cmd+Shift+I → Console tab)</li>
+                    <li>Expected vs actual behavior</li>
+                </ul>
+
+                <div class="alert alert-success">
+                    <strong>🎯 Feature Requests Welcome!</strong> Open an issue with the "enhancement" label to suggest new features. Popular requests include:
+                    <ul class="mt-2">
+                        <li>Alternative web search providers (beyond Google)</li>
+                        <li>More AI model options</li>
+                        <li>Advanced filtering and categorization</li>
+                        <li>Integration with other Obsidian plugins</li>
+                    </ul>
+                </div>
+
+                <div class="mt-8 p-6 bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border border-purple-500/30 rounded-lg">
+                    <h5 class="text-xl font-bold mb-3 text-purple-300"><i class="fa-solid fa-code mr-2"></i>Developer Resources</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="font-semibold text-purple-200 mb-2">Documentation</p>
+                            <ul class="space-y-1 text-sm">
+                                <li><a href="https://docs.obsidian.md/Plugins/Getting+started/Build+a+plugin" class="text-purple-400 hover:text-purple-300">Obsidian Plugin API</a></li>
+                                <li><a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/blob/main/README.md" class="text-purple-400 hover:text-purple-300">Project README</a></li>
+                                <li><a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/issues" class="text-purple-400 hover:text-purple-300">GitHub Issues</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-purple-200 mb-2">Community</p>
+                            <ul class="space-y-1 text-sm">
+                                <li><a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/discussions" class="text-purple-400 hover:text-purple-300">GitHub Discussions</a></li>
+                                <li><a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/pulls" class="text-purple-400 hover:text-purple-300">Pull Requests</a></li>
+                                <li><a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/graphs/contributors" class="text-purple-400 hover:text-purple-300">Contributors</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </section>
 
