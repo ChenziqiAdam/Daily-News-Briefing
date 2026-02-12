@@ -1,6 +1,7 @@
 import type { TemplateData } from '../types';
 import { TEMPLATE_PRESETS } from './template-presets';
 import type { App } from 'obsidian';
+import { TFile } from 'obsidian';
 
 export class TemplateEngine {
     /**
@@ -77,18 +78,29 @@ export class TemplateEngine {
                 return null;
             }
 
-            // Normalize path
-            const normalizedPath = filePath.trim();
+            // Normalize path - trim and remove leading slash
+            let normalizedPath = filePath.trim();
+
+            // Remove leading slash if present
+            if (normalizedPath.startsWith('/')) {
+                normalizedPath = normalizedPath.substring(1);
+            }
+
+            // Add .md extension if not present
+            if (!normalizedPath.endsWith('.md')) {
+                normalizedPath += '.md';
+            }
 
             // Check if file exists
             const file = app.vault.getAbstractFileByPath(normalizedPath);
-            if (!file) {
+
+            if (!file || !(file instanceof TFile)) {
                 console.error(`Template file not found: ${normalizedPath}`);
                 return null;
             }
 
             // Read file content
-            const content = await app.vault.read(file as any);
+            const content = await app.vault.read(file);
             return content;
         } catch (error) {
             console.error('Error loading template file:', error);
