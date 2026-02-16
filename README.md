@@ -66,7 +66,15 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## 📋 Changelog
 
-### v1.10.2
+### v1.11.0
+- Support RSS feeder
+- Improve template setting and exmaple content display
+
+### Previous Versions
+<details>
+<summary>Click to view changelog history</summary>
+
+**1.10.2**
 - Improve setting tab frontend
 - Template
     - Add copy button for the template note example
@@ -75,10 +83,6 @@ For detailed setup instructions, API guides, and advanced features:
     - Fix "clear cache" button display issue
     - Automatically clear previous daily news content everyday
     - Fix cache content number display error
-
-### Previous Versions
-<details>
-<summary>Click to view changelog history</summary>
 
 **1.10.1**
 - Reduce token cost
