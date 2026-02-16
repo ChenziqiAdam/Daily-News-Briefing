@@ -627,26 +627,22 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     .onClick(async () => {
                         await navigator.clipboard.writeText(TEMPLATE_FILE_EXAMPLE);
                         new Notice('Template example copied to clipboard!', 3000);
-
-                        // Show the copied content
-                        if (!previewEl) {
-                            previewEl = templateSection.createEl('div', {
-                                cls: 'template-placeholder-info'
-                            });
-                            previewEl.style.marginTop = '1em';
-                            previewEl.style.whiteSpace = 'pre-wrap';
-                            previewEl.style.fontFamily = 'monospace';
-                            previewEl.style.fontSize = '0.85em';
-                            previewEl.style.maxHeight = '300px';
-                            previewEl.style.overflow = 'auto';
-
-                            // Insert after the copy button setting
-                            copyExampleSetting.settingEl.insertAdjacentElement('afterend', previewEl);
-                        }
-                        previewEl.setText(TEMPLATE_FILE_EXAMPLE);
                     }));
 
-            let previewEl: HTMLElement | null = null;
+            // Display the example content consistently
+            const previewEl = templateSection.createEl('div', {
+                cls: 'template-placeholder-info'
+            });
+            previewEl.style.marginTop = '1em';
+            previewEl.style.whiteSpace = 'pre-wrap';
+            previewEl.style.fontFamily = 'monospace';
+            previewEl.style.fontSize = '0.85em';
+            previewEl.style.maxHeight = '300px';
+            previewEl.style.overflow = 'auto';
+            previewEl.setText(TEMPLATE_FILE_EXAMPLE);
+
+            // Insert after the copy button setting
+            copyExampleSetting.settingEl.insertAdjacentElement('afterend', previewEl);
 
             new Setting(templateSection)
                 .setName('Validate template file')
