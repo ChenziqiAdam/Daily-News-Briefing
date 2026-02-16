@@ -391,6 +391,44 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         this.plugin.settings.maxSearchResults = value;
                         await this.plugin.saveSettings();
                     }));
+
+            new Setting(newsSection)
+                .setName('Search date range')
+                .setDesc('How far back to search for news (d1 = 1 day, d3 = 3 days, w1 = 1 week)')
+                .addText(text => text
+                    .setPlaceholder('d3')
+                    .setValue(this.plugin.settings.dateRange)
+                    .onChange(async (value) => {
+                        this.plugin.settings.dateRange = value;
+                        await this.plugin.saveSettings();
+                    }));
+        }
+
+        if (provider.startsWith('rss')) {
+            newsSection.createEl('div', {text: 'RSS Settings', cls: 'setting-item-heading'});
+
+            new Setting(newsSection)
+                .setName('News items per topic')
+                .setDesc('Maximum number of news items to include per topic')
+                .addSlider(slider => slider
+                    .setLimits(3, 15, 1)
+                    .setValue(this.plugin.settings.resultsPerTopic)
+                    .setDynamicTooltip()
+                    .onChange(async (value) => {
+                        this.plugin.settings.resultsPerTopic = value;
+                        await this.plugin.saveSettings();
+                    }));
+
+            new Setting(newsSection)
+                .setName('Date range filter')
+                .setDesc('Filter RSS items by publish date (d1 = 1 day, d3 = 3 days, w1 = 1 week, w2 = 2 weeks)')
+                .addText(text => text
+                    .setPlaceholder('d3')
+                    .setValue(this.plugin.settings.dateRange)
+                    .onChange(async (value) => {
+                        this.plugin.settings.dateRange = value;
+                        await this.plugin.saveSettings();
+                    }));
         }
 
         // =========================
