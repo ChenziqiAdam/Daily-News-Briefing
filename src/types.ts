@@ -49,8 +49,7 @@ export interface DailyNewsSettings {
     
     // Metadata settings
     enableMetadata: boolean;
-    includeDate: boolean;
-    includeTime: boolean;
+    includeDatetime: boolean;
     includeTopics: boolean;
     includeTags: boolean;
     includeLanguage: boolean;
@@ -128,8 +127,7 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
     
     // Metadata settings
     enableMetadata: false, // Disabled by default to maintain backward compatibility
-    includeDate: true,
-    includeTime: true,
+    includeDatetime: true,
     includeTopics: true,
     includeTags: true,
     includeLanguage: false,
@@ -195,8 +193,7 @@ export type TopicStatus = {
 };
 
 export interface NewsMetadata {
-    date?: string;
-    time?: string;
+    datetime?: string;
     topics?: string[];
     tags?: string[];
     language?: string;
@@ -236,8 +233,7 @@ export interface TemplateData {
     second: string; // SS
 
     // Metadata field placeholders (individual)
-    metadataDate: string; // Just the date from metadata
-    metadataTime: string; // Just the time from metadata
+    metadataDatetime: string; // Date and/or time from metadata
     metadataTags: string; // Comma-separated tags
     metadataLanguage: string; // Language from metadata
     metadataProvider: string; // API provider name

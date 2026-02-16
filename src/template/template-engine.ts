@@ -53,8 +53,7 @@ export class TemplateEngine {
         result = result.replace(/\{\{SECOND\}\}/g, data.second);
 
         // Metadata field placeholders
-        result = result.replace(/\{\{METADATA_DATE\}\}/g, data.metadataDate);
-        result = result.replace(/\{\{METADATA_TIME\}\}/g, data.metadataTime);
+        result = result.replace(/\{\{METADATA_DATETIME\}\}/g, data.metadataDatetime);
         result = result.replace(/\{\{METADATA_TAGS\}\}/g, data.metadataTags);
         result = result.replace(/\{\{METADATA_LANGUAGE\}\}/g, data.metadataLanguage);
         result = result.replace(/\{\{METADATA_PROVIDER\}\}/g, data.metadataProvider);

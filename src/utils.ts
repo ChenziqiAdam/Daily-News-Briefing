@@ -72,12 +72,9 @@ export class MetadataUtils {
         const processingEndTime = Date.now();
         const processingTimeMs = processingEndTime - processingStartTime;
 
-        if (settings.includeDate) {
-            metadata.date = new Date().toISOString().split('T')[0];
-        }
-
-        if (settings.includeTime) {
-            metadata.time = new Date().toLocaleTimeString();
+        if (settings.includeDatetime) {
+            const now = new Date();
+            metadata.datetime = `${now.toISOString().split('T')[0]} ${now.toLocaleTimeString()}`;
         }
 
         if (settings.includeTopics) {

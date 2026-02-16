@@ -46,13 +46,25 @@ export default class DailyNewsPlugin extends Plugin {
     }
 
     async loadSettings() {
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+        const loadedData = await this.loadData();
+        this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData);
 
         // Migration logic for old provider values
         const oldProvider = this.settings.apiProvider as any;
         if (oldProvider === 'google') {
             this.settings.apiProvider = 'google-gemini' ;
             await this. saveData(this. settings); // Save the migrated settings
+        }
+
+        // Migration logic for old date/time settings (v1.11.0 -> v1.12.0)
+        if (loadedData && ('includeDate' in loadedData || 'includeTime' in loadedData)) {
+            const oldIncludeDate = (loadedData as any).includeDate;
+            const oldIncludeTime = (loadedData as any).includeTime;
+            // If either was true, enable the new combined setting
+            if (oldIncludeDate || oldIncludeTime) {
+                this.settings.includeDatetime = true;
+            }
+            await this.saveData(this.settings); // Save migrated settings
         }
     }
 
@@ -287,8 +299,7 @@ export default class DailyNewsPlugin extends Plugin {
                 second: now.getSeconds().toString().padStart(2, '0'),
 
                 // Metadata field placeholders
-                metadataDate: metadata.date || '',
-                metadataTime: metadata.time || '',
+                metadataDatetime: metadata.datetime || '',
                 metadataTags: metadata.tags ? metadata.tags.join(', ') : '',
                 metadataLanguage: metadata.language || '',
                 metadataProvider: metadata.source || '',

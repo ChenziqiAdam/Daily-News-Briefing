@@ -493,22 +493,12 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             );
 
             new Setting(metadataContent)
-                .setName('Include date')
-                .setDesc('Add date field (YYYY-MM-DD)')
+                .setName('Include datetime')
+                .setDesc('Add datetime field (YYYY-MM-DD HH:MM:SS)')
                 .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.includeDate)
+                    .setValue(this.plugin.settings.includeDatetime)
                     .onChange(async (value) => {
-                        this.plugin.settings.includeDate = value;
-                        await this.plugin.saveSettings();
-                    }));
-
-            new Setting(metadataContent)
-                .setName('Include time')
-                .setDesc('Add time field (HH:MM:SS)')
-                .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.includeTime)
-                    .onChange(async (value) => {
-                        this.plugin.settings.includeTime = value;
+                        this.plugin.settings.includeDatetime = value;
                         await this.plugin.saveSettings();
                     }));
 
