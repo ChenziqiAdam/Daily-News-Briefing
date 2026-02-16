@@ -135,14 +135,19 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 .addOption('google-grok', 'Google Search + Grok Summarizer')
                 .addOption('google-claude', 'Google Search + Claude Summarizer')
                 .addOption('google-openrouter', 'Google Search + OpenRouter Summarizer')
+                .addOption('rss-gemini', 'RSS + Gemini Summarizer')
+                .addOption('rss-gpt', 'RSS + GPT Summarizer')
+                .addOption('rss-claude', 'RSS + Claude Summarizer')
+                .addOption('rss-grok', 'RSS + Grok Summarizer')
+                .addOption('rss-openrouter', 'RSS + OpenRouter Summarizer')
                 .addOption('sonar', 'Perplexity (Agentic Search)')
                 .addOption('gpt', 'OpenAI GPT (Agentic Search)')
                 .addOption('grok', 'Grok (Agentic Search)')
                 .addOption('claude', 'Claude (Agentic Search)')
                 .addOption('openrouter', 'OpenRouter (Agentic Search)')
                 .setValue(this.plugin.settings.apiProvider)
-                .onChange(async (value: 'google-gemini' | 'google-gpt' | 'sonar' | 'gpt' | 'google-grok' | 'grok' | 'claude' | 'openrouter' | 'google-claude' | 'google-openrouter') => {
-                    this.plugin.settings.apiProvider = value;
+                .onChange(async (value) => {
+                    this.plugin.settings.apiProvider = value as any;
                     await this.plugin.saveSettings();
                     this.display();
                 }));
@@ -180,7 +185,34 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
-        if (provider === 'google-gemini') {
+        if (provider.startsWith('rss')) {
+            apiSection.createEl('div', {text: 'RSS Feeds', cls: 'setting-item-heading'});
+
+            apiSection.createEl('p', {
+                text: 'Add RSS feed URLs (one per line). The plugin will fetch news from these feeds and filter by topic.',
+                cls: 'setting-item-description'
+            });
+
+            new Setting(apiSection)
+                .setName('RSS feed URLs')
+                .setDesc('Enter RSS feed URLs, one per line')
+                .addTextArea(text => {
+                    text.setPlaceholder('https://example.com/feed.xml\nhttps://news.example.org/rss')
+                        .setValue(this.plugin.settings.rssFeeds.join('\n'))
+                        .onChange(async (value) => {
+                            // Split by newlines and filter empty lines
+                            this.plugin.settings.rssFeeds = value
+                                .split('\n')
+                                .map(line => line.trim())
+                                .filter(line => line.length > 0);
+                            await this.plugin.saveSettings();
+                        });
+                    text.inputEl.rows = 6;
+                    text.inputEl.style.width = '100%';
+                });
+        }
+
+        if (provider === 'google-gemini' || provider === 'rss-gemini') {
             apiSection.createEl('div', {text: 'Gemini API', cls: 'setting-item-heading'});
             new Setting(apiSection)
                 .setName('API key')
@@ -194,7 +226,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
-        if (provider === 'google-gpt' || provider === 'gpt') {
+        if (provider === 'google-gpt' || provider === 'gpt' || provider === 'rss-gpt') {
             apiSection.createEl('div', {text: 'OpenAI API', cls: 'setting-item-heading'});
             new Setting(apiSection)
                 .setName('API key')
@@ -222,7 +254,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
-        if (provider === 'google-grok' || provider === 'grok') {
+        if (provider === 'google-grok' || provider === 'grok' || provider === 'rss-grok') {
             apiSection.createEl('div', {text: 'Grok API', cls: 'setting-item-heading'});
             new Setting(apiSection)
                 .setName('API key')
@@ -236,7 +268,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
-        if (provider === 'claude' || provider === 'google-claude') {
+        if (provider === 'claude' || provider === 'google-claude' || provider === 'rss-claude') {
             apiSection.createEl('div', {text: 'Anthropic API', cls: 'setting-item-heading'});
             new Setting(apiSection)
                 .setName('API key')
@@ -250,7 +282,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
-        if (provider === 'openrouter' || provider === 'google-openrouter') {
+        if (provider === 'openrouter' || provider === 'google-openrouter' || provider === 'rss-openrouter') {
             apiSection.createEl('div', {text: 'OpenRouter API', cls: 'setting-item-heading'});
             new Setting(apiSection)
                 .setName('API key')
@@ -587,7 +619,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }));
 
-            new Setting(templateSection)
+            const copyExampleSetting = new Setting(templateSection)
                 .setName('Copy template example')
                 .setDesc('Copy a template file example to clipboard')
                 .addButton(button => button
@@ -595,7 +627,26 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     .onClick(async () => {
                         await navigator.clipboard.writeText(TEMPLATE_FILE_EXAMPLE);
                         new Notice('Template example copied to clipboard!', 3000);
+
+                        // Show the copied content
+                        if (!previewEl) {
+                            previewEl = templateSection.createEl('div', {
+                                cls: 'template-placeholder-info'
+                            });
+                            previewEl.style.marginTop = '1em';
+                            previewEl.style.whiteSpace = 'pre-wrap';
+                            previewEl.style.fontFamily = 'monospace';
+                            previewEl.style.fontSize = '0.85em';
+                            previewEl.style.maxHeight = '300px';
+                            previewEl.style.overflow = 'auto';
+
+                            // Insert after the copy button setting
+                            copyExampleSetting.settingEl.insertAdjacentElement('afterend', previewEl);
+                        }
+                        previewEl.setText(TEMPLATE_FILE_EXAMPLE);
                     }));
+
+            let previewEl: HTMLElement | null = null;
 
             new Setting(templateSection)
                 .setName('Validate template file')
