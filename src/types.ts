@@ -2,7 +2,7 @@ import { CLAUDE_MODEL_NAME } from './constants';
 
 export interface DailyNewsSettings {
     // API provider selection
-    apiProvider: 'google-gemini' | 'google-gpt' | 'sonar' | 'gpt' | 'google-grok' | 'grok' | 'claude' | 'openrouter' | 'google-claude' | 'google-openrouter';
+    apiProvider: 'google-gemini' | 'google-gpt' | 'sonar' | 'gpt' | 'google-grok' | 'grok' | 'claude' | 'openrouter' | 'google-claude' | 'google-openrouter' | 'rss-gemini' | 'rss-gpt' | 'rss-claude' | 'rss-grok' | 'rss-openrouter';
 
     // Google API settings
     googleSearchApiKey: string;
@@ -24,7 +24,10 @@ export interface DailyNewsSettings {
     // OpenRouter API settings
     openrouterApiKey: string;
     openrouterModel: string;
-    
+
+    // RSS settings
+    rssFeeds: string[];
+
     // Core functionality
     topics: string[];
     scheduleTime: string;
@@ -100,6 +103,9 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
     // OpenRouter API settings
     openrouterApiKey: '',
     openrouterModel: CLAUDE_MODEL_NAME,
+
+    // RSS settings
+    rssFeeds: [],
 
     // Core functionality
     topics: ['Technology', 'World News'],
