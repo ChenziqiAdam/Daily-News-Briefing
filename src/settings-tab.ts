@@ -633,12 +633,16 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             const previewEl = templateSection.createEl('div', {
                 cls: 'template-placeholder-info'
             });
-            previewEl.style.marginTop = '1em';
+            previewEl.style.marginTop = '2em';
             previewEl.style.whiteSpace = 'pre-wrap';
             previewEl.style.fontFamily = 'monospace';
             previewEl.style.fontSize = '0.85em';
             previewEl.style.maxHeight = '300px';
             previewEl.style.overflow = 'auto';
+            previewEl.style.backgroundColor = 'var(--background-primary)';
+            previewEl.style.border = '1px solid var(--background-modifier-border)';
+            previewEl.style.borderRadius = '6px';
+            previewEl.style.padding = '1em';
             previewEl.setText(TEMPLATE_FILE_EXAMPLE);
 
             // Insert after the copy button setting
