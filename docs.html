@@ -121,6 +121,7 @@
                 <a href="#configuration">Configuration</a>
                 <a href="#basic-settings" class="pl-6">Basic Settings</a>
                 <a href="#search-settings" class="pl-6">Search Settings</a>
+                <a href="#rss-settings" class="pl-6">RSS Settings</a>
                 <a href="#output-settings" class="pl-6">Output Settings</a>
                 <a href="#metadata-settings" class="pl-6">Metadata</a>
                 <a href="#templates">Templates</a>
@@ -188,14 +189,18 @@ graph LR
     A[User Topics] --> B{Pipeline Type}
     B -->|Agentic| C[AI Provider<br/>Perplexity/GPT/Grok]
     B -->|Search+Summarize| D[Google Search]
+    B -->|RSS| H[RSS Feeds]
     D --> E[AI Summarizer<br/>Gemini/GPT/Grok]
+    H --> I[Filter by Topic]
     C --> F[Generated News Note]
     E --> F
+    I --> F
     F --> G[Your Vault]
 
     style A fill:#a855f7,stroke:#d8b4fe,color:#fff
     style F fill:#22c55e,stroke:#86efac,color:#fff
     style G fill:#3b82f6,stroke:#93c5fd,color:#fff
+    style H fill:#f59e0b,stroke:#fbbf24,color:#fff
                 </div>
             </section>
 
@@ -355,8 +360,32 @@ graph LR
                     </tbody>
                 </table>
 
+                <h4>RSS Retriever (No API Keys)</h4>
+                <p>Direct RSS feed fetching with topic-based filtering:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Provider</th>
+                            <th>Source</th>
+                            <th>Pros</th>
+                            <th>Cons</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>RSS Retriever</strong> 🆕<br><span class="badge badge-free">FREE</span><span class="badge badge-simple">Simple</span></td>
+                            <td>Your RSS feeds</td>
+                            <td>• No API keys needed<br>• No costs<br>• Fast fetching<br>• Complete control</td>
+                            <td>• No AI summarization<br>• Manual feed curation<br>• Limited to RSS-enabled sites</td>
+                            <td>Privacy, cost control, RSS enthusiasts</td>
+                        </tr>
+                    </tbody>
+                </table>
+
                 <div class="alert alert-info">
-                    <strong>💡 Recommendation:</strong> We recommend <strong>Google + Gemini</strong> because it's completely free to operate using Google's generous free tiers. Perfect for getting started!
+                    <strong>💡 Recommendation:</strong> We recommend <strong>Google + Gemini</strong> for AI-powered summaries (completely free), or <strong>RSS Retriever</strong> for zero-cost, privacy-focused news aggregation without AI processing.
                 </div>
 
                 <h3 id="api-setup">🔑 Step 3: API Setup Guides</h3>
@@ -585,6 +614,26 @@ graph LR
                     </div>
                 </details>
 
+                <details class="my-4">
+                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span>Option K: RSS Retriever</span>
+                        <span class="badge badge-simple badge-free">Free</span>
+                    </summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <h5>Setup Steps</h5>
+                        <ol>
+                            <li>Gather RSS feed URLs from your favorite news sources (e.g., TechCrunch, BBC News, Reuters)</li>
+                            <li>In plugin settings, choose <strong>"RSS Retriever"</strong> as your News Pipeline</li>
+                            <li>Enter your RSS feed URLs in the <strong>"RSS feed URLs"</strong> field (one per line)</li>
+                            <li>Configure your topics - the plugin will filter RSS items by topic relevance</li>
+                        </ol>
+                        <p class="text-sm text-gray-400 mt-4"><strong>How it works:</strong> Fetches news directly from RSS feeds, filters by topic keywords in title/content/categories, cleans HTML content, and sorts by publish date.</p>
+                        <p class="text-sm text-gray-400 mt-2"><strong>Pros:</strong> No API keys required, fast, no costs, works with any RSS/Atom feed</p>
+                        <p class="text-sm text-gray-400 mt-1"><strong>Cons:</strong> No AI summarization (uses original feed content), limited to RSS-enabled sources</p>
+                    </div>
+                </details>
+
             </section>
 
             <!-- Configuration -->
@@ -623,7 +672,7 @@ graph LR
                     <tbody>
                         <tr>
                             <td><strong>News Pipeline</strong></td>
-                            <td>Choose your AI provider architecture</td>
+                            <td>Choose your AI provider architecture or RSS retriever</td>
                             <td>
                                 • Perplexity (Agentic)<br>
                                 • OpenAI GPT (Agentic)<br>
@@ -634,7 +683,8 @@ graph LR
                                 • Google + GPT<br>
                                 • Google + Grok<br>
                                 • Google + Claude<br>
-                                • Google + OpenRouter
+                                • Google + OpenRouter<br>
+                                • RSS Retriever 🆕
                             </td>
                         </tr>
                         <tr>
@@ -730,6 +780,55 @@ graph LR
                     4. <strong>Recent</strong> - Time-filtered latest developments<br>
                     5. <strong>Simple</strong> - Basic query as fallback<br><br>
                     Results are deduplicated, filtered by quality sources, and ranked by AI for best results.
+                </div>
+
+                <h3 id="rss-settings">📡 RSS Settings (RSS Retriever Only)</h3>
+                <div class="alert alert-info">
+                    <strong>ℹ️ Note:</strong> These settings only apply when using the RSS Retriever pipeline.
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 30%">Setting</th>
+                            <th style="width: 45%">Description</th>
+                            <th style="width: 25%">Default / Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>RSS Feed URLs</strong></td>
+                            <td>RSS/Atom feed URLs to fetch news from. Enter one URL per line. The plugin will fetch all feeds and filter by topic keywords.</td>
+                            <td>
+                                <code>https://feeds.bbci.co.uk/news/rss.xml</code><br>
+                                <code>https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml</code><br>
+                                <code>https://feeds.arstechnica.com/arstechnica/index</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Results per Topic</strong></td>
+                            <td>Maximum number of RSS items to include per topic after filtering</td>
+                            <td><strong>5</strong><br>Range: 3-15</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Search Date Range</strong></td>
+                            <td>Filter RSS items by publish date:<br>
+                                • <code>d1</code> = yesterday<br>
+                                • <code>d3</code> = last 3 days<br>
+                                • <code>w1</code> = last week
+                            </td>
+                            <td><strong>d3</strong> (3 days)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-success">
+                    <strong>💡 RSS Tips:</strong><br>
+                    • Find RSS feeds by looking for <i class="fa-solid fa-rss"></i> icons on news websites<br>
+                    • Use multiple feeds for broader coverage (e.g., tech: TechCrunch, Verge, Ars Technica)<br>
+                    • RSS filtering works by matching topic keywords in article titles, content, and categories<br>
+                    • No API keys or costs required - completely free!<br>
+                    • Content is cleaned automatically (HTML tags, URLs removed)
                 </div>
 
                 <h3 id="output-settings">📝 Output Settings</h3>

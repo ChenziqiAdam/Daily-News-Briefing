@@ -6,7 +6,7 @@
 
 ## ✨ Features
 
-- 🤖 **6 AI Providers**: Google Gemini (free!), Anthropic, OpenAI, Grok, Perplexity, OpenRouter
+- 🤖 **6 AI Providers + RSS**: Google Gemini (free!), Anthropic, OpenAI, Grok, Perplexity, OpenRouter, RSS Retriever
 - 📅 **Auto-Scheduled**: Wake up to fresh news every day
 - 🎯 **Custom Topics**: Track exactly what matters to you
 - 🌍 **6 Languages**: English, French, German, Spanish, Italian, Chinese
