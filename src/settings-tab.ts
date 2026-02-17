@@ -459,6 +459,20 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(scheduleSection)
+            .setName('Organize notes into monthly folders')
+            .setDesc('Daily news notes are automatically organized into monthly subfolders (YYYY-MM). Click below to reorganize existing notes.')
+            .addButton(button => button
+                .setButtonText('Reorganize existing notes')
+                .setTooltip('Move existing daily news files into monthly subfolders')
+                .onClick(async () => {
+                    button.setDisabled(true);
+                    button.setButtonText('Reorganizing...');
+                    await this.plugin.reorganizeExistingNotes();
+                    button.setDisabled(false);
+                    button.setButtonText('Reorganize existing notes');
+                }));
+
+        new Setting(scheduleSection)
             .setName('Enable notifications')
             .setDesc('Show notifications when news is generated')
             .addToggle(toggle => toggle

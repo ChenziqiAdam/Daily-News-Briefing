@@ -148,7 +148,11 @@ export default class DailyNewsPlugin extends Plugin {
 
             // Normalize the path
             const archiveFolder = FileUtils.normalizePath(this.settings.archiveFolder);
-            const fileName = `${archiveFolder}/Daily News - ${date}.md`;
+
+            // Extract year and month from date (YYYY-MM-DD format)
+            const yearMonth = date.substring(0, 7); // Get YYYY-MM
+            const monthlyFolder = `${archiveFolder}/${yearMonth}`;
+            const fileName = `${monthlyFolder}/Daily News - ${date}.md`;
 
             // Check if the file already exists
             if (await this.app.vault.adapter.exists(fileName)) {
@@ -245,10 +249,13 @@ export default class DailyNewsPlugin extends Plugin {
                 }
             }
 
-            // Create folder if it doesn't exist
+            // Create folders if they don't exist
             try {
                 if (!(await this.app.vault.adapter.exists(archiveFolder))) {
                     await this.app.vault.createFolder(archiveFolder);
+                }
+                if (!(await this.app.vault.adapter.exists(monthlyFolder))) {
+                    await this.app.vault.createFolder(monthlyFolder);
                 }
             } catch (folderError) {
                 console.error("Failed to create folder:", folderError);
@@ -366,8 +373,18 @@ export default class DailyNewsPlugin extends Plugin {
             // Last resort: try to create a note with the error message
             try {
                 const archiveFolder = FileUtils.normalizePath(this.settings.archiveFolder);
-                const fileName = `${archiveFolder}/Daily News - ${date}.md`;
+                const yearMonth = date.substring(0, 7); // Get YYYY-MM
+                const monthlyFolder = `${archiveFolder}/${yearMonth}`;
+                const fileName = `${monthlyFolder}/Daily News - ${date}.md`;
                 const errorContent = `# Daily News - ${date}\n\n**Error generating news**\n\nAn unexpected error occurred:\n\n\`\`\`\n${error.message}\n\`\`\`\n\nPlease check the console for more details.`;
+
+                // Ensure monthly folder exists
+                if (!(await this.app.vault.adapter.exists(archiveFolder))) {
+                    await this.app.vault.createFolder(archiveFolder);
+                }
+                if (!(await this.app.vault.adapter.exists(monthlyFolder))) {
+                    await this.app.vault.createFolder(monthlyFolder);
+                }
 
                 await this.app.vault.create(fileName, errorContent);
                 new Notice('Failed to generate news. Error note created.', 5000);
@@ -382,18 +399,19 @@ export default class DailyNewsPlugin extends Plugin {
 
     async openOrCreateDailyNews() {
         const date = new Date().toISOString().split('T')[0];
-        const filePath = FileUtils.normalizePath(`${this.settings.archiveFolder}/Daily News - ${date}.md`);
-        
+        const yearMonth = date.substring(0, 7); // Get YYYY-MM
+        const filePath = FileUtils.normalizePath(`${this.settings.archiveFolder}/${yearMonth}/Daily News - ${date}.md`);
+
         try {
             // Check if file exists
             const fileExists = await this.app.vault.adapter.exists(filePath);
-            
+
             if (fileExists) {
                 FileUtils.openNewsFile(this.app, filePath);
             } else {
                 new Notice('Generating today\'s news briefing...');
                 const createdPath = await this.generateDailyNews();
-                
+
                 if (createdPath) {
                     setTimeout(() => {
                         FileUtils.openNewsFile(this.app, createdPath);
@@ -405,6 +423,95 @@ export default class DailyNewsPlugin extends Plugin {
         } catch (error) {
             console.error('Error opening or creating daily news:', error);
             new Notice('Unable to open or create daily news');
+        }
+    }
+
+    async reorganizeExistingNotes() {
+        try {
+            const archiveFolder = FileUtils.normalizePath(this.settings.archiveFolder);
+
+            // Check if archive folder exists
+            if (!(await this.app.vault.adapter.exists(archiveFolder))) {
+                new Notice('Archive folder not found. Nothing to reorganize.', 3000);
+                return;
+            }
+
+            // Get all files in the archive folder (non-recursive)
+            const files = this.app.vault.getFiles().filter(file => {
+                const normalizedPath = FileUtils.normalizePath(file.path);
+                const parentFolder = normalizedPath.substring(0, normalizedPath.lastIndexOf('/'));
+
+                // Only include files directly in archive folder (not in subfolders)
+                return parentFolder === archiveFolder &&
+                       file.extension === 'md' &&
+                       file.name.startsWith('Daily News - ');
+            });
+
+            if (files.length === 0) {
+                new Notice('No daily news files found to reorganize.', 3000);
+                return;
+            }
+
+            new Notice(`Found ${files.length} file(s) to reorganize...`, 3000);
+            let moved = 0;
+            let skipped = 0;
+            let errors = 0;
+
+            for (const file of files) {
+                try {
+                    // Extract date from filename (format: "Daily News - YYYY-MM-DD.md")
+                    const dateMatch = file.name.match(/Daily News - (\d{4}-\d{2}-\d{2})\.md/);
+
+                    if (!dateMatch) {
+                        console.warn(`Skipping file with unexpected format: ${file.name}`);
+                        skipped++;
+                        continue;
+                    }
+
+                    const dateStr = dateMatch[1];
+                    const yearMonth = dateStr.substring(0, 7); // Extract YYYY-MM
+                    const monthlyFolder = `${archiveFolder}/${yearMonth}`;
+                    const newPath = `${monthlyFolder}/${file.name}`;
+
+                    // Skip if file is already in the correct location
+                    if (file.path === newPath) {
+                        skipped++;
+                        continue;
+                    }
+
+                    // Create monthly folder if it doesn't exist
+                    if (!(await this.app.vault.adapter.exists(monthlyFolder))) {
+                        await this.app.vault.createFolder(monthlyFolder);
+                    }
+
+                    // Check if a file with the same name already exists in the target folder
+                    if (await this.app.vault.adapter.exists(newPath)) {
+                        console.warn(`File already exists at target location: ${newPath}`);
+                        skipped++;
+                        continue;
+                    }
+
+                    // Move the file
+                    await this.app.fileManager.renameFile(file, newPath);
+                    moved++;
+
+                } catch (fileError) {
+                    console.error(`Error moving file ${file.name}:`, fileError);
+                    errors++;
+                }
+            }
+
+            // Show summary
+            const summary = [];
+            if (moved > 0) summary.push(`${moved} moved`);
+            if (skipped > 0) summary.push(`${skipped} skipped`);
+            if (errors > 0) summary.push(`${errors} errors`);
+
+            new Notice(`Reorganization complete: ${summary.join(', ')}`, 5000);
+
+        } catch (error) {
+            console.error('Error during reorganization:', error);
+            new Notice('Failed to reorganize notes. Check console for details.', 5000);
         }
     }
 }
