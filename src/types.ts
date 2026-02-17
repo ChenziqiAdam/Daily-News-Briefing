@@ -39,9 +39,7 @@ export interface DailyNewsSettings {
     // Content quality settings
     resultsPerTopic: number;
     maxSearchResults: number;
-    preferredDomains: string[];
-    excludedDomains: string[];
-    
+
     // Output settings
     outputFormat: 'detailed' | 'concise';
     enableNotifications: boolean;
@@ -117,9 +115,7 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
     // Content quality settings
     resultsPerTopic: 8,
     maxSearchResults: 30,
-    preferredDomains: ['nytimes.com', 'bbc.com', 'reuters.com', 'apnews.com'],
-    excludedDomains: ['pinterest.com', 'facebook.com', 'instagram.com'],
-    
+
     // Output settings
     outputFormat: 'detailed',
     enableNotifications: true,
