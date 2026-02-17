@@ -860,6 +860,15 @@ graph LR
                             <td>Toggle<br>(default: enabled)</td>
                         </tr>
                         <tr>
+                            <td><strong>Monthly Folder Organization</strong></td>
+                            <td>Daily news notes are automatically organized into monthly subfolders (YYYY-MM format).<br>
+                                • Files saved as: <code>Archive Folder/2026-02/Daily News - 2026-02-17.md</code><br>
+                                • Click "Reorganize existing notes" button to move old notes into monthly subfolders<br>
+                                • Fully backward compatible with existing notes
+                            </td>
+                            <td>Automatic<br>(always enabled)</td>
+                        </tr>
+                        <tr>
                             <td><strong>Custom AI Prompt</strong></td>
                             <td>Override the default summarization prompt. Use <code>{{NEWS_TEXT}}</code> placeholder for the news content.<br><em>See Custom Prompts section for examples</em></td>
                             <td>Text input<br>(optional)</td>
@@ -1281,11 +1290,15 @@ Return items that together give a balanced, comprehensive view.</code></pre>
                 <ol>
                     <li>Set your schedule time in settings (e.g., <code>08:00</code>)</li>
                     <li>Keep Obsidian running or open it after the scheduled time</li>
-                    <li>Find your briefings in the configured Archive Folder</li>
+                    <li>Find your briefings in the configured Archive Folder, organized by month</li>
                 </ol>
 
                 <div class="alert alert-info">
                     <strong>ℹ️ Note:</strong> Obsidian must be running for automatic generation. If closed, the plugin will generate news when you next open Obsidian (if after the scheduled time).
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>📁 Monthly Organization:</strong> Daily news notes are automatically saved into monthly subfolders (e.g., <code>News Archive/2026-02/</code>). Use the "Reorganize existing notes" button in settings to organize old notes.
                 </div>
 
                 <h3>👆 Manual Generation</h3>
@@ -1451,6 +1464,38 @@ graph TD
             <section id="changelog">
                 <h2>Changelog</h2>
                 <p>Recent updates and improvements to Daily News Briefing.</p>
+
+                <div class="feature-box">
+                    <h5>v1.12.0 - Monthly Folder Organization</h5>
+                    <p><strong>Released:</strong> February 2026</p>
+                    <ul>
+                        <li><strong>📁 Automatic Monthly Subfolders</strong>
+                            <ul>
+                                <li>✅ Daily news notes are now automatically organized into monthly subfolders (YYYY-MM format)</li>
+                                <li>✅ Example: <code>News Archive/2026-02/Daily News - 2026-02-17.md</code></li>
+                                <li>✅ Keeps your archive folder clean and well-organized</li>
+                                <li>✅ Full backward compatibility with existing notes</li>
+                            </ul>
+                        </li>
+                        <li><strong>🔄 One-Click Reorganization</strong>
+                            <ul>
+                                <li>✅ New "Reorganize existing notes" button in settings</li>
+                                <li>✅ Automatically moves old notes into monthly subfolders</li>
+                                <li>✅ Safely handles duplicates and files already in correct location</li>
+                                <li>✅ Shows detailed summary: moved/skipped/errors count</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="feature-box">
+                    <h5>v1.11.0 - RSS Support</h5>
+                    <p><strong>Released:</strong> February 2026</p>
+                    <ul>
+                        <li>✅ Support for RSS feed retriever</li>
+                        <li>✅ Improved template settings and example content display</li>
+                    </ul>
+                </div>
 
                 <div class="feature-box">
                     <h5>v1.10.2 - Cache & Template Improvements</h5>

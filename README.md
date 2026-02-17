@@ -12,6 +12,7 @@
 - 🌍 **6 Languages**: English, French, German, Spanish, Italian, Chinese
 - 🎨 **Flexible Templates**: 5 presets + custom templates with 25 placeholders
 - 📱 **One-Click Access**: Sidebar button for instant generation
+- 📁 **Auto-Organization**: Monthly subfolders keep your archive clean and organized
 
 ## 🚀 Quick Start
 
