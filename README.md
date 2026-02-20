@@ -67,13 +67,17 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## 📋 Changelog
 
-### v1.11.0
-- Support RSS feeder
-- Improve template setting and exmaple content display
+### v1.11.1
+- Merge metadata date and time, and add migration logic
+- Support monthly notes subfolder organization, and one-click reorganize
 
 ### Previous Versions
 <details>
 <summary>Click to view changelog history</summary>
+
+**1.11.0**
+- Support RSS retriever
+- Improve template setting and exmaple content display
 
 **1.10.2**
 - Improve setting tab frontend

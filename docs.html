@@ -49,8 +49,8 @@
         .docs-content code { background: #1a1a1a; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #a855f7; }
         .docs-content pre { background: #1a1a1a; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1rem; border: 1px solid #333; }
         .docs-content pre code { background: transparent; padding: 0; color: #d1d5db; }
-        .docs-content a { color: #a855f7; text-decoration: underline; }
-        .docs-content a:hover { color: #d8b4fe; }
+        .docs-content a { color: #a855f7; text-decoration: none; transition: color 0.2s; }
+        .docs-content a:hover { color: #d8b4fe; text-decoration: underline; }
         .docs-content table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
         .docs-content table th { background: #1a1a1a; padding: 0.75rem; text-align: left; border: 1px solid #333; font-weight: 600; color: #a855f7; }
         .docs-content table td { padding: 0.75rem; border: 1px solid #333; vertical-align: top; }
@@ -75,17 +75,14 @@
         .badge-paid { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; }
         .badge-simple { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid #3b82f6; }
 
-        /* Mermaid diagram theming */
         .mermaid { background: #1a1a1a; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid #333; }
 
-        /* Collapsible details styling */
         details { border: 1px solid #333; border-radius: 0.5rem; padding: 1rem; background: #161616; margin-bottom: 1rem; }
         details[open] { background: #1a1a1a; }
-        details summary { cursor: pointer; user-select: none; font-weight: 600; }
+        details summary { cursor: pointer; user-select: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
         details summary:hover { color: #d8b4fe; }
-        details summary i { transition: transform 0.2s; display: inline-block; }
-        details[open] summary i.fa-chevron-right { transform: rotate(90deg); }
-        details[open] summary i.fa-chevron-down { transform: rotate(0deg); }
+        details summary i { transition: transform 0.2s; }
+        details[open] summary i { transform: rotate(90deg); }
     </style>
 </head>
 <body class="relative overflow-x-hidden">
@@ -115,6 +112,7 @@
         <aside class="hidden lg:block w-64 flex-shrink-0">
             <nav class="sidebar-nav">
                 <a href="#overview">Overview</a>
+                <a href="#quick-start" class="pl-6">Quick Start</a>
                 <a href="#installation">Installation</a>
                 <a href="#pipelines" class="pl-6">AI Pipelines</a>
                 <a href="#api-setup" class="pl-6">API Setup</a>
@@ -144,63 +142,61 @@
         <!-- Main Documentation Content -->
         <main class="flex-1 max-w-4xl docs-content">
 
-            <h1 class="text-5xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-400">Documentation</h1>
-            <p class="text-xl text-gray-400 mb-8">Complete guide to Daily News Briefing for Obsidian</p>
-
-            <div class="alert alert-success mb-12">
-                <strong>🎉 Latest Update (v1.10.2):</strong> Improve setting tab frontend, fix template function and add content cache to reduce token cost.
-            </div>
-
-            <!-- Overview -->
             <section id="overview">
-                <h2>Overview</h2>
-                <p>Daily News Briefing is an Obsidian plugin that automatically generates AI-powered news summaries on topics you care about, delivered directly to your vault as markdown notes.</p>
+                <h1 class="text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-400">Your AI-Powered Daily News Digest</h1>
+                <p class="text-xl text-gray-400 mb-8">An Obsidian plugin to automatically generate news summaries on topics you care about, delivered directly to your vault.</p>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-8">
+                <div class="alert alert-success mb-12">
+                    <strong>🎉 Latest Update (v1.11.1):</strong> Simplified metadata and improved notes subfolder organization.
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
                     <div class="feature-box">
-                        <h5><i class="fa-solid fa-robot mr-2"></i>6 AI Providers</h5>
-                        <p class="text-sm">Google Gemini (free!), Anthropic, OpenAI, Grok, Perplexity, OpenRouter</p>
+                        <h5><i class="fa-solid fa-robot mr-2"></i>8 AI Pipelines</h5>
+                        <p class="text-sm">Google Gemini (free!), Anthropic, OpenAI, Grok, Perplexity, OpenRouter & RSS.</p>
                     </div>
                     <div class="feature-box">
-                        <h5><i class="fa-solid fa-calendar mr-2"></i>Auto-Scheduled</h5>
-                        <p class="text-sm">Set your time, wake up to fresh news every morning</p>
+                        <h5><i class="fa-solid fa-calendar mr-2"></i>Fully Automated</h5>
+                        <p class="text-sm">Set a schedule and wake up to fresh news every morning.</p>
                     </div>
                     <div class="feature-box">
-                        <h5><i class="fa-solid fa-language mr-2"></i>6 Languages</h5>
-                        <p class="text-sm">English, French, German, Spanish, Italian, Chinese</p>
-                    </div>
-                    <div class="feature-box">
-                        <h5><i class="fa-solid fa-paint-brush mr-2"></i>Flexible Templates</h5>
-                        <p class="text-sm">5 presets + custom templates with 25 placeholders</p>
-                    </div>
-                    <div class="feature-box">
-                        <h5><i class="fa-solid fa-gauge-high mr-2"></i>Smart Caching</h5>
-                        <p class="text-sm">Automatic daily cache cleanup & reduced token costs</p>
-                    </div>
-                    <div class="feature-box">
-                        <h5><i class="fa-solid fa-hand-pointer mr-2"></i>One-Click Access</h5>
-                        <p class="text-sm">Sidebar button for instant news generation</p>
+                        <h5><i class="fa-solid fa-paint-brush mr-2"></i>Highly Customizable</h5>
+                        <p class="text-sm">5 template options, 25+ placeholders, and custom AI prompts.</p>
                     </div>
                 </div>
 
+                <h3 id="quick-start">🚀 Quick Start</h3>
+                <p>Get your first daily news briefing in under 5 minutes.</p>
+                <div class="feature-box">
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li><strong>Install:</strong> In Obsidian, go to <strong>Community Plugins</strong> and install <strong>"Daily News Briefing"</strong>.</li>
+                        <li><strong>Choose Provider:</strong> In plugin settings, select an AI provider. We recommend the free <strong>Google + Gemini</strong> option.</li>
+                        <li><strong>Add API Keys:</strong> Follow the on-screen instructions to add your API keys.</li>
+                        <li><strong>Set Topics:</strong> Enter comma-separated topics (e.g., "AI, Tesla, Bitcoin").</li>
+                        <li><strong>Run Manually:</strong> Open the Command Palette (Cmd/Ctrl+P) and run <strong>"Daily News Briefing: Generate news now"</strong>.</li>
+                    </ol>
+                </div>
+                <p>That's it! Your news briefing is now in your vault. You can also set a daily schedule in the settings.</p>
+
+
                 <h3>How It Works</h3>
                 <div class="mermaid">
-graph LR
-    A[User Topics] --> B{Pipeline Type}
-    B -->|Agentic| C[AI Provider<br/>Perplexity/GPT/Grok]
-    B -->|Search+Summarize| D[Google Search]
-    B -->|RSS| H[RSS Feeds]
-    D --> E[AI Summarizer<br/>Gemini/GPT/Grok]
-    H --> I[Filter by Topic]
-    C --> F[Generated News Note]
-    E --> F
-    I --> F
-    F --> G[Your Vault]
+    graph LR
+        A[User Topics] --> B{Pipeline Type}
+        B -->|Agentic| C[AI Provider<br/>Perplexity/GPT/Grok]
+        B -->|Search+Summarize| D[Google Search]
+        B -->|RSS| H[RSS Feeds]
+        D --> E[AI Summarizer<br/>Gemini/GPT/Grok]
+        H --> I[Filter by Topic]
+        C --> F[Generated News Note]
+        E --> F
+        I --> F
+        F --> G[Your Vault]
 
-    style A fill:#a855f7,stroke:#d8b4fe,color:#fff
-    style F fill:#22c55e,stroke:#86efac,color:#fff
-    style G fill:#3b82f6,stroke:#93c5fd,color:#fff
-    style H fill:#f59e0b,stroke:#fbbf24,color:#fff
+        style A fill:#a855f7,stroke:#d8b4fe,color:#fff
+        style F fill:#22c55e,stroke:#86efac,color:#fff
+        style G fill:#3b82f6,stroke:#93c5fd,color:#fff
+        style H fill:#f59e0b,stroke:#fbbf24,color:#fff
                 </div>
             </section>
 
@@ -226,34 +222,34 @@ graph LR
 
                 <p><strong>Option 1: Agentic Search (1 API Key - Simple)</strong></p>
                 <div class="mermaid">
-graph LR
-    A1[Your Topics] --> A2[AI Provider<br/>Perplexity/GPT/Grok]
-    A2 --> A3[Built-in<br/>Web Search]
-    A3 --> A4[AI Analysis &<br/>Summarization]
-    A4 --> A5[Final Summary]
+    graph LR
+        A1[Your Topics] --> A2[AI Provider<br/>Perplexity/GPT/Grok]
+        A2 --> A3[Built-in<br/>Web Search]
+        A3 --> A4[AI Analysis &<br/>Summarization]
+        A4 --> A5[Final Summary]
 
-    style A1 fill:#a855f7,stroke:#d8b4fe,color:#fff
-    style A2 fill:#1a1a1a,stroke:#a855f7,color:#e5e5e5
-    style A3 fill:#1a1a1a,stroke:#a855f7,color:#e5e5e5
-    style A4 fill:#1a1a1a,stroke:#a855f7,color:#e5e5e5
-    style A5 fill:#22c55e,stroke:#86efac,color:#fff
+        style A1 fill:#a855f7,stroke:#d8b4fe,color:#fff
+        style A2 fill:#1a1a1a,stroke:#a855f7,color:#e5e5e5
+        style A3 fill:#1a1a1a,stroke:#a855f7,color:#e5e5e5
+        style A4 fill:#1a1a1a,stroke:#a855f7,color:#e5e5e5
+        style A5 fill:#22c55e,stroke:#86efac,color:#fff
                 </div>
 
                 <p><strong>Option 2: Search + Summarize (3 API Keys - Advanced Control)</strong></p>
                 <div class="mermaid">
-graph LR
-    S1[Your Topics] --> S2[Google Search API]
-    S2 --> S3[5 Parallel<br/>Search Queries]
-    S3 --> S4[AI Filtering<br/>& Ranking]
-    S4 --> S5[AI Summarizer<br/>Gemini/GPT/Grok]
-    S5 --> S6[Final Summary]
+    graph LR
+        S1[Your Topics] --> S2[Google Search API]
+        S2 --> S3[5 Parallel<br/>Search Queries]
+        S3 --> S4[AI Filtering<br/>& Ranking]
+        S4 --> S5[AI Summarizer<br/>Gemini/GPT/Grok]
+        S5 --> S6[Final Summary]
 
-    style S1 fill:#a855f7,stroke:#d8b4fe,color:#fff
-    style S2 fill:#1a1a1a,stroke:#3b82f6,color:#e5e5e5
-    style S3 fill:#1a1a1a,stroke:#3b82f6,color:#e5e5e5
-    style S4 fill:#1a1a1a,stroke:#3b82f6,color:#e5e5e5
-    style S5 fill:#1a1a1a,stroke:#3b82f6,color:#e5e5e5
-    style S6 fill:#22c55e,stroke:#86efac,color:#fff
+        style S1 fill:#a855f7,stroke:#d8b4fe,color:#fff
+        style S2 fill:#1a1a1a,stroke:#3b82f6,color:#e5e5e5
+        style S3 fill:#1a1a1a,stroke:#3b82f6,color:#e5e5e5
+        style S4 fill:#1a1a1a,stroke:#3b82f6,color:#e5e5e5
+        style S5 fill:#1a1a1a,stroke:#3b82f6,color:#e5e5e5
+        style S6 fill:#22c55e,stroke:#86efac,color:#fff
                 </div>
 
                 <h4>Agentic Search Providers (1 API Key)</h4>
@@ -400,11 +396,7 @@ graph LR
                 </div>
 
                 <details class="my-4">
-                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-chevron-right"></i>
-                        <span>Option A: Perplexity (Agentic Search)</span>
-                        <span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span>
-                    </summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option A: Perplexity (Agentic Search)</span><span class="badge badge-simple ml-2">Simple</span><span class="badge badge-paid">Paid</span></summary>
                     <div class="feature-box ml-6 mt-2">
                         <h5>Setup Steps</h5>
                         <ol>
@@ -418,11 +410,7 @@ graph LR
                 </details>
 
                 <details class="my-4">
-                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-chevron-right"></i>
-                        <span>Option B: OpenAI GPT (Agentic Search)</span>
-                        <span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span>
-                    </summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option B: OpenAI GPT (Agentic Search)</span><span class="badge badge-simple ml-2">Simple</span><span class="badge badge-paid">Paid</span></summary>
                     <div class="feature-box ml-6 mt-2">
                         <h5>Setup Steps</h5>
                         <ol>
@@ -436,11 +424,7 @@ graph LR
                 </details>
 
                 <details class="my-4">
-                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-chevron-right"></i>
-                        <span>Option C: Grok (Agentic Search)</span>
-                        <span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span>
-                    </summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option C: Grok (Agentic Search)</span><span class="badge badge-simple ml-2">Simple</span><span class="badge badge-paid">Paid</span></summary>
                     <div class="feature-box ml-6 mt-2">
                         <h5>Setup Steps</h5>
                         <ol>
@@ -454,11 +438,7 @@ graph LR
                 </details>
 
                 <details class="my-4">
-                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-chevron-right"></i>
-                        <span>Option D: Anthropic Claude (Agentic Search)</span>
-                        <span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span>
-                    </summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option D: Anthropic Claude (Agentic Search)</span><span class="badge badge-simple ml-2">Simple</span><span class="badge badge-paid">Paid</span></summary>
                     <div class="feature-box ml-6 mt-2">
                         <h5>Setup Steps</h5>
                         <ol>
@@ -472,11 +452,7 @@ graph LR
                 </details>
 
                 <details class="my-4">
-                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-chevron-right"></i>
-                        <span>Option E: OpenRouter (Agentic Search)</span>
-                        <span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span>
-                    </summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option E: OpenRouter (Agentic Search)</span><span class="badge badge-simple ml-2">Simple</span><span class="badge badge-paid">Paid</span></summary>
                     <div class="feature-box ml-6 mt-2">
                         <h5>Setup Steps</h5>
                         <ol>
@@ -498,11 +474,7 @@ graph LR
                 </details>
 
                 <details class="my-4" open>
-                    <summary class="cursor-pointer text-green-400 hover:text-green-300 font-semibold mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-chevron-down"></i>
-                        <span>⭐ Option F: Google Search + Gemini (FREE - RECOMMENDED)</span>
-                        <span class="badge badge-free">FREE</span>
-                    </summary>
+                    <summary class="text-green-400 hover:text-green-300"><i class="fa-solid fa-chevron-right"></i><span>⭐ Option F: Google Search + Gemini (FREE - RECOMMENDED)</span><span class="badge badge-free ml-2">FREE</span></summary>
                     <div class="feature-box ml-6 mt-2">
                         <h5>Setup Steps (3 Free API Keys Required)</h5>
 
@@ -550,11 +522,7 @@ graph LR
                 </div>
 
                 <details class="my-4">
-                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-chevron-right"></i>
-                        <span>Option G: Google Search + GPT Summarizer</span>
-                        <span class="badge badge-paid">Paid</span>
-                    </summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option G: Google Search + GPT Summarizer</span><span class="badge badge-paid ml-2">Paid</span></summary>
                     <div class="feature-box ml-6 mt-2">
                         <h5>Setup Steps</h5>
                         <p>Requires the same Google keys as Option F, plus:</p>
@@ -566,11 +534,7 @@ graph LR
                 </details>
 
                 <details class="my-4">
-                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-chevron-right"></i>
-                        <span>Option H: Google Search + Grok Summarizer</span>
-                        <span class="badge badge-paid">Paid</span>
-                    </summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option H: Google Search + Grok Summarizer</span><span class="badge badge-paid ml-2">Paid</span></summary>
                     <div class="feature-box ml-6 mt-2">
                         <h5>Setup Steps</h5>
                         <p>Requires the same Google keys as Option F, plus:</p>
@@ -582,11 +546,7 @@ graph LR
                 </details>
 
                 <details class="my-4">
-                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-chevron-right"></i>
-                        <span>Option I: Google Search + Claude Summarizer</span>
-                        <span class="badge badge-paid">Paid</span>
-                    </summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option I: Google Search + Claude Summarizer</span><span class="badge badge-paid ml-2">Paid</span></summary>
                     <div class="feature-box ml-6 mt-2">
                         <h5>Setup Steps</h5>
                         <p>Requires the same Google keys as Option F, plus:</p>
@@ -598,11 +558,7 @@ graph LR
                 </details>
 
                 <details class="my-4">
-                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-chevron-right"></i>
-                        <span>Option J: Google Search + OpenRouter Summarizer</span>
-                        <span class="badge badge-paid">Paid</span>
-                    </summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option J: Google Search + OpenRouter Summarizer</span><span class="badge badge-paid ml-2">Paid</span></summary>
                     <div class="feature-box ml-6 mt-2">
                         <h5>Setup Steps</h5>
                         <p>Requires the same Google keys as Option F, plus:</p>
@@ -615,11 +571,7 @@ graph LR
                 </details>
 
                 <details class="my-4">
-                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-chevron-right"></i>
-                        <span>Option K: RSS Retriever</span>
-                        <span class="badge badge-simple badge-free">Free</span>
-                    </summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option K: RSS Retriever</span><span class="badge badge-simple ml-2">Free</span><span class="badge badge-free"></span></summary>
                     <div class="feature-box ml-6 mt-2">
                         <h5>Setup Steps</h5>
                         <ol>
@@ -861,12 +813,13 @@ graph LR
                         </tr>
                         <tr>
                             <td><strong>Monthly Folder Organization</strong></td>
-                            <td>Daily news notes are automatically organized into monthly subfolders (YYYY-MM format).<br>
-                                • Files saved as: <code>Archive Folder/2026-02/Daily News - 2026-02-17.md</code><br>
-                                • Click "Reorganize existing notes" button to move old notes into monthly subfolders<br>
-                                • Fully backward compatible with existing notes
-                            </td>
-                            <td>Automatic<br>(always enabled)</td>
+                            <td>Automatically organizes daily news notes into monthly subfolders (YYYY-MM format). This keeps your archive clean and easy to navigate.</td>
+                            <td>Automatic (always enabled)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Reorganize Existing Notes</strong></td>
+                            <td>A one-click button in the settings to move all existing news notes into the monthly subfolder structure. Safe to run multiple times.</td>
+                            <td>Button in settings</td>
                         </tr>
                         <tr>
                             <td><strong>Custom AI Prompt</strong></td>
@@ -894,14 +847,9 @@ graph LR
                             <td>Toggle on/off</td>
                         </tr>
                         <tr>
-                            <td><strong>Include Date</strong></td>
-                            <td>Add date field to frontmatter</td>
-                            <td><code>date: "2026-01-08"</code></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Include Time</strong></td>
-                            <td>Add time field to frontmatter</td>
-                            <td><code>time: "09:54:19"</code></td>
+                            <td><strong>Include Date & Time</strong></td>
+                            <td>Add date and time fields to frontmatter</td>
+                            <td><code>datetime: "2026-01-08T09:54:19"</code></td>
                         </tr>
                         <tr>
                             <td><strong>Include Topics</strong></td>
@@ -938,8 +886,7 @@ graph LR
 
                 <p><strong>Example Complete Metadata:</strong></p>
                 <pre><code>---
-date: "2026-01-08"
-time: "09:54:19"
+datetime: "2026-01-08T09:54:19"
 topics: ["AI", "Tesla", "Bitcoin"]
 tags: ["ai", "tesla", "bitcoin", "daily-news", "google-gemini"]
 language: "en"
@@ -1321,32 +1268,32 @@ Return items that together give a balanced, comprehensive view.</code></pre>
 
                 <h3 id="workflow">Complete Workflow</h3>
                 <div class="mermaid">
-graph TD
-    A[Scheduled Time / Manual Trigger] --> B{Today's Note Exists?}
-    B -->|Yes| C[Open Existing Note]
-    B -->|No| D[Start Generation]
+    graph TD
+        A[Scheduled Time / Manual Trigger] --> B{Today's Note Exists?}
+        B -->|Yes| C[Open Existing Note]
+        B -->|No| D[Start Generation]
 
-    D --> E{Pipeline Type?}
-    E -->|Agentic| F[AI Provider Search]
-    E -->|Search+Summarize| G[Google Search]
+        D --> E{Pipeline Type?}
+        E -->|Agentic| F[AI Provider Search]
+        E -->|Search+Summarize| G[Google Search]
 
-    F --> H[AI Summarization]
-    G --> I[5 Parallel Queries]
-    I --> J[AI Filtering & Ranking]
-    J --> K[AI Summarization]
+        F --> H[AI Summarization]
+        G --> I[5 Parallel Queries]
+        I --> J[AI Filtering & Ranking]
+        J --> K[AI Summarization]
 
-    H --> L[Apply Template]
-    K --> L
+        H --> L[Apply Template]
+        K --> L
 
-    L --> M[Generate Markdown]
-    M --> N[Add Metadata]
-    N --> O[Save to Vault]
-    O --> P[Show Notification]
-    P --> Q[Open Note]
+        L --> M[Generate Markdown]
+        M --> N[Add Metadata]
+        N --> O[Save to Vault]
+        O --> P[Show Notification]
+        P --> Q[Open Note]
 
-    style A fill:#a855f7,stroke:#d8b4fe,color:#fff
-    style O fill:#22c55e,stroke:#86efac,color:#fff
-    style Q fill:#3b82f6,stroke:#93c5fd,color:#fff
+        style A fill:#a855f7,stroke:#d8b4fe,color:#fff
+        style O fill:#22c55e,stroke:#86efac,color:#fff
+        style Q fill:#3b82f6,stroke:#93c5fd,color:#fff
                 </div>
 
                 <h3>File Naming & Organization</h3>
@@ -1359,11 +1306,11 @@ graph TD
 
                 <p><strong>Folder structure:</strong></p>
                 <pre><code>Your Vault/
-└── News Archive/        (or your configured folder)
-    ├── 2026-01-08.md
-    ├── 2026-01-07.md
-    ├── 2026-01-06.md
-    └── ...</code></pre>
+    └── News Archive/        (or your configured folder)
+        ├── 2026-01-08.md
+        ├── 2026-01-07.md
+        ├── 2026-01-06.md
+        └── ...</code></pre>
 
                 <div class="alert alert-success">
                     <strong>💡 Pro Tip:</strong> Use Obsidian's Daily Notes plugin alongside this for seamless integration. Link to news from your daily notes for quick reference!
@@ -1466,25 +1413,11 @@ graph TD
                 <p>Recent updates and improvements to Daily News Briefing.</p>
 
                 <div class="feature-box">
-                    <h5>v1.12.0 - Monthly Folder Organization</h5>
+                    <h5>v1.11.1 - Simplified Metadata & Monthly Folders</h5>
                     <p><strong>Released:</strong> February 2026</p>
                     <ul>
-                        <li><strong>📁 Automatic Monthly Subfolders</strong>
-                            <ul>
-                                <li>✅ Daily news notes are now automatically organized into monthly subfolders (YYYY-MM format)</li>
-                                <li>✅ Example: <code>News Archive/2026-02/Daily News - 2026-02-17.md</code></li>
-                                <li>✅ Keeps your archive folder clean and well-organized</li>
-                                <li>✅ Full backward compatibility with existing notes</li>
-                            </ul>
-                        </li>
-                        <li><strong>🔄 One-Click Reorganization</strong>
-                            <ul>
-                                <li>✅ New "Reorganize existing notes" button in settings</li>
-                                <li>✅ Automatically moves old notes into monthly subfolders</li>
-                                <li>✅ Safely handles duplicates and files already in correct location</li>
-                                <li>✅ Shows detailed summary: moved/skipped/errors count</li>
-                            </ul>
-                        </li>
+                        <li><strong> ✅ Metadata Simplification:</strong> Merged `date` and `time` metadata fields into a single `datetime` field for better consistency and simpler templating. Migration logic is included to handle old formats seamlessly.</li>
+                        <li><strong> ✅ Improved Folder Organization:</strong> The "Monthly Folder Organization" is now more robust, with a clearer description in the settings.</li>
                     </ul>
                 </div>
 
@@ -1497,66 +1430,26 @@ graph TD
                     </ul>
                 </div>
 
-                <div class="feature-box">
-                    <h5>v1.10.2 - Cache & Template Improvements</h5>
-                    <p><strong>Released:</strong> February 2026</p>
-                    <ul>
-                        <li><strong>Settings UI</strong>
-                            <ul>
-                                <li>✅ Improved setting tab layout and organization</li>
-                            </ul>
-                        </li>
-                        <li><strong>Template Enhancements</strong>
-                            <ul>
-                                <li>✅ Added copy button for template note examples</li>
-                                <li>✅ Fixed template file path resolution for subfolders</li>
-                            </ul>
-                        </li>
-                        <li><strong>Cache Management</strong>
-                            <ul>
-                                <li>✅ Fixed "clear cache" button display issue</li>
-                                <li>✅ Automatically clear previous daily news content every day</li>
-                                <li>✅ Fixed cache content number display error</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="feature-box">
-                    <h5>v1.10.1 - Performance & Cost Optimization</h5>
-                    <p><strong>Released:</strong> February 2026</p>
-                    <ul>
-                        <li><strong>Reduced Token Cost</strong>
-                            <ul>
-                                <li>✅ Fixed AI-generated query cache for better efficiency</li>
-                                <li>✅ Added daily news content caching per topic and provider</li>
-                                <li>💰 Significantly lower API costs with smart caching</li>
-                            </ul>
-                        </li>
-                        <li><strong>Bug Fixes</strong>
-                            <ul>
-                                <li>Fixed duplicate TOC title in templates</li>
-                                <li>Improved error handling for cached content</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="feature-box">
-                    <h5>v1.10.0 - More AI Providers</h5>
-                    <ul>
-                        <li>✅ Added Anthropic Claude support (Agentic Search)</li>
-                        <li>✅ Added OpenRouter support with 5 model options</li>
-                        <li>🎯 8 total AI pipelines now available</li>
-                    </ul>
-                </div>
-
                 <details class="my-6">
-                    <summary class="cursor-pointer text-purple-400 hover:text-purple-300 font-semibold mb-4">
-                        <i class="fa-solid fa-chevron-down mr-2"></i>View Previous Versions
-                    </summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i>View Previous Versions</summary>
 
                     <div class="space-y-4 ml-4 mt-4">
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400"><strong>v1.10.1</strong> - Improve performance and add caching</p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400"><strong>v1.10.1</strong> - Fix caching and template settings</p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400"><strong>v1.10.1</strong> - Improve performance and add caching</p>
+                        </div>
+
+                        <div class="border-l-2 border-purple-900 pl-4">
+                            <p class="text-sm text-gray-400"><strong>v1.10.0</strong> - Support Anthropic and OpenRouter models</p>
+                        </div>
+
                         <div class="border-l-2 border-purple-900 pl-4">
                             <p class="text-sm text-gray-400"><strong>v1.9.1</strong> - Fixed metadata settings</p>
                         </div>
@@ -1830,27 +1723,27 @@ graph TD
                 <p>When using Google + Summarizer pipelines, the plugin implements a sophisticated multi-strategy search approach:</p>
 
                 <div class="mermaid">
-graph LR
-    A[Your Topic] --> B[Query Generator]
-    B --> C1[Optimized Query]
-    B --> C2[Specific Query]
-    B --> C3[Broad Query]
-    B --> C4[Recent Query]
-    B --> C5[Simple Query]
+    graph LR
+        A[Your Topic] --> B[Query Generator]
+        B --> C1[Optimized Query]
+        B --> C2[Specific Query]
+        B --> C3[Broad Query]
+        B --> C4[Recent Query]
+        B --> C5[Simple Query]
 
-    C1 --> D[Google Search]
-    C2 --> D
-    C3 --> D
-    C4 --> D
-    C5 --> D
+        C1 --> D[Google Search]
+        C2 --> D
+        C3 --> D
+        C4 --> D
+        C5 --> D
 
-    D --> E[Deduplication]
-    E --> F[Quality Filtering]
-    F --> G[AI Ranking]
-    G --> H[Top N Results]
+        D --> E[Deduplication]
+        E --> F[Quality Filtering]
+        F --> G[AI Ranking]
+        G --> H[Top N Results]
 
-    style A fill:#a855f7,stroke:#d8b4fe,color:#fff
-    style H fill:#22c55e,stroke:#86efac,color:#fff
+        style A fill:#a855f7,stroke:#d8b4fe,color:#fff
+        style H fill:#22c55e,stroke:#86efac,color:#fff
                 </div>
 
                 <h4>5 Parallel Search Strategies</h4>
@@ -2046,32 +1939,32 @@ graph LR
                 <p>The plugin follows a modular provider-based architecture with clear separation of concerns:</p>
 
                 <div class="mermaid">
-graph TD
-    A[Plugin Main Entry] --> B[News Provider Factory]
-    B --> C1[Agentic Providers]
-    B --> C2[Search-Summarize Coordinators]
+    graph TD
+        A[Plugin Main Entry] --> B[News Provider Factory]
+        B --> C1[Agentic Providers]
+        B --> C2[Search-Summarize Coordinators]
 
-    C1 --> D1[Perplexity]
-    C1 --> D2[GPT Agentic]
-    C1 --> D3[Grok Agentic]
-    C1 --> D4[Claude Agentic]
-    C1 --> D5[OpenRouter Agentic]
+        C1 --> D1[Perplexity]
+        C1 --> D2[GPT Agentic]
+        C1 --> D3[Grok Agentic]
+        C1 --> D4[Claude Agentic]
+        C1 --> D5[OpenRouter Agentic]
 
-    C2 --> E[Search + Summarize]
-    E --> F1[Google Search Retriever]
-    E --> F2[Gemini Summarizer]
-    E --> F3[GPT Summarizer]
-    E --> F4[Grok Summarizer]
-    E --> F5[Claude Summarizer]
-    E --> F6[OpenRouter Summarizer]
+        C2 --> E[Search + Summarize]
+        E --> F1[Google Search Retriever]
+        E --> F2[Gemini Summarizer]
+        E --> F3[GPT Summarizer]
+        E --> F4[Grok Summarizer]
+        E --> F5[Claude Summarizer]
+        E --> F6[OpenRouter Summarizer]
 
-    A --> G[Template Engine]
-    A --> H[Settings Tab]
-    A --> I[Utils]
+        A --> G[Template Engine]
+        A --> H[Settings Tab]
+        A --> I[Utils]
 
-    style A fill:#a855f7,stroke:#d8b4fe,color:#fff
-    style B fill:#3b82f6,stroke:#93c5fd,color:#fff
-    style G fill:#22c55e,stroke:#86efac,color:#fff
+        style A fill:#a855f7,stroke:#d8b4fe,color:#fff
+        style B fill:#3b82f6,stroke:#93c5fd,color:#fff
+        style G fill:#22c55e,stroke:#86efac,color:#fff
                 </div>
 
                 <h4>Design Patterns</h4>
@@ -2129,50 +2022,50 @@ graph TD
                 <p>Understanding the codebase organization:</p>
 
                 <pre><code>Daily-News-Briefing/
-├── main.ts                          # Plugin entry point
-├── manifest.json                    # Plugin metadata
-├── package.json                     # Dependencies & scripts
-├── tsconfig.json                    # TypeScript config
-├── esbuild.config.mjs               # Build configuration
-│
-├── src/
-│   ├── types.ts                     # Type definitions & settings interface
-│   ├── constants.ts                 # Language translations & constants
-│   ├── utils.ts                     # Utility functions (file, language, content, metadata)
-│   ├── settings-tab.ts              # Plugin settings UI
-│   │
-│   ├── providers/
-│   │   ├── base-news-provider.ts              # Abstract base class for all providers
-│   │   ├── news-provider-factory.ts           # Factory for creating provider instances
-│   │   │
-│   │   ├── agentic/                           # Single-call AI providers
-│   │   │   ├── perplexity-provider.ts         # Perplexity Sonar
-│   │   │   ├── gpt-agentic-provider.ts        # OpenAI GPT with web search
-│   │   │   ├── grok-agentic-provider.ts       # Grok with web search
-│   │   │   ├── claude-agentic-provider.ts     # Claude with web search
-│   │   │   └── openrouter-agentic-provider.ts # OpenRouter with web search
-│   │   │
-│   │   ├── coordinators/
-│   │   │   └── search-summarize-coordinator.ts # Coordinates retriever + summarizer
-│   │   │
-│   │   ├── retrievers/
-│   │   │   ├── base-retriever.ts              # Abstract retriever interface
-│   │   │   └── google-search-retriever.ts     # Google Custom Search implementation
-│   │   │
-│   │   └── summarizers/
-│   │       ├── base-summarizer.ts             # Abstract summarizer interface
-│   │       ├── gemini-summarizer.ts           # Google Gemini
-│   │       ├── gpt-summarizer.ts              # OpenAI GPT
-│   │       ├── grok-summarizer.ts             # xAI Grok
-│   │       ├── claude-summarizer.ts           # Anthropic Claude
-│   │       └── openrouter-summarizer.ts       # OpenRouter
-│   │
-│   └── template/
-│       ├── template-engine.ts                 # Template rendering engine
-│       └── template-presets.ts                # Preset template definitions
-│
-├── docs.html                        # Documentation website
-└── index.html                       # Landing page</code></pre>
+    ├── main.ts                          # Plugin entry point
+    ├── manifest.json                    # Plugin metadata
+    ├── package.json                     # Dependencies & scripts
+    ├── tsconfig.json                    # TypeScript config
+    ├── esbuild.config.mjs               # Build configuration
+    │
+    ├── src/
+    │   ├── types.ts                     # Type definitions & settings interface
+    │   ├── constants.ts                 # Language translations & constants
+    │   ├── utils.ts                     # Utility functions (file, language, content, metadata)
+    │   ├── settings-tab.ts              # Plugin settings UI
+    │   │
+    │   ├── providers/
+    │   │   ├── base-news-provider.ts              # Abstract base class for all providers
+    │   │   ├── news-provider-factory.ts           # Factory for creating provider instances
+    │   │   │
+    │   │   ├── agentic/                           # Single-call AI providers
+    │   │   │   ├── perplexity-provider.ts         # Perplexity Sonar
+    │   │   │   ├── gpt-agentic-provider.ts        # OpenAI GPT with web search
+    │   │   │   ├── grok-agentic-provider.ts       # Grok with web search
+    │   │   │   ├── claude-agentic-provider.ts     # Claude with web search
+    │   │   │   └── openrouter-agentic-provider.ts # OpenRouter with web search
+    │   │   │
+    │   │   ├── coordinators/
+    │   │   │   └── search-summarize-coordinator.ts # Coordinates retriever + summarizer
+    │   │   │
+    │   │   ├── retrievers/
+    │   │   │   ├── base-retriever.ts              # Abstract retriever interface
+    │   │   │   └── google-search-retriever.ts     # Google Custom Search implementation
+    │   │   │
+    │   │   └── summarizers/
+    │   │       ├── base-summarizer.ts             # Abstract summarizer interface
+    │   │       ├── gemini-summarizer.ts           # Google Gemini
+    │   │       ├── gpt-summarizer.ts              # OpenAI GPT
+    │   │       ├── grok-summarizer.ts             # xAI Grok
+    │   │       ├── claude-summarizer.ts           # Anthropic Claude
+    │   │       └── openrouter-summarizer.ts       # OpenRouter
+    │   │
+    │   └── template/
+    │       ├── template-engine.ts                 # Template rendering engine
+    │       └── template-presets.ts                # Preset template definitions
+    │
+    ├── docs.html                        # Documentation website
+    └── index.html                       # Landing page</code></pre>
 
                 <h4>Key Files Explained</h4>
                 <table>
@@ -2222,17 +2115,17 @@ graph TD
 
                 <h4>Development Setup</h4>
                 <pre><code># Clone the repository
-git clone https://github.com/ChenziqiAdam/Daily-News-Briefing.git
-cd Daily-News-Briefing
+    git clone https://github.com/ChenziqiAdam/Daily-News-Briefing.git
+    cd Daily-News-Briefing
 
-# Install dependencies
-npm install
+    # Install dependencies
+    npm install
 
-# Development build (watches for changes)
-npm run dev
+    # Development build (watches for changes)
+    npm run dev
 
-# Production build (with type checking)
-npm run build</code></pre>
+    # Production build (with type checking)
+    npm run build</code></pre>
 
                 <h4>Testing Your Changes</h4>
                 <ol>
@@ -2245,7 +2138,7 @@ npm run build</code></pre>
                 <h4>Adding a New AI Provider</h4>
 
                 <details>
-                    <summary><i class="fa-solid fa-chevron-right mr-2"></i>Agentic Provider (Single API Call)</summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i>Agentic Provider (Single API Call)</summary>
                     <div class="mt-4">
                         <ol>
                             <li>Create <code>src/providers/agentic/newprovider-agentic-provider.ts</code></li>
@@ -2257,19 +2150,19 @@ npm run build</code></pre>
                         </ol>
 
                         <pre><code>// Example structure
-import { BaseNewsProvider } from '../base-news-provider';
+    import { BaseNewsProvider } from '../base-news-provider';
 
-export class NewProviderAgenticProvider extends BaseNewsProvider {
-    async generateNews(topics: string[], language: string): Promise&lt;TopicContent[]&gt; {
-        // Your implementation
-        // Should return array of topic content with headlines
-    }
-}</code></pre>
+    export class NewProviderAgenticProvider extends BaseNewsProvider {
+        async generateNews(topics: string[], language: string): Promise&lt;TopicContent[]&gt; {
+            // Your implementation
+            // Should return array of topic content with headlines
+        }
+    }</code></pre>
                     </div>
                 </details>
 
                 <details>
-                    <summary><i class="fa-solid fa-chevron-right mr-2"></i>Search-Summarize Provider</summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i>Search-Summarize Provider</summary>
                     <div class="mt-4">
                         <p><strong>Add a new Summarizer:</strong></p>
                         <ol>
@@ -2353,19 +2246,12 @@ export class NewProviderAgenticProvider extends BaseNewsProvider {
             </section>
 
             <!-- Footer -->
-            <div class="mt-20 pt-12 border-t border-white/10">
-                <div class="flex items-center justify-between flex-wrap gap-4">
-                    <div>
-                        <p class="text-gray-400 mb-2">Need more help?</p>
-                        <div class="flex gap-4 flex-wrap">
-                            <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/issues" class="text-purple-400 hover:text-purple-300">Report an Issue</a>
-                            <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" class="text-purple-400 hover:text-purple-300">View on GitHub</a>
-                            <a href="https://www.buymeacoffee.com/adamchen" class="text-purple-400 hover:text-purple-300">Support Development</a>
-                        </div>
-                    </div>
-                    <a href="#overview" class="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-500 transition">
-                        Back to Top
-                    </a>
+            <div class="mt-20 pt-12 border-t border-white/10 text-center">
+                <p class="text-gray-400 mb-4">Need more help?</p>
+                <div class="flex gap-6 justify-center flex-wrap">
+                    <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/issues" class="text-purple-400 hover:text-purple-300">Report an Issue</a>
+                    <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" class="text-purple-400 hover:text-purple-300">View on GitHub</a>
+                    <a href="https://www.buymeacoffee.com/adamchen" class="text-purple-400 hover:text-purple-300">Support Development</a>
                 </div>
             </div>
 
@@ -2378,6 +2264,11 @@ export class NewProviderAgenticProvider extends BaseNewsProvider {
             <p class="mt-2">Built with curiosity by <a href="https://github.com/ChenziqiAdam" class="text-purple-400 hover:text-purple-300">@ChenziqiAdam</a></p>
         </div>
     </footer>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full bg-purple-600/80 text-white flex items-center justify-center shadow-lg hover:bg-purple-500 transition-all duration-300 transform scale-0" aria-label="Back to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
 
     <script>
         // Initialize Mermaid with dark theme
@@ -2399,31 +2290,39 @@ export class NewProviderAgenticProvider extends BaseNewsProvider {
             }
         });
 
-        // Smooth scroll and active link tracking
         document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar active link tracking
             const links = document.querySelectorAll('.sidebar-nav a');
-            const sections = document.querySelectorAll('section[id], h3[id], h4[id]');
-
-            function setActiveLink() {
-                let current = '';
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    const scrollPos = window.scrollY + 100;
-                    if (scrollPos >= sectionTop) {
-                        current = section.getAttribute('id');
+            const sections = document.querySelectorAll('section[id], h3[id]');
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        links.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
                     }
                 });
+            }, { rootMargin: "-50% 0px -50% 0px" });
 
-                links.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === '#' + current) {
-                        link.classList.add('active');
-                    }
-                });
-            }
+            sections.forEach(section => {
+                observer.observe(section);
+            });
 
-            window.addEventListener('scroll', setActiveLink);
-            setActiveLink();
+            // Back to Top Button
+            const backToTopButton = document.getElementById('back-to-top');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTopButton.classList.remove('scale-0');
+                } else {
+                    backToTopButton.classList.add('scale-0');
+                }
+            });
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
         });
     </script>
 
