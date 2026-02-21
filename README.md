@@ -215,6 +215,7 @@ Contributions welcome! We especially appreciate:
 - [x] **Cache Daily News Content** - Avoid redundant generation
 - [x] **Cache AI-generated Queries** - Reduce token cost
 - [ ] **More Web Search Choices** - Replacement of Google Search
+- [ ] **Custom Domains** - Support new Google Search
 
 ### Contributors
 
