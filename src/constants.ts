@@ -1,5 +1,5 @@
 // API and Model Constants
-export const GEMINI_MODEL_NAME = "gemini-2.5-flash";
+export const GEMINI_MODEL_NAME = "gemini-3-flash-preview";
 export const GPT_MODEL_NAME = "gpt-5-search-api";
 export const PERPLEXITY_MODEL_NAME = "sonar";
 export const GROK_MODEL_NAME = "grok-4-fast";

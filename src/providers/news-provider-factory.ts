@@ -12,6 +12,7 @@ import { GrokAgenticProvider } from './agentic/grok-agentic-provider';
 import { ClaudeAgenticProvider } from './agentic/claude-agentic-provider';
 import { OpenRouterAgenticProvider } from './agentic/openrouter-agentic-provider';
 import { PerplexityNewsProvider } from './agentic/perplexity-provider';
+import { GeminiAgenticProvider } from './agentic/gemini-agentic-provider';
 import { SearchSummarizeCoordinator } from './coordinators/search-summarize-coordinator';
 
 export class NewsProviderFactory {
@@ -39,6 +40,8 @@ export class NewsProviderFactory {
                     return new ClaudeAgenticProvider(settings);
                 case 'openrouter':
                     return new OpenRouterAgenticProvider(settings);
+                case 'gemini':
+                    return new GeminiAgenticProvider(settings);
                 default:
                     throw new Error(`Unknown agentic provider: ${settings.agenticProvider}`);
             }
@@ -75,6 +78,7 @@ export class NewsProviderFactory {
                 case 'grok':     return !!settings.grokApiKey;
                 case 'claude':   return !!settings.anthropicApiKey;
                 case 'openrouter': return !!settings.openrouterApiKey;
+                case 'gemini':   return !!settings.geminiApiKey;
                 default:         return false;
             }
         }
@@ -105,6 +109,7 @@ export class NewsProviderFactory {
                 case 'grok':       return 'Grok (Agentic Search)';
                 case 'claude':     return 'Claude (Agentic Search)';
                 case 'openrouter': return 'OpenRouter (Agentic Search)';
+                case 'gemini':     return 'Gemini (Agentic Search)';
                 default:           return 'Unknown Agentic Provider';
             }
         }

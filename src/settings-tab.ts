@@ -179,8 +179,9 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     .addOption('grok', 'Grok')
                     .addOption('claude', 'Claude')
                     .addOption('openrouter', 'OpenRouter')
+                    .addOption('gemini', 'Gemini (Google Search)')
                     .setValue(this.plugin.settings.agenticProvider)
-                    .onChange(async (value: 'sonar' | 'gpt' | 'grok' | 'claude' | 'openrouter') => {
+                    .onChange(async (value: 'sonar' | 'gpt' | 'grok' | 'claude' | 'openrouter' | 'gemini') => {
                         this.plugin.settings.agenticProvider = value;
                         await this.plugin.saveSettings();
                         this.display();
@@ -247,7 +248,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 });
         }
 
-        if ((pipelineMode === 'modular' && summarizer === 'gemini')) {
+        if ((pipelineMode === 'modular' && summarizer === 'gemini') || (pipelineMode === 'agentic' && agenticProvider === 'gemini')) {
             apiSection.createEl('div', {text: 'Gemini API', cls: 'setting-item-heading'});
             new Setting(apiSection)
                 .setName('API key')

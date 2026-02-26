@@ -159,8 +159,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
                     <div class="feature-box">
-                        <h5><i class="fa-solid fa-robot mr-2"></i>11 Pipelines</h5>
-                        <p class="text-sm">5 agentic providers, 5 modular combos, plus RSS. Includes a completely free option.</p>
+                        <h5><i class="fa-solid fa-robot mr-2"></i>12 Pipelines</h5>
+                        <p class="text-sm">6 agentic providers, 5 modular combos, plus RSS. Includes a completely free option.</p>
                     </div>
                     <div class="feature-box">
                         <h5><i class="fa-solid fa-calendar mr-2"></i>Fully Automated</h5>
@@ -310,6 +310,11 @@
                             <td>5 models available</td>
                             <td>Model flexibility via unified API</td>
                         </tr>
+                        <tr>
+                            <td><strong>Gemini</strong> <span class="badge badge-free">FREE</span></td>
+                            <td><code>gemini-3-flash-preview</code></td>
+                            <td>Google Search grounding, free tier available</td>
+                        </tr>
                     </tbody>
                 </table>
             </section>
@@ -365,7 +370,7 @@
                     <tbody>
                         <tr>
                             <td><strong>Gemini</strong> <span class="badge badge-free">FREE</span></td>
-                            <td><code>gemini-2.5-flash</code></td>
+                            <td><code>gemini-3-flash-preview</code></td>
                             <td>Free (1,500 req/day)</td>
                             <td><a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></td>
                         </tr>
@@ -441,6 +446,11 @@
                             <td><strong>OpenRouter</strong></td>
                             <td><a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></td>
                             <td>"OpenRouter (Agentic Search)" + pick model</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gemini</strong> <span class="badge badge-free">FREE</span></td>
+                            <td><a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a></td>
+                            <td>"Gemini (Google Search)"</td>
                         </tr>
                     </tbody>
                 </table>
@@ -522,7 +532,7 @@
                         <tr>
                             <td><strong>News Pipeline</strong></td>
                             <td>Your AI provider and architecture</td>
-                            <td>11 options (5 agentic, 5 modular, RSS)</td>
+                            <td>12 options (6 agentic, 5 modular, RSS)</td>
                         </tr>
                         <tr>
                             <td><strong>Topics</strong></td>
@@ -999,6 +1009,7 @@ News list:
         C1 --> D2[GPT Agentic]
         C1 --> D3[Claude Agentic]
         C1 --> D4[Grok Agentic]
+        C1 --> D5[Gemini Agentic]
         C1 --> D5[OpenRouter Agentic]
 
         C2 --> E1[Retrievers]
@@ -1039,7 +1050,7 @@ News list:
   providers/
     base-news-provider.ts     # Abstract base class
     news-provider-factory.ts  # Factory
-    agentic/                  # Perplexity, GPT, Claude, Grok, OpenRouter
+    agentic/                  # Perplexity, GPT, Claude, Grok, OpenRouter, Gemini
     coordinators/             # Search-Summarize coordinator
     retrievers/               # Google Search, RSS
     summarizers/              # Gemini, GPT, Claude, Grok, OpenRouter

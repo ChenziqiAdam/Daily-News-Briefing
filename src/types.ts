@@ -5,7 +5,7 @@ export interface DailyNewsSettings {
     pipelineMode: 'modular' | 'agentic';
     newsSource: 'google' | 'rss';          // modular only
     summarizer: 'gemini' | 'gpt' | 'grok' | 'claude' | 'openrouter'; // modular only
-    agenticProvider: 'sonar' | 'gpt' | 'grok' | 'claude' | 'openrouter'; // agentic only
+    agenticProvider: 'sonar' | 'gpt' | 'grok' | 'claude' | 'openrouter' | 'gemini'; // agentic only
 
     // Legacy field — kept for backward compat / cache key derivation during migration
     apiProvider: 'google-gemini' | 'google-gpt' | 'sonar' | 'gpt' | 'google-grok' | 'grok' | 'claude' | 'openrouter' | 'google-claude' | 'google-openrouter' | 'rss-gemini' | 'rss-gpt' | 'rss-claude' | 'rss-grok' | 'rss-openrouter';
