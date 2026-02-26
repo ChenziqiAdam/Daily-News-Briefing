@@ -1,6 +1,7 @@
 import { App, PluginSettingTab, Setting, Notice } from 'obsidian';
 import type { DailyNewsSettings } from './types';
 import type DailyNewsPlugin from '../main';
+import { NewsProviderFactory } from './providers/news-provider-factory';
 import { LANGUAGE_NAMES, OPENROUTER_MODELS } from './constants';
 import { TemplateEngine } from './template/template-engine';
 import { TEMPLATE_DESCRIPTIONS, TEMPLATE_EXAMPLE, TEMPLATE_FILE_EXAMPLE } from './template/template-presets';
@@ -127,39 +128,73 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         const pipelineSection = this.createSection(containerEl, '🔌 News Pipeline', 'Choose your news retrieval and summarization pipeline');
 
         new Setting(pipelineSection)
-            .setName('Pipeline')
-            .setDesc('Select your preferred pipeline')
+            .setName('Pipeline mode')
+            .setDesc('Modular: pick a news source + AI summarizer independently. Agentic: a single provider handles both search and summarization.')
             .addDropdown(dropdown => dropdown
-                .addOption('google-gemini', 'Google Search + Gemini Summarizer')
-                .addOption('google-gpt', 'Google Search + GPT Summarizer')
-                .addOption('google-grok', 'Google Search + Grok Summarizer')
-                .addOption('google-claude', 'Google Search + Claude Summarizer')
-                .addOption('google-openrouter', 'Google Search + OpenRouter Summarizer')
-                .addOption('rss-gemini', 'RSS + Gemini Summarizer')
-                .addOption('rss-gpt', 'RSS + GPT Summarizer')
-                .addOption('rss-claude', 'RSS + Claude Summarizer')
-                .addOption('rss-grok', 'RSS + Grok Summarizer')
-                .addOption('rss-openrouter', 'RSS + OpenRouter Summarizer')
-                .addOption('sonar', 'Perplexity (Agentic Search)')
-                .addOption('gpt', 'OpenAI GPT (Agentic Search)')
-                .addOption('grok', 'Grok (Agentic Search)')
-                .addOption('claude', 'Claude (Agentic Search)')
-                .addOption('openrouter', 'OpenRouter (Agentic Search)')
-                .setValue(this.plugin.settings.apiProvider)
-                .onChange(async (value) => {
-                    this.plugin.settings.apiProvider = value as any;
+                .addOption('modular', 'Modular (News Source + Summarizer)')
+                .addOption('agentic', 'Agentic (Unified Provider)')
+                .setValue(this.plugin.settings.pipelineMode)
+                .onChange(async (value: 'modular' | 'agentic') => {
+                    this.plugin.settings.pipelineMode = value;
                     await this.plugin.saveSettings();
                     this.display();
                 }));
+
+        if (this.plugin.settings.pipelineMode === 'modular') {
+            new Setting(pipelineSection)
+                .setName('News source')
+                .setDesc('Where to retrieve news articles from')
+                .addDropdown(dropdown => dropdown
+                    .addOption('google', 'Google Search')
+                    .addOption('rss', 'RSS Feeds')
+                    .setValue(this.plugin.settings.newsSource)
+                    .onChange(async (value: 'google' | 'rss') => {
+                        this.plugin.settings.newsSource = value;
+                        await this.plugin.saveSettings();
+                        this.display();
+                    }));
+
+            new Setting(pipelineSection)
+                .setName('AI summarizer')
+                .setDesc('AI model used to summarize retrieved articles')
+                .addDropdown(dropdown => dropdown
+                    .addOption('gemini', 'Gemini')
+                    .addOption('gpt', 'GPT (OpenAI)')
+                    .addOption('grok', 'Grok')
+                    .addOption('claude', 'Claude')
+                    .addOption('openrouter', 'OpenRouter')
+                    .setValue(this.plugin.settings.summarizer)
+                    .onChange(async (value: 'gemini' | 'gpt' | 'grok' | 'claude' | 'openrouter') => {
+                        this.plugin.settings.summarizer = value;
+                        await this.plugin.saveSettings();
+                        this.display();
+                    }));
+        } else {
+            new Setting(pipelineSection)
+                .setName('Provider')
+                .setDesc('Unified provider that handles both search and summarization')
+                .addDropdown(dropdown => dropdown
+                    .addOption('sonar', 'Perplexity (Sonar)')
+                    .addOption('gpt', 'GPT (OpenAI)')
+                    .addOption('grok', 'Grok')
+                    .addOption('claude', 'Claude')
+                    .addOption('openrouter', 'OpenRouter')
+                    .setValue(this.plugin.settings.agenticProvider)
+                    .onChange(async (value: 'sonar' | 'gpt' | 'grok' | 'claude' | 'openrouter') => {
+                        this.plugin.settings.agenticProvider = value;
+                        await this.plugin.saveSettings();
+                        this.display();
+                    }));
+        }
 
         // =========================
         // API Configuration
         // =========================
         const apiSection = this.createSection(containerEl, '🔑 API Configuration', 'Configure API keys for your selected pipeline');
 
-        const provider = this.plugin.settings.apiProvider;
+        const { pipelineMode, newsSource, summarizer, agenticProvider } = this.plugin.settings;
 
-        if (provider.startsWith('google')) {
+        if (pipelineMode === 'modular' && newsSource === 'google') {
             apiSection.createEl('div', {text: 'Google Search API', cls: 'setting-item-heading'});
 
             new Setting(apiSection)
@@ -185,7 +220,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
-        if (provider.startsWith('rss')) {
+        if (pipelineMode === 'modular' && newsSource === 'rss') {
             apiSection.createEl('div', {text: 'RSS Feeds', cls: 'setting-item-heading'});
 
             apiSection.createEl('p', {
@@ -212,7 +247,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 });
         }
 
-        if (provider === 'google-gemini' || provider === 'rss-gemini') {
+        if ((pipelineMode === 'modular' && summarizer === 'gemini')) {
             apiSection.createEl('div', {text: 'Gemini API', cls: 'setting-item-heading'});
             new Setting(apiSection)
                 .setName('API key')
@@ -226,7 +261,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
-        if (provider === 'google-gpt' || provider === 'gpt' || provider === 'rss-gpt') {
+        if ((pipelineMode === 'modular' && summarizer === 'gpt') || (pipelineMode === 'agentic' && agenticProvider === 'gpt')) {
             apiSection.createEl('div', {text: 'OpenAI API', cls: 'setting-item-heading'});
             new Setting(apiSection)
                 .setName('API key')
@@ -240,7 +275,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
-        if (provider === 'sonar') {
+        if (pipelineMode === 'agentic' && agenticProvider === 'sonar') {
             apiSection.createEl('div', {text: 'Perplexity API', cls: 'setting-item-heading'});
             new Setting(apiSection)
                 .setName('API key')
@@ -254,7 +289,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
-        if (provider === 'google-grok' || provider === 'grok' || provider === 'rss-grok') {
+        if ((pipelineMode === 'modular' && summarizer === 'grok') || (pipelineMode === 'agentic' && agenticProvider === 'grok')) {
             apiSection.createEl('div', {text: 'Grok API', cls: 'setting-item-heading'});
             new Setting(apiSection)
                 .setName('API key')
@@ -268,7 +303,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
-        if (provider === 'claude' || provider === 'google-claude' || provider === 'rss-claude') {
+        if ((pipelineMode === 'modular' && summarizer === 'claude') || (pipelineMode === 'agentic' && agenticProvider === 'claude')) {
             apiSection.createEl('div', {text: 'Anthropic API', cls: 'setting-item-heading'});
             new Setting(apiSection)
                 .setName('API key')
@@ -282,7 +317,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
-        if (provider === 'openrouter' || provider === 'google-openrouter' || provider === 'rss-openrouter') {
+        if ((pipelineMode === 'modular' && summarizer === 'openrouter') || (pipelineMode === 'agentic' && agenticProvider === 'openrouter')) {
             apiSection.createEl('div', {text: 'OpenRouter API', cls: 'setting-item-heading'});
             new Setting(apiSection)
                 .setName('API key')
@@ -365,7 +400,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
-        if (provider.startsWith('google')) {
+        if (pipelineMode === 'modular' && newsSource === 'google') {
             newsSection.createEl('div', {text: 'Search Settings', cls: 'setting-item-heading'});
 
             new Setting(newsSection)
@@ -404,7 +439,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
         }
 
-        if (provider.startsWith('rss')) {
+        if (pipelineMode === 'modular' && newsSource === 'rss') {
             newsSection.createEl('div', {text: 'RSS Settings', cls: 'setting-item-heading'});
 
             new Setting(newsSection)
@@ -756,7 +791,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 }));
 
         if (this.showAdvanced) {
-            if (provider.startsWith('google')) {
+            if (pipelineMode === 'modular' && newsSource === 'google') {
                 advancedSection.createEl('div', {text: 'Search Optimization', cls: 'setting-item-heading'});
 
                 new Setting(advancedSection)
@@ -824,7 +859,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             advancedSection.createEl('div', {text: 'Content Cache', cls: 'setting-item-heading'});
 
             // Count cache entries for current provider
-            const currentProvider = this.plugin.settings.apiProvider;
+            const currentProvider = NewsProviderFactory.getProviderKey(this.plugin.settings);
             const allCacheKeys = Object.keys(this.plugin.settings.dailyTopicCache);
             const providerCacheCount = allCacheKeys.filter(key => key.includes(`_${currentProvider}_`)).length;
 
@@ -860,7 +895,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
 
             if (this.plugin.settings.useCustomPrompt) {
                 let customPromptDesc = 'Your custom prompt for the AI.';
-                if (provider.startsWith('google')) {
+                if (pipelineMode === 'modular') {
                     customPromptDesc += ' (use {{NEWS_TEXT}} as placeholder for the news content)';
                 } else {
                     customPromptDesc += ' For agentic providers, this is used as the main instruction (e.g. "What is the latest news on {{TOPIC}}?")';

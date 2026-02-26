@@ -1,7 +1,13 @@
 import { CLAUDE_MODEL_NAME } from './constants';
 
 export interface DailyNewsSettings {
-    // API provider selection
+    // Pipeline mode selection (new)
+    pipelineMode: 'modular' | 'agentic';
+    newsSource: 'google' | 'rss';          // modular only
+    summarizer: 'gemini' | 'gpt' | 'grok' | 'claude' | 'openrouter'; // modular only
+    agenticProvider: 'sonar' | 'gpt' | 'grok' | 'claude' | 'openrouter'; // agentic only
+
+    // Legacy field — kept for backward compat / cache key derivation during migration
     apiProvider: 'google-gemini' | 'google-gpt' | 'sonar' | 'gpt' | 'google-grok' | 'grok' | 'claude' | 'openrouter' | 'google-claude' | 'google-openrouter' | 'rss-gemini' | 'rss-gpt' | 'rss-claude' | 'rss-grok' | 'rss-openrouter';
 
     // Google API settings
@@ -77,7 +83,13 @@ export interface DailyNewsSettings {
 }
 
 export const DEFAULT_SETTINGS: DailyNewsSettings = {
-    // API provider selection
+    // Pipeline mode (new)
+    pipelineMode: 'modular',
+    newsSource: 'google',
+    summarizer: 'gemini',
+    agenticProvider: 'sonar',
+
+    // Legacy field (kept for cache key compatibility)
     apiProvider: 'google-gemini', // Default to Google for backward compatibility
 
     // Google API settings

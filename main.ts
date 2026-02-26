@@ -49,11 +49,27 @@ export default class DailyNewsPlugin extends Plugin {
         const loadedData = await this.loadData();
         this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData);
 
-        // Migration logic for old provider values
+        // Migration: old single-field apiProvider -> new pipelineMode/newsSource/summarizer/agenticProvider
+        if (loadedData && loadedData.apiProvider && !loadedData.pipelineMode) {
+            const old = loadedData.apiProvider as string;
+            const agenticProviders = ['sonar', 'gpt', 'grok', 'claude', 'openrouter'];
+            if (agenticProviders.includes(old)) {
+                this.settings.pipelineMode = 'agentic';
+                this.settings.agenticProvider = old as any;
+            } else {
+                this.settings.pipelineMode = 'modular';
+                this.settings.newsSource = old.startsWith('rss') ? 'rss' : 'google';
+                const sumPart = old.split('-').pop() as any;
+                this.settings.summarizer = sumPart || 'gemini';
+            }
+            await this.saveData(this.settings);
+        }
+
+        // Migration for very old 'google' value
         const oldProvider = this.settings.apiProvider as any;
         if (oldProvider === 'google') {
-            this.settings.apiProvider = 'google-gemini' ;
-            await this. saveData(this. settings); // Save the migrated settings
+            this.settings.apiProvider = 'google-gemini';
+            await this.saveData(this.settings);
         }
 
         // Migration logic for old date/time settings (v1.11.0 -> v1.12.0)
@@ -166,7 +182,7 @@ export default class DailyNewsPlugin extends Plugin {
             // Process each topic
             for (const topic of this.settings.topics) {
                 // Create per-topic cache key
-                const topicCacheKey = `${date}_${this.settings.apiProvider}_${topic}`;
+                const topicCacheKey = `${date}_${NewsProviderFactory.getProviderKey(this.settings)}_${topic}`;
 
                 // Check if this topic is already cached
                 if (this.settings.dailyTopicCache[topicCacheKey]) {
