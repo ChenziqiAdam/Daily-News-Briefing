@@ -60,6 +60,8 @@
         .sidebar-nav a { display: block; padding: 0.5rem 1rem; color: #9ca3af; font-size: 0.875rem; transition: all 0.2s; border-left: 2px solid transparent; }
         .sidebar-nav a:hover { color: white; border-left-color: #a855f7; background: rgba(168, 85, 247, 0.1); }
         .sidebar-nav a.active { color: #a855f7; border-left-color: #a855f7; background: rgba(168, 85, 247, 0.1); font-weight: 600; }
+        .sidebar-nav .nav-label { display: block; padding: 1rem 1rem 0.375rem; color: #d8b4fe; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; border-top: 1px solid #333; margin-top: 0.5rem; }
+        .sidebar-nav .nav-label:first-child { border-top: none; margin-top: 0; }
 
         .alert { padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border-left: 4px solid; }
         .alert-info { background: rgba(59, 130, 246, 0.1); border-color: #3b82f6; color: #93c5fd; }
@@ -68,7 +70,6 @@
 
         .feature-box { background: #1a1a1a; border: 1px solid #333; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; }
         .feature-box h5 { color: #a855f7; font-weight: 600; margin-bottom: 0.75rem; font-size: 1.1rem; }
-        .feature-box p { margin-bottom: 0.5rem; }
 
         .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-right: 0.5rem; margin-bottom: 0.5rem; }
         .badge-free { background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid #22c55e; }
@@ -87,6 +88,7 @@
 </head>
 <body class="relative overflow-x-hidden">
 
+    <!-- Navigation -->
     <nav class="fixed w-full z-40 top-0 border-b border-white/5 bg-[#0d0d0d]/80 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -95,7 +97,6 @@
                 </div>
                 <span class="font-bold text-lg tracking-tight text-white">Daily News Briefing</span>
             </div>
-
             <div class="flex items-center gap-6">
                 <a href="index.html" class="text-sm text-gray-400 hover:text-white transition duration-200">Home</a>
                 <a href="docs.html" class="text-sm text-purple-400 font-semibold">Documentation</a>
@@ -111,807 +112,588 @@
         <!-- Sidebar Navigation -->
         <aside class="hidden lg:block w-64 flex-shrink-0">
             <nav class="sidebar-nav">
+                <span class="nav-label">Getting Started</span>
                 <a href="#overview">Overview</a>
-                <a href="#quick-start" class="pl-6">Quick Start</a>
+                <a href="#quick-start">Quick Start</a>
                 <a href="#installation">Installation</a>
-                <a href="#pipelines" class="pl-6">AI Pipelines</a>
-                <a href="#api-setup" class="pl-6">API Setup</a>
-                <a href="#configuration">Configuration</a>
-                <a href="#basic-settings" class="pl-6">Basic Settings</a>
-                <a href="#search-settings" class="pl-6">Search Settings</a>
-                <a href="#rss-settings" class="pl-6">RSS Settings</a>
-                <a href="#output-settings" class="pl-6">Output Settings</a>
-                <a href="#metadata-settings" class="pl-6">Metadata</a>
+
+                <span class="nav-label">Providers</span>
+                <a href="#pipelines">Pipeline Modes</a>
+                <a href="#agentic-providers">Agentic Providers</a>
+                <a href="#modular-providers">Modular Mode</a>
+                <a href="#api-setup">API Setup Guides</a>
+
+                <span class="nav-label">Configuration</span>
+                <a href="#basic-settings">Basic Settings</a>
+                <a href="#search-settings">Search Settings</a>
+                <a href="#rss-settings">RSS Settings</a>
+                <a href="#output-settings">Output Settings</a>
+                <a href="#metadata-settings">Metadata</a>
+
+                <span class="nav-label">Customization</span>
                 <a href="#templates">Templates</a>
-                <a href="#template-types" class="pl-6">Template Types</a>
-                <a href="#placeholders" class="pl-6">Placeholders</a>
+                <a href="#placeholders">Placeholders</a>
                 <a href="#custom-prompts">Custom Prompts</a>
-                <a href="#usage">Usage</a>
-                <a href="#workflow" class="pl-6">Workflow</a>
+
+                <span class="nav-label">Usage</span>
+                <a href="#usage">Generating News</a>
                 <a href="#languages">Languages</a>
-                <a href="#changelog">Changelog</a>
                 <a href="#troubleshooting">Troubleshooting</a>
-                <a href="#advanced">Advanced</a>
-                <a href="#technical">Technical</a>
-                <a href="#architecture" class="pl-6">Architecture</a>
-                <a href="#file-structure" class="pl-6">File Structure</a>
-                <a href="#contributing" class="pl-6">Contributing</a>
+
+                <span class="nav-label">Advanced</span>
+                <a href="#search-optimization">Search Optimization</a>
+                <a href="#rate-limits">Rate Limits</a>
+                <a href="#architecture">Architecture</a>
+                <a href="#contributing">Contributing</a>
             </nav>
         </aside>
 
-        <!-- Main Documentation Content -->
+        <!-- Main Content -->
         <main class="flex-1 max-w-4xl docs-content">
 
-            <section id="overview">
-                <h1 class="text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-400">Your AI-Powered Daily News Digest</h1>
-                <p class="text-xl text-gray-400 mb-8">An Obsidian plugin to automatically generate news summaries on topics you care about, delivered directly to your vault.</p>
+            <!-- ==================== GETTING STARTED ==================== -->
 
-                <div class="alert alert-success mb-12">
-                    <strong>🎉 Latest Update (v1.11.1):</strong> Simplified metadata and improved notes subfolder organization.
-                </div>
+            <section id="overview">
+                <h1 class="text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-400">Documentation</h1>
+                <p class="text-xl text-gray-400 mb-8">Everything you need to set up and use the Daily News Briefing plugin for Obsidian.</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
                     <div class="feature-box">
-                        <h5><i class="fa-solid fa-robot mr-2"></i>8 AI Pipelines</h5>
-                        <p class="text-sm">Google Gemini (free!), Anthropic, OpenAI, Grok, Perplexity, OpenRouter & RSS.</p>
+                        <h5><i class="fa-solid fa-robot mr-2"></i>11 Pipelines</h5>
+                        <p class="text-sm">5 agentic providers, 5 modular combos, plus RSS. Includes a completely free option.</p>
                     </div>
                     <div class="feature-box">
                         <h5><i class="fa-solid fa-calendar mr-2"></i>Fully Automated</h5>
-                        <p class="text-sm">Set a schedule and wake up to fresh news every morning.</p>
+                        <p class="text-sm">Schedule daily generation and wake up to fresh news every morning.</p>
                     </div>
                     <div class="feature-box">
                         <h5><i class="fa-solid fa-paint-brush mr-2"></i>Highly Customizable</h5>
-                        <p class="text-sm">5 template options, 25+ placeholders, and custom AI prompts.</p>
+                        <p class="text-sm">5 template types, 25+ placeholders, custom AI prompts, and 6 languages.</p>
                     </div>
                 </div>
+            </section>
 
-                <h3 id="quick-start">🚀 Quick Start</h3>
+            <section id="quick-start">
+                <h2>Quick Start</h2>
                 <p>Get your first daily news briefing in under 5 minutes.</p>
                 <div class="feature-box">
-                    <ol class="list-decimal list-inside space-y-2">
-                        <li><strong>Install:</strong> In Obsidian, go to <strong>Community Plugins</strong> and install <strong>"Daily News Briefing"</strong>.</li>
-                        <li><strong>Choose Provider:</strong> In plugin settings, select an AI provider. We recommend the free <strong>Google + Gemini</strong> option.</li>
-                        <li><strong>Add API Keys:</strong> Follow the on-screen instructions to add your API keys.</li>
-                        <li><strong>Set Topics:</strong> Enter comma-separated topics (e.g., "AI, Tesla, Bitcoin").</li>
-                        <li><strong>Run Manually:</strong> Open the Command Palette (Cmd/Ctrl+P) and run <strong>"Daily News Briefing: Generate news now"</strong>.</li>
+                    <ol class="list-decimal list-inside space-y-3">
+                        <li><strong>Install:</strong> In Obsidian, go to <strong>Settings > Community Plugins</strong> and search for <strong>"Daily News Briefing"</strong>.</li>
+                        <li><strong>Choose a pipeline:</strong> In plugin settings, pick an AI pipeline. We recommend <strong>Google + Gemini</strong> (free).</li>
+                        <li><strong>Add API keys:</strong> Follow the setup guide for your chosen provider.</li>
+                        <li><strong>Set topics:</strong> Enter comma-separated topics (e.g., <code>AI, Tesla, Bitcoin</code>).</li>
+                        <li><strong>Generate:</strong> Open the Command Palette (<code>Ctrl/Cmd+P</code>) and run <strong>"Generate news now"</strong>.</li>
                     </ol>
                 </div>
-                <p>That's it! Your news briefing is now in your vault. You can also set a daily schedule in the settings.</p>
-
+                <p>That's it! Your news briefing is now in your vault. Optionally set a daily schedule in settings for automatic generation.</p>
 
                 <h3>How It Works</h3>
                 <div class="mermaid">
     graph LR
-        A[User Topics] --> B{Pipeline Type}
-        B -->|Agentic| C[AI Provider<br/>Perplexity/GPT/Grok]
-        B -->|Search+Summarize| D[Google Search]
-        B -->|RSS| H[RSS Feeds]
-        D --> E[AI Summarizer<br/>Gemini/GPT/Grok]
-        H --> I[Filter by Topic]
-        C --> F[Generated News Note]
+        A[Your Topics] --> B{Pipeline Mode}
+        B -->|Agentic| C[AI Provider<br/>searches + summarizes]
+        B -->|Modular| D[Google Search<br/>or RSS Feeds]
+        D --> E[AI Summarizer<br/>Gemini/GPT/Claude/Grok]
+        C --> F[Formatted Note]
         E --> F
-        I --> F
         F --> G[Your Vault]
 
         style A fill:#a855f7,stroke:#d8b4fe,color:#fff
         style F fill:#22c55e,stroke:#86efac,color:#fff
         style G fill:#3b82f6,stroke:#93c5fd,color:#fff
-        style H fill:#f59e0b,stroke:#fbbf24,color:#fff
                 </div>
             </section>
 
-            <!-- Installation -->
+            <!-- ==================== INSTALLATION & PROVIDERS ==================== -->
+
             <section id="installation">
                 <h2>Installation</h2>
-                <p>Get started in 3 easy steps - takes less than 5 minutes!</p>
-
-                <h3>📦 Step 1: Install from Community Plugins</h3>
                 <div class="feature-box">
                     <ol>
                         <li>Open <strong>Obsidian Settings</strong> (gear icon)</li>
-                        <li>Navigate to <strong>Community Plugins</strong> → Turn off <strong>Safe Mode</strong></li>
-                        <li>Click <strong>Browse</strong> → Search for <strong>"Daily News Briefing"</strong></li>
-                        <li>Click <strong>Install</strong> → <strong>Enable</strong></li>
+                        <li>Navigate to <strong>Community Plugins</strong> > Turn off <strong>Safe Mode</strong></li>
+                        <li>Click <strong>Browse</strong> > Search for <strong>"Daily News Briefing"</strong></li>
+                        <li>Click <strong>Install</strong> > <strong>Enable</strong></li>
                     </ol>
                 </div>
+            </section>
 
-                <h3 id="pipelines">🤖 Step 2: Choose Your AI Pipeline</h3>
-                <p>The plugin offers <strong>8 AI pipelines</strong> across two architectures. Choose based on your needs:</p>
+            <section id="pipelines">
+                <h2>Pipeline Modes</h2>
+                <p>The plugin offers two pipeline architectures, plus a standalone RSS option. Choose based on your needs:</p>
 
-                <h4>Architecture Comparison</h4>
-
-                <p><strong>Option 1: Agentic Search (1 API Key - Simple)</strong></p>
-                <div class="mermaid">
-    graph LR
-        A1[Your Topics] --> A2[AI Provider<br/>Perplexity/GPT/Grok]
-        A2 --> A3[Built-in<br/>Web Search]
-        A3 --> A4[AI Analysis &<br/>Summarization]
-        A4 --> A5[Final Summary]
-
-        style A1 fill:#a855f7,stroke:#d8b4fe,color:#fff
-        style A2 fill:#1a1a1a,stroke:#a855f7,color:#e5e5e5
-        style A3 fill:#1a1a1a,stroke:#a855f7,color:#e5e5e5
-        style A4 fill:#1a1a1a,stroke:#a855f7,color:#e5e5e5
-        style A5 fill:#22c55e,stroke:#86efac,color:#fff
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                    <div class="feature-box">
+                        <h5>Agentic Mode</h5>
+                        <p class="text-sm">A single AI provider handles both web search and summarization. Simple setup — just 1 API key.</p>
+                    </div>
+                    <div class="feature-box">
+                        <h5>Modular Mode</h5>
+                        <p class="text-sm">Separate retriever (Google Search or RSS) + summarizer (Gemini, GPT, Claude, Grok, or OpenRouter). More control, mix & match.</p>
+                    </div>
                 </div>
 
-                <p><strong>Option 2: Search + Summarize (3 API Keys - Advanced Control)</strong></p>
-                <div class="mermaid">
-    graph LR
-        S1[Your Topics] --> S2[Google Search API]
-        S2 --> S3[5 Parallel<br/>Search Queries]
-        S3 --> S4[AI Filtering<br/>& Ranking]
-        S4 --> S5[AI Summarizer<br/>Gemini/GPT/Grok]
-        S5 --> S6[Final Summary]
+                <h4>Agentic vs Modular</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Agentic</th>
+                            <th>Modular (Search + Summarize)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>API Keys</strong></td>
+                            <td>1 key</td>
+                            <td>2-3 keys</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Setup</strong></td>
+                            <td>Simple</td>
+                            <td>More involved</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Search Control</strong></td>
+                            <td>AI decides</td>
+                            <td>5 parallel strategies, AI judge, quality filtering</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cost</strong></td>
+                            <td>Paid per request</td>
+                            <td>Free option available (Google + Gemini)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best For</strong></td>
+                            <td>Quick setup, good quality</td>
+                            <td>Power users, cost-conscious, maximum control</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
 
-        style S1 fill:#a855f7,stroke:#d8b4fe,color:#fff
-        style S2 fill:#1a1a1a,stroke:#3b82f6,color:#e5e5e5
-        style S3 fill:#1a1a1a,stroke:#3b82f6,color:#e5e5e5
-        style S4 fill:#1a1a1a,stroke:#3b82f6,color:#e5e5e5
-        style S5 fill:#1a1a1a,stroke:#3b82f6,color:#e5e5e5
-        style S6 fill:#22c55e,stroke:#86efac,color:#fff
-                </div>
-
-                <h4>Agentic Search Providers (1 API Key)</h4>
-                <p>These providers handle both search and summarization with a single API key:</p>
+            <section id="agentic-providers">
+                <h3>Agentic Providers</h3>
+                <p>Each provider handles web search + summarization in one call:</p>
 
                 <table>
                     <thead>
                         <tr>
                             <th>Provider</th>
                             <th>Model</th>
-                            <th>Pros</th>
-                            <th>Cons</th>
                             <th>Best For</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Perplexity</strong><br><span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span></td>
+                            <td><strong>Perplexity</strong> <span class="badge badge-paid">Paid</span></td>
                             <td><code>sonar</code></td>
-                            <td>• Fast results<br>• Real-time web search<br>• Simple setup</td>
-                            <td>• Requires subscription<br>• Limited customization</td>
-                            <td>Speed & simplicity</td>
+                            <td>Speed & real-time web search</td>
                         </tr>
                         <tr>
-                            <td><strong>OpenAI GPT</strong><br><span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span></td>
+                            <td><strong>OpenAI GPT</strong> <span class="badge badge-paid">Paid</span></td>
                             <td><code>gpt-5-search-api</code></td>
-                            <td>• High-quality summaries<br>• Web search built-in<br>• Custom prompts</td>
-                            <td>• Pay-per-use<br>• Higher cost</td>
-                            <td>Quality & accuracy</td>
+                            <td>High-quality summaries with web search</td>
                         </tr>
                         <tr>
-                            <td><strong>Grok (xAI)</strong><br><span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span></td>
-                            <td><code>grok-4-fast</code></td>
-                            <td>• X platform data<br>• Fast processing<br>• Latest model</td>
-                            <td>• Pay-per-use<br>• Newer service</td>
-                            <td>X/Twitter insights</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Anthropic Claude</strong><br><span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span></td>
+                            <td><strong>Anthropic Claude</strong> <span class="badge badge-paid">Paid</span></td>
                             <td><code>claude-sonnet-4-5-20250929</code></td>
-                            <td>• High-quality summaries<br>• Web search built-in<br>• Advanced reasoning</td>
-                            <td>• Pay-per-use<br>• Higher cost</td>
-                            <td>Quality & depth</td>
+                            <td>Deep analysis & reasoning</td>
                         </tr>
                         <tr>
-                            <td><strong>OpenRouter</strong><br><span class="badge badge-simple">Simple</span><span class="badge badge-paid">Paid</span></td>
-                            <td><code>anthropic/claude-4.5-sonnet</code><br>(5 models available)</td>
-                            <td>• Multiple models<br>• Unified API<br>• Flexible pricing</td>
-                            <td>• Pay-per-use<br>• Model varies</td>
-                            <td>Model flexibility</td>
+                            <td><strong>Grok (xAI)</strong> <span class="badge badge-paid">Paid</span></td>
+                            <td><code>grok-4-fast</code></td>
+                            <td>X/Twitter data & fast processing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenRouter</strong> <span class="badge badge-paid">Paid</span></td>
+                            <td>5 models available</td>
+                            <td>Model flexibility via unified API</td>
                         </tr>
                     </tbody>
                 </table>
+            </section>
 
-                <h4>Search + Summarize Providers (3 API Keys)</h4>
-                <p>These combine Google Custom Search with your choice of AI summarizer:</p>
+            <section id="modular-providers">
+                <h3>Modular Mode (Search + Summarize)</h3>
+                <p>In modular mode, you independently choose a <strong>news retriever</strong> and an <strong>AI summarizer</strong>. This gives you maximum control over how news is fetched and processed.</p>
+
+                <div class="mermaid">
+    graph LR
+        A[Your Topics] --> B[Retriever]
+        B --> C{Which Retriever?}
+        C -->|Google Search| D[5 Parallel Queries<br/>AI Filtering & Ranking]
+        C -->|RSS Feeds| E[Fetch & Filter<br/>by Topic Keywords]
+        D --> F[AI Summarizer]
+        E --> G[Final Note<br/>no AI needed]
+        F --> G
+
+        style A fill:#a855f7,stroke:#d8b4fe,color:#fff
+        style G fill:#22c55e,stroke:#86efac,color:#fff
+                </div>
+
+                <h4>News Retrievers</h4>
+                <p>The retriever fetches raw news. You pick one:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+                    <div class="feature-box">
+                        <h5><i class="fa-brands fa-google mr-2"></i>Google Custom Search</h5>
+                        <p class="text-sm">Searches the web using 5 parallel strategies (optimized, specific, broad, recent, simple). Results are deduplicated, quality-filtered, and ranked by AI.</p>
+                        <p class="text-sm mt-2"><strong>Requires:</strong> Google Search API Key + Search Engine ID (both free)</p>
+                        <p class="text-sm"><strong>Optional:</strong> Gemini API Key for AI-powered query generation and news judging</p>
+                    </div>
+                    <div class="feature-box">
+                        <h5><i class="fa-solid fa-rss mr-2" style="color: #f97316;"></i>RSS Feeds</h5>
+                        <p class="text-sm">Fetches articles directly from any RSS/Atom feed URLs you provide. Matches articles to your topics by title, content, and categories. Deduplicates and sorts by date.</p>
+                        <p class="text-sm mt-2"><strong>Requires:</strong> Nothing — no API keys, no costs</p>
+                        <p class="text-sm"><strong>Note:</strong> Uses original feed content (no AI summarization)</p>
+                    </div>
+                </div>
+
+                <h4>AI Summarizers</h4>
+                <p>When using Google Search as the retriever, pair it with one of these summarizers:</p>
 
                 <table>
                     <thead>
                         <tr>
-                            <th>Provider</th>
-                            <th>Search</th>
                             <th>Summarizer</th>
-                            <th>Pros</th>
-                            <th>Best For</th>
+                            <th>Model</th>
+                            <th>Cost</th>
+                            <th>Get API Key</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Google + Gemini</strong> ⭐<br><span class="badge badge-free">FREE</span></td>
-                            <td>Google Custom Search</td>
+                            <td><strong>Gemini</strong> <span class="badge badge-free">FREE</span></td>
                             <td><code>gemini-2.5-flash</code></td>
-                            <td>• <strong>Totally free</strong><br>• Advanced filtering<br>• 5 parallel searches<br>• AI-powered ranking</td>
-                            <td>Best free option</td>
+                            <td>Free (1,500 req/day)</td>
+                            <td><a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></td>
                         </tr>
                         <tr>
-                            <td><strong>Google + GPT</strong><br><span class="badge badge-paid">Paid</span></td>
-                            <td>Google Custom Search</td>
+                            <td><strong>GPT</strong></td>
                             <td><code>gpt-5-search-api</code></td>
-                            <td>• Advanced control<br>• High quality<br>• Mix-and-match</td>
-                            <td>Power users</td>
+                            <td>Pay-per-use</td>
+                            <td><a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a></td>
                         </tr>
                         <tr>
-                            <td><strong>Google + Grok</strong><br><span class="badge badge-paid">Paid</span></td>
-                            <td>Google Custom Search</td>
-                            <td><code>grok-4-fast</code></td>
-                            <td>• Advanced control<br>• Fast processing<br>• Latest AI</td>
-                            <td>xAI enthusiasts</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Google + Claude</strong><br><span class="badge badge-paid">Paid</span></td>
-                            <td>Google Custom Search</td>
+                            <td><strong>Claude</strong></td>
                             <td><code>claude-sonnet-4-5-20250929</code></td>
-                            <td>• Advanced control<br>• High quality<br>• Deep analysis</td>
-                            <td>Quality focus</td>
+                            <td>Pay-per-use</td>
+                            <td><a href="https://console.anthropic.com/" target="_blank">Anthropic</a></td>
                         </tr>
                         <tr>
-                            <td><strong>Google + OpenRouter</strong><br><span class="badge badge-paid">Paid</span></td>
-                            <td>Google Custom Search</td>
-                            <td><code>anthropic/claude-4.5-sonnet</code><br>(5 models available)</td>
-                            <td>• Advanced control<br>• Model flexibility<br>• Unified pricing</td>
-                            <td>Multi-model users</td>
+                            <td><strong>Grok</strong></td>
+                            <td><code>grok-4-fast</code></td>
+                            <td>Pay-per-use</td>
+                            <td><a href="https://x.ai/" target="_blank">xAI</a></td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenRouter</strong></td>
+                            <td>5 models available</td>
+                            <td>Pay-per-use</td>
+                            <td><a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a></td>
                         </tr>
                     </tbody>
                 </table>
 
-                <h4>RSS Retriever (No API Keys)</h4>
-                <p>Direct RSS feed fetching with topic-based filtering:</p>
+                <div class="alert alert-success">
+                    <strong>Best free combo:</strong> Google Search + Gemini. All three keys are free-tier (Google Search: 100 queries/day, Gemini: 1,500 requests/day) — more than enough for daily news.
+                </div>
+            </section>
+
+            <section id="api-setup">
+                <h2>API Setup Guides</h2>
+                <p>Step-by-step instructions for each provider. Click to expand:</p>
+
+                <h3>Agentic Providers <span class="text-sm font-normal text-gray-500">(1 API key each)</span></h3>
+                <p class="text-sm text-gray-400 mb-4">For any agentic provider: get the key, choose the provider in settings, paste the key. Done.</p>
 
                 <table>
                     <thead>
                         <tr>
                             <th>Provider</th>
-                            <th>Source</th>
-                            <th>Pros</th>
-                            <th>Cons</th>
-                            <th>Best For</th>
+                            <th>Where to Get Key</th>
+                            <th>Select in Settings</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>RSS Retriever</strong> 🆕<br><span class="badge badge-free">FREE</span><span class="badge badge-simple">Simple</span></td>
-                            <td>Your RSS feeds</td>
-                            <td>• No API keys needed<br>• No costs<br>• Fast fetching<br>• Complete control</td>
-                            <td>• No AI summarization<br>• Manual feed curation<br>• Limited to RSS-enabled sites</td>
-                            <td>Privacy, cost control, RSS enthusiasts</td>
+                            <td><strong>Perplexity</strong></td>
+                            <td><a href="https://perplexity.ai/" target="_blank">perplexity.ai</a> > API settings</td>
+                            <td>"Perplexity (Agentic Search)"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenAI GPT</strong></td>
+                            <td><a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a></td>
+                            <td>"OpenAI GPT (Agentic Search)"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Anthropic Claude</strong></td>
+                            <td><a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a></td>
+                            <td>"Anthropic Claude (Agentic Search)"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Grok (xAI)</strong></td>
+                            <td><a href="https://x.ai/" target="_blank">x.ai</a></td>
+                            <td>"Grok (Agentic Search)"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenRouter</strong></td>
+                            <td><a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></td>
+                            <td>"OpenRouter (Agentic Search)" + pick model</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div class="alert alert-info">
-                    <strong>💡 Recommendation:</strong> We recommend <strong>Google + Gemini</strong> for AI-powered summaries (completely free), or <strong>RSS Retriever</strong> for zero-cost, privacy-focused news aggregation without AI processing.
-                </div>
-
-                <h3 id="api-setup">🔑 Step 3: API Setup Guides</h3>
-                <p>Follow the setup guide for your chosen provider. Click to expand:</p>
-
-                <div class="alert alert-info my-6">
-                    <strong>Quick Comparison:</strong><br>
-                    • <strong>Easiest:</strong> Perplexity, OpenAI, Grok, Anthropic, OpenRouter (1 API key)<br>
-                    • <strong>Free:</strong> Google + Gemini (3 free API keys)<br>
-                    • <strong>Best Quality:</strong> Google + GPT or Google + Claude (advanced control)<br>
-                    • <strong>Most Flexible:</strong> OpenRouter (5 models, 1 API key)
-                </div>
-
-                <details class="my-4">
-                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option A: Perplexity (Agentic Search)</span><span class="badge badge-simple ml-2">Simple</span><span class="badge badge-paid">Paid</span></summary>
-                    <div class="feature-box ml-6 mt-2">
-                        <h5>Setup Steps</h5>
-                        <ol>
-                            <li>Visit <a href="https://perplexity.ai/" target="_blank">Perplexity API</a> and create an account</li>
-                            <li>Navigate to API settings and generate your API key</li>
-                            <li>In plugin settings, choose <strong>"Perplexity (Agentic Search)"</strong></li>
-                            <li>Paste your key in the <strong>"Perplexity API key"</strong> field</li>
-                        </ol>
-                        <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>sonar</code> with built-in web search capabilities</p>
-                    </div>
-                </details>
-
-                <details class="my-4">
-                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option B: OpenAI GPT (Agentic Search)</span><span class="badge badge-simple ml-2">Simple</span><span class="badge badge-paid">Paid</span></summary>
-                    <div class="feature-box ml-6 mt-2">
-                        <h5>Setup Steps</h5>
-                        <ol>
-                            <li>Visit <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API</a></li>
-                            <li>Create or copy your API key</li>
-                            <li>In plugin settings, choose <strong>"OpenAI GPT (Agentic Search)"</strong></li>
-                            <li>Paste your key in the <strong>"OpenAI API key"</strong> field</li>
-                        </ol>
-                        <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>gpt-5-search-api</code> with integrated web search</p>
-                    </div>
-                </details>
-
-                <details class="my-4">
-                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option C: Grok (Agentic Search)</span><span class="badge badge-simple ml-2">Simple</span><span class="badge badge-paid">Paid</span></summary>
-                    <div class="feature-box ml-6 mt-2">
-                        <h5>Setup Steps</h5>
-                        <ol>
-                            <li>Visit <a href="https://x.ai/" target="_blank">xAI Grok API</a></li>
-                            <li>Generate your API key</li>
-                            <li>In plugin settings, choose <strong>"Grok (Agentic Search)"</strong></li>
-                            <li>Paste your key in the <strong>"Grok API key"</strong> field</li>
-                        </ol>
-                        <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>grok-4-fast</code> with real-time X platform data</p>
-                    </div>
-                </details>
-
-                <details class="my-4">
-                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option D: Anthropic Claude (Agentic Search)</span><span class="badge badge-simple ml-2">Simple</span><span class="badge badge-paid">Paid</span></summary>
-                    <div class="feature-box ml-6 mt-2">
-                        <h5>Setup Steps</h5>
-                        <ol>
-                            <li>Visit <a href="https://console.anthropic.com/" target="_blank">Anthropic Console</a></li>
-                            <li>Create or copy your API key</li>
-                            <li>In plugin settings, choose <strong>"Anthropic Claude (Agentic Search)"</strong></li>
-                            <li>Paste your key in the <strong>"Anthropic API key"</strong> field</li>
-                        </ol>
-                        <p class="text-sm text-gray-400 mt-4"><strong>Model:</strong> Uses <code>claude-sonnet-4-5-20250929</code> with advanced reasoning and web search</p>
-                    </div>
-                </details>
-
-                <details class="my-4">
-                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option E: OpenRouter (Agentic Search)</span><span class="badge badge-simple ml-2">Simple</span><span class="badge badge-paid">Paid</span></summary>
-                    <div class="feature-box ml-6 mt-2">
-                        <h5>Setup Steps</h5>
-                        <ol>
-                            <li>Visit <a href="https://openrouter.ai/keys" target="_blank">OpenRouter API Keys</a></li>
-                            <li>Generate your API key</li>
-                            <li>In plugin settings, choose <strong>"OpenRouter (Agentic Search)"</strong></li>
-                            <li>Paste your key in the <strong>"OpenRouter API key"</strong> field</li>
-                            <li>Select your preferred model from the dropdown (5 models available)</li>
-                        </ol>
-                        <p class="text-sm text-gray-400 mt-4"><strong>Available Models:</strong></p>
-                        <ul class="text-sm text-gray-400">
-                            <li><code>anthropic/claude-4.5-sonnet</code> - Claude 4.5 Sonnet (default)</li>
-                            <li><code>openai/gpt-4o</code> - GPT-4o</li>
-                            <li><code>google/gemini-2.5-flash</code> - Gemini Flash 2.5</li>
-                            <li><code>mistralai/mistral-large</code> - Mistral Large</li>
-                            <li><code>meta-llama/llama-3.1-70b-instruct</code> - Llama 3.1 70B</li>
-                        </ul>
-                    </div>
-                </details>
+                <h3>Google Search + Summarizer <span class="text-sm font-normal text-gray-500">(modular)</span></h3>
+                <p>All modular Google pipelines share the same two Google keys. Then add the summarizer key.</p>
 
                 <details class="my-4" open>
-                    <summary class="text-green-400 hover:text-green-300"><i class="fa-solid fa-chevron-right"></i><span>⭐ Option F: Google Search + Gemini (FREE - RECOMMENDED)</span><span class="badge badge-free ml-2">FREE</span></summary>
+                    <summary class="text-green-400 hover:text-green-300"><i class="fa-solid fa-chevron-right"></i> Step 1: Google Keys (required for all Google pipelines) <span class="badge badge-free ml-2">FREE</span></summary>
                     <div class="feature-box ml-6 mt-2">
-                        <h5>Setup Steps (3 Free API Keys Required)</h5>
-
-                        <p><strong>1. Google Custom Search API Key (FREE):</strong></p>
-                        <ul>
+                        <p><strong>Google Custom Search API Key:</strong></p>
+                        <ol>
                             <li>Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
-                            <li>Create a new project or select existing</li>
-                            <li>Enable "Custom Search API"</li>
-                            <li>Go to Credentials → Create Credentials → API Key</li>
-                            <li>Copy the generated API key</li>
-                        </ul>
+                            <li>Create a project > Enable <strong>"Custom Search API"</strong></li>
+                            <li>Go to Credentials > Create Credentials > API Key</li>
+                        </ol>
 
-                        <p><strong>2. Google Search Engine ID (FREE):</strong></p>
-                        <ul>
+                        <p class="mt-4"><strong>Google Search Engine ID:</strong></p>
+                        <ol>
                             <li>Visit <a href="https://programmablesearchengine.google.com/controlpanel/all" target="_blank">Programmable Search Engine</a></li>
-                            <li>Click "Add" to create new search engine</li>
-                            <li>Under "Sites to search", select <strong>"Search the entire web"</strong></li>
-                            <li>Create the search engine</li>
-                            <li>Copy the Search Engine ID from the overview page</li>
-                        </ul>
+                            <li>Create a new engine > Select <strong>"Search the entire web"</strong></li>
+                            <li>Copy the Search Engine ID</li>
+                        </ol>
+                    </div>
+                </details>
 
-                        <p><strong>3. Gemini API Key (FREE):</strong></p>
-                        <ul>
-                            <li>Go to <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></li>
-                            <li>Click "Get API Key"</li>
-                            <li>Create or select a project</li>
-                            <li>Copy the generated key</li>
-                        </ul>
-
-                        <p><strong>4. Configure in Plugin:</strong></p>
-                        <ul>
-                            <li>Choose <strong>"Google Search + Gemini Summarizer"</strong> as your News Pipeline</li>
-                            <li>Enter all three keys in their respective fields</li>
-                        </ul>
-
-                        <p class="text-sm text-gray-400 mt-4"><strong>Models:</strong> Google Custom Search API + <code>gemini-2.5-flash</code></p>
+                <details class="my-4">
+                    <summary><i class="fa-solid fa-chevron-right"></i> Step 2: Summarizer Key</summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <p>Add the API key for whichever summarizer you choose:</p>
+                        <table>
+                            <thead><tr><th>Summarizer</th><th>Get Key From</th><th>Cost</th></tr></thead>
+                            <tbody>
+                                <tr><td><strong>Gemini</strong></td><td><a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></td><td>Free</td></tr>
+                                <tr><td><strong>GPT</strong></td><td><a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a></td><td>Paid</td></tr>
+                                <tr><td><strong>Claude</strong></td><td><a href="https://console.anthropic.com/" target="_blank">Anthropic</a></td><td>Paid</td></tr>
+                                <tr><td><strong>Grok</strong></td><td><a href="https://x.ai/" target="_blank">xAI</a></td><td>Paid</td></tr>
+                                <tr><td><strong>OpenRouter</strong></td><td><a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a></td><td>Paid</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="text-sm text-gray-400 mt-2">Then select your pipeline in settings (e.g., "Google Search + Gemini Summarizer") and enter all keys.</p>
                     </div>
                 </details>
 
                 <div class="alert alert-success">
-                    <strong>✅ Free Tier Limits:</strong><br>
-                    • Google Custom Search: 100 queries/day<br>
-                    • Gemini API: 1,500 requests/day (60/minute)<br>
-                    • Perfect for daily news generation!
+                    <strong>Free Tier Limits:</strong>
+                    Google Custom Search: 100 queries/day &bull;
+                    Gemini API: 1,500 requests/day &bull;
+                    More than enough for daily news generation.
                 </div>
 
-                <details class="my-4">
-                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option G: Google Search + GPT Summarizer</span><span class="badge badge-paid ml-2">Paid</span></summary>
-                    <div class="feature-box ml-6 mt-2">
-                        <h5>Setup Steps</h5>
-                        <p>Requires the same Google keys as Option F, plus:</p>
-                        <ul>
-                            <li><strong>OpenAI API Key:</strong> Get from <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API</a></li>
-                        </ul>
-                        <p>In plugin settings, choose <strong>"Google Search + GPT Summarizer"</strong> and enter all keys.</p>
-                    </div>
-                </details>
-
-                <details class="my-4">
-                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option H: Google Search + Grok Summarizer</span><span class="badge badge-paid ml-2">Paid</span></summary>
-                    <div class="feature-box ml-6 mt-2">
-                        <h5>Setup Steps</h5>
-                        <p>Requires the same Google keys as Option F, plus:</p>
-                        <ul>
-                            <li><strong>Grok API Key:</strong> Get from <a href="https://x.ai/" target="_blank">xAI</a></li>
-                        </ul>
-                        <p>In plugin settings, choose <strong>"Google Search + Grok Summarizer"</strong> and enter all keys.</p>
-                    </div>
-                </details>
-
-                <details class="my-4">
-                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option I: Google Search + Claude Summarizer</span><span class="badge badge-paid ml-2">Paid</span></summary>
-                    <div class="feature-box ml-6 mt-2">
-                        <h5>Setup Steps</h5>
-                        <p>Requires the same Google keys as Option F, plus:</p>
-                        <ul>
-                            <li><strong>Anthropic API Key:</strong> Get from <a href="https://console.anthropic.com/" target="_blank">Anthropic Console</a></li>
-                        </ul>
-                        <p>In plugin settings, choose <strong>"Google Search + Claude Summarizer"</strong> and enter all keys.</p>
-                    </div>
-                </details>
-
-                <details class="my-4">
-                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option J: Google Search + OpenRouter Summarizer</span><span class="badge badge-paid ml-2">Paid</span></summary>
-                    <div class="feature-box ml-6 mt-2">
-                        <h5>Setup Steps</h5>
-                        <p>Requires the same Google keys as Option F, plus:</p>
-                        <ul>
-                            <li><strong>OpenRouter API Key:</strong> Get from <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a></li>
-                        </ul>
-                        <p>In plugin settings, choose <strong>"Google Search + OpenRouter Summarizer"</strong>, enter all keys, and select your preferred model.</p>
-                        <p class="text-sm text-gray-400 mt-4"><strong>Tip:</strong> OpenRouter gives you access to 5 different AI models through a single API key!</p>
-                    </div>
-                </details>
-
-                <details class="my-4">
-                    <summary><i class="fa-solid fa-chevron-right"></i><span>Option K: RSS Retriever</span><span class="badge badge-simple ml-2">Free</span><span class="badge badge-free"></span></summary>
-                    <div class="feature-box ml-6 mt-2">
-                        <h5>Setup Steps</h5>
-                        <ol>
-                            <li>Gather RSS feed URLs from your favorite news sources (e.g., TechCrunch, BBC News, Reuters)</li>
-                            <li>In plugin settings, choose <strong>"RSS Retriever"</strong> as your News Pipeline</li>
-                            <li>Enter your RSS feed URLs in the <strong>"RSS feed URLs"</strong> field (one per line)</li>
-                            <li>Configure your topics - the plugin will filter RSS items by topic relevance</li>
-                        </ol>
-                        <p class="text-sm text-gray-400 mt-4"><strong>How it works:</strong> Fetches news directly from RSS feeds, filters by topic keywords in title/content/categories, cleans HTML content, and sorts by publish date.</p>
-                        <p class="text-sm text-gray-400 mt-2"><strong>Pros:</strong> No API keys required, fast, no costs, works with any RSS/Atom feed</p>
-                        <p class="text-sm text-gray-400 mt-1"><strong>Cons:</strong> No AI summarization (uses original feed content), limited to RSS-enabled sources</p>
-                    </div>
-                </details>
-
+                <h3 id="rss">RSS Retriever <span class="text-sm font-normal text-gray-500">(no setup needed)</span></h3>
+                <div class="feature-box">
+                    <ol>
+                        <li>Select <strong>"RSS Retriever"</strong> as your pipeline in settings</li>
+                        <li>Enter your RSS/Atom feed URLs (one per line)</li>
+                        <li>Set your topics — the plugin matches articles by title, content, and categories</li>
+                    </ol>
+                    <p class="text-sm text-gray-400 mt-3">No API keys, no accounts, no costs. Works with any standard RSS or Atom feed.</p>
+                </div>
             </section>
 
-            <!-- Configuration -->
-            <section id="configuration">
+            <!-- ==================== CONFIGURATION ==================== -->
+
+            <section id="basic-settings">
                 <h2>Configuration</h2>
-                <p>Access all settings via: <strong>Settings → Community Plugins → Daily News Briefing → ⚙️</strong></p>
+                <p>Access settings via: <strong>Settings > Community Plugins > Daily News Briefing</strong></p>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
-                    <div class="feature-box">
-                        <h5>⚙️ Basic Settings</h5>
-                        <p class="text-sm">Provider, topics, schedule, language, folder</p>
-                    </div>
-                    <div class="feature-box">
-                        <h5>🔍 Search Settings</h5>
-                        <p class="text-sm">Results count, date range, AI features (Google only)</p>
-                    </div>
-                    <div class="feature-box">
-                        <h5>📝 Output Settings</h5>
-                        <p class="text-sm">Format, analysis, notifications, custom prompts</p>
-                    </div>
-                    <div class="feature-box">
-                        <h5>📋 Metadata Settings</h5>
-                        <p class="text-sm">YAML frontmatter customization</p>
-                    </div>
-                </div>
-
-                <h3 id="basic-settings">⚙️ Basic Settings</h3>
+                <h3>Basic Settings</h3>
                 <table>
                     <thead>
                         <tr>
                             <th style="width: 25%">Setting</th>
                             <th style="width: 40%">Description</th>
-                            <th style="width: 35%">Example / Options</th>
+                            <th style="width: 35%">Options / Example</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><strong>News Pipeline</strong></td>
-                            <td>Choose your AI provider architecture or RSS retriever</td>
-                            <td>
-                                • Perplexity (Agentic)<br>
-                                • OpenAI GPT (Agentic)<br>
-                                • Grok (Agentic)<br>
-                                • Anthropic Claude (Agentic)<br>
-                                • OpenRouter (Agentic)<br>
-                                • Google + Gemini ⭐<br>
-                                • Google + GPT<br>
-                                • Google + Grok<br>
-                                • Google + Claude<br>
-                                • Google + OpenRouter<br>
-                                • RSS Retriever 🆕
-                            </td>
+                            <td>Your AI provider and architecture</td>
+                            <td>11 options (5 agentic, 5 modular, RSS)</td>
                         </tr>
                         <tr>
                             <td><strong>Topics</strong></td>
-                            <td>Comma-separated list of topics you want to track. Be specific for better results.</td>
-                            <td><code>AI, Tesla Stock, Bitcoin, Climate Change</code></td>
+                            <td>Comma-separated list of news topics</td>
+                            <td><code>AI, Tesla Stock, Bitcoin</code></td>
                         </tr>
                         <tr>
                             <td><strong>Schedule Time</strong></td>
-                            <td>Daily generation time in 24-hour format (HH:MM). Plugin must be loaded.</td>
-                            <td><code>08:00</code> (8 AM)<br><code>17:30</code> (5:30 PM)</td>
+                            <td>Auto-generate at this time daily (24h format)</td>
+                            <td><code>08:00</code>, <code>17:30</code></td>
                         </tr>
                         <tr>
                             <td><strong>Language</strong></td>
-                            <td>Language for news content and UI text (ISO 639-1 code)</td>
-                            <td>
-                                • <code>en</code> English<br>
-                                • <code>fr</code> Français<br>
-                                • <code>de</code> Deutsch<br>
-                                • <code>es</code> Español<br>
-                                • <code>it</code> Italiano<br>
-                                • <code>zh</code> 中文
-                            </td>
+                            <td>Language for content and UI (ISO 639-1)</td>
+                            <td><code>en</code> <code>fr</code> <code>de</code> <code>es</code> <code>it</code> <code>zh</code></td>
                         </tr>
                         <tr>
                             <td><strong>Archive Folder</strong></td>
-                            <td>Folder path where news notes are saved. Created automatically if doesn't exist.</td>
-                            <td><code>News Archive</code><br><code>Daily/News</code></td>
+                            <td>Where news notes are saved (auto-created)</td>
+                            <td><code>News Archive</code></td>
                         </tr>
                     </tbody>
                 </table>
+            </section>
 
-                <h3 id="search-settings">🔍 Search Settings (Google Providers Only)</h3>
-                <div class="alert alert-info">
-                    <strong>ℹ️ Note:</strong> These settings only apply when using Google Search + Summarizer pipelines.
-                </div>
-
+            <section id="search-settings">
+                <h3>Search Settings <span class="text-sm font-normal text-gray-500">(Google providers only)</span></h3>
                 <table>
                     <thead>
                         <tr>
                             <th style="width: 30%">Setting</th>
                             <th style="width: 45%">Description</th>
-                            <th style="width: 25%">Default / Range</th>
+                            <th style="width: 25%">Default</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><strong>Results per Topic</strong></td>
-                            <td>Number of news items to include in final summary for each topic</td>
-                            <td><strong>5</strong><br>Range: 3-15</td>
+                            <td>News items in final summary per topic</td>
+                            <td>5 (range: 3-15)</td>
                         </tr>
                         <tr>
                             <td><strong>Max Search Results</strong></td>
-                            <td>Maximum search results to fetch before AI filtering and ranking</td>
-                            <td><strong>30</strong><br>Range: 10-50</td>
+                            <td>Total results to fetch before filtering</td>
+                            <td>30 (range: 10-50)</td>
                         </tr>
                         <tr>
-                            <td><strong>Search Date Range</strong></td>
-                            <td>Filter results by recency:<br>
-                                • <code>d1</code> = yesterday<br>
-                                • <code>d3</code> = last 3 days<br>
-                                • <code>w1</code> = last week<br>
-                                • <code>m1</code> = last month
-                            </td>
-                            <td><strong>d1</strong> (yesterday)</td>
+                            <td><strong>Date Range</strong></td>
+                            <td>Recency filter: <code>d1</code> yesterday, <code>d3</code> 3 days, <code>w1</code> week, <code>m1</code> month</td>
+                            <td><code>d1</code></td>
                         </tr>
                         <tr>
-                            <td><strong>Use AI for Search Queries</strong></td>
-                            <td>Let Gemini generate optimized search queries using 5 parallel strategies (optimized, specific, broad, recent, simple)</td>
-                            <td><strong>Enabled</strong> ✅<br>Toggle on/off</td>
+                            <td><strong>Use AI for Queries</strong></td>
+                            <td>Gemini generates optimized search queries using 5 parallel strategies</td>
+                            <td>Enabled</td>
                         </tr>
                         <tr>
                             <td><strong>Use AI News Judgment</strong></td>
-                            <td>Let AI select the most relevant news items from search results. Improves quality significantly.</td>
-                            <td><strong>Enabled</strong> ✅<br>Toggle on/off</td>
+                            <td>AI selects the most relevant items from results</td>
+                            <td>Enabled</td>
                         </tr>
                         <tr>
                             <td><strong>Custom AI Judge Prompt</strong></td>
-                            <td>Override the default AI judgment prompt. Use placeholders:<br>
-                                • <code>{{NEWS_TEXT}}</code> - The news list<br>
-                                • <code>{{TOPIC}}</code> - Current topic
-                            </td>
-                            <td>Empty (uses default)<br><em>See Custom Prompts section</em></td>
+                            <td>Override AI judgment logic. Use <code>{{NEWS_TEXT}}</code> and <code>{{TOPIC}}</code></td>
+                            <td>Empty (default)</td>
                         </tr>
                     </tbody>
                 </table>
+            </section>
 
-                <div class="alert alert-success">
-                    <strong>💡 Performance Tip:</strong> The Google + AI pipeline runs 5 parallel search queries:<br>
-                    1. <strong>Optimized</strong> - AI-generated with optimal keywords<br>
-                    2. <strong>Specific</strong> - Exact phrase matching<br>
-                    3. <strong>Broad</strong> - Wide search for coverage<br>
-                    4. <strong>Recent</strong> - Time-filtered latest developments<br>
-                    5. <strong>Simple</strong> - Basic query as fallback<br><br>
-                    Results are deduplicated, filtered by quality sources, and ranked by AI for best results.
-                </div>
-
-                <h3 id="rss-settings">📡 RSS Settings (RSS Retriever Only)</h3>
-                <div class="alert alert-info">
-                    <strong>ℹ️ Note:</strong> These settings only apply when using the RSS Retriever pipeline.
-                </div>
-
+            <section id="rss-settings">
+                <h3>RSS Settings <span class="text-sm font-normal text-gray-500">(RSS Retriever only)</span></h3>
                 <table>
                     <thead>
                         <tr>
                             <th style="width: 30%">Setting</th>
                             <th style="width: 45%">Description</th>
-                            <th style="width: 25%">Default / Example</th>
+                            <th style="width: 25%">Default</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><strong>RSS Feed URLs</strong></td>
-                            <td>RSS/Atom feed URLs to fetch news from. Enter one URL per line. The plugin will fetch all feeds and filter by topic keywords.</td>
-                            <td>
-                                <code>https://feeds.bbci.co.uk/news/rss.xml</code><br>
-                                <code>https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml</code><br>
-                                <code>https://feeds.arstechnica.com/arstechnica/index</code>
-                            </td>
+                            <td>One URL per line. Supports any RSS/Atom feed.</td>
+                            <td>—</td>
                         </tr>
                         <tr>
                             <td><strong>Results per Topic</strong></td>
-                            <td>Maximum number of RSS items to include per topic after filtering</td>
-                            <td><strong>5</strong><br>Range: 3-15</td>
+                            <td>Max items per topic after filtering</td>
+                            <td>5 (range: 3-15)</td>
                         </tr>
                         <tr>
-                            <td><strong>Search Date Range</strong></td>
-                            <td>Filter RSS items by publish date:<br>
-                                • <code>d1</code> = yesterday<br>
-                                • <code>d3</code> = last 3 days<br>
-                                • <code>w1</code> = last week
-                            </td>
-                            <td><strong>d3</strong> (3 days)</td>
+                            <td><strong>Date Range</strong></td>
+                            <td>Filter by publish date</td>
+                            <td><code>d3</code></td>
                         </tr>
                     </tbody>
                 </table>
+            </section>
 
-                <div class="alert alert-success">
-                    <strong>💡 RSS Tips:</strong><br>
-                    • Find RSS feeds by looking for <i class="fa-solid fa-rss"></i> icons on news websites<br>
-                    • Use multiple feeds for broader coverage (e.g., tech: TechCrunch, Verge, Ars Technica)<br>
-                    • RSS filtering works by matching topic keywords in article titles, content, and categories<br>
-                    • No API keys or costs required - completely free!<br>
-                    • Content is cleaned automatically (HTML tags, URLs removed)
-                </div>
-
-                <h3 id="output-settings">📝 Output Settings</h3>
+            <section id="output-settings">
+                <h3>Output Settings</h3>
                 <table>
                     <thead>
                         <tr>
                             <th style="width: 30%">Setting</th>
                             <th style="width: 50%">Description</th>
-                            <th style="width: 20%">Options</th>
+                            <th style="width: 20%">Default</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><strong>Output Format</strong></td>
-                            <td>Level of detail in summaries:<br>
-                                • <strong>Detailed</strong> - Full summaries with context and analysis<br>
-                                • <strong>Concise</strong> - Brief bullet points only
-                            </td>
-                            <td><code>detailed</code><br><code>concise</code></td>
+                            <td><strong>Detailed:</strong> full summaries with "Key Developments" + optional "Analysis & Context". <strong>Concise:</strong> bullet points only.</td>
+                            <td><code>detailed</code></td>
                         </tr>
                         <tr>
-                            <td><strong>Enable Analysis & Context</strong></td>
-                            <td>Include a detailed analysis section after key developments with insights, trends, and implications</td>
-                            <td>Toggle<br>(default: enabled)</td>
+                            <td><strong>Analysis & Context</strong></td>
+                            <td>Include analytical section after key developments</td>
+                            <td>Enabled</td>
                         </tr>
                         <tr>
-                            <td><strong>Enable Notifications</strong></td>
-                            <td>Show desktop notifications when news is successfully generated or if errors occur</td>
-                            <td>Toggle<br>(default: enabled)</td>
+                            <td><strong>Notifications</strong></td>
+                            <td>Show desktop notifications on generation</td>
+                            <td>Enabled</td>
                         </tr>
                         <tr>
-                            <td><strong>Monthly Folder Organization</strong></td>
-                            <td>Automatically organizes daily news notes into monthly subfolders (YYYY-MM format). This keeps your archive clean and easy to navigate.</td>
-                            <td>Automatic (always enabled)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Reorganize Existing Notes</strong></td>
-                            <td>A one-click button in the settings to move all existing news notes into the monthly subfolder structure. Safe to run multiple times.</td>
-                            <td>Button in settings</td>
+                            <td><strong>Monthly Folders</strong></td>
+                            <td>Auto-organize notes into <code>YYYY-MM</code> subfolders</td>
+                            <td>Always on</td>
                         </tr>
                         <tr>
                             <td><strong>Custom AI Prompt</strong></td>
-                            <td>Override the default summarization prompt. Use <code>{{NEWS_TEXT}}</code> placeholder for the news content.<br><em>See Custom Prompts section for examples</em></td>
-                            <td>Text input<br>(optional)</td>
+                            <td>Override summarization prompt. Use <code>{{NEWS_TEXT}}</code> for modular or <code>{{TOPIC}}</code> for agentic.</td>
+                            <td>Empty</td>
                         </tr>
                     </tbody>
                 </table>
+            </section>
 
-                <h3 id="metadata-settings">📋 Metadata Settings</h3>
-                <p>Control what appears in the YAML frontmatter of generated notes:</p>
-
+            <section id="metadata-settings">
+                <h3>Metadata (YAML Frontmatter)</h3>
+                <p>Toggle individual fields in the generated frontmatter:</p>
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 30%">Setting</th>
-                            <th style="width: 50%">Description</th>
-                            <th style="width: 20%">Output Example</th>
+                            <th style="width: 30%">Field</th>
+                            <th style="width: 40%">Description</th>
+                            <th style="width: 30%">Example</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><strong>Enable Metadata</strong></td>
-                            <td>Master toggle for YAML frontmatter generation</td>
-                            <td>Toggle on/off</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Include Date & Time</strong></td>
-                            <td>Add date and time fields to frontmatter</td>
-                            <td><code>datetime: "2026-01-08T09:54:19"</code></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Include Topics</strong></td>
-                            <td>Add topics array to frontmatter</td>
-                            <td><code>topics: ["AI", "Tesla"]</code></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Include Tags</strong></td>
-                            <td>Generate Obsidian tags from topics</td>
-                            <td><code>tags: ["#ai", "#tesla"]</code></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Include Language</strong></td>
-                            <td>Add language code to frontmatter</td>
-                            <td><code>language: "en"</code></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Include Source</strong></td>
-                            <td>Show which AI provider/source was used</td>
-                            <td><code>source: "Google Search + Gemini AI"</code></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Include Processing Time</strong></td>
-                            <td>Add processing duration</td>
-                            <td><code>processingTime: "12s"</code></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Include Output Format</strong></td>
-                            <td>Add output format setting</td>
-                            <td><code>outputFormat: "detailed"</code></td>
-                        </tr>
+                        <tr><td><strong>Date & Time</strong></td><td>Generation timestamp</td><td><code>datetime: "2026-02-26T09:30:00"</code></td></tr>
+                        <tr><td><strong>Topics</strong></td><td>Topics array</td><td><code>topics: ["AI", "Tesla"]</code></td></tr>
+                        <tr><td><strong>Tags</strong></td><td>Auto-generated Obsidian tags</td><td><code>tags: ["ai", "tesla", "daily-news"]</code></td></tr>
+                        <tr><td><strong>Language</strong></td><td>Language code</td><td><code>language: "en"</code></td></tr>
+                        <tr><td><strong>Source</strong></td><td>Provider used</td><td><code>source: "Google Search + Gemini AI"</code></td></tr>
+                        <tr><td><strong>Processing Time</strong></td><td>Generation duration</td><td><code>processingTime: "12s"</code></td></tr>
+                        <tr><td><strong>Output Format</strong></td><td>Format setting</td><td><code>outputFormat: "detailed"</code></td></tr>
                     </tbody>
                 </table>
-
-                <p><strong>Example Complete Metadata:</strong></p>
-                <pre><code>---
-datetime: "2026-01-08T09:54:19"
-topics: ["AI", "Tesla", "Bitcoin"]
-tags: ["ai", "tesla", "bitcoin", "daily-news", "google-gemini"]
-language: "en"
-source: "Google Search + Gemini AI"
-processingTime: "12s"
-outputFormat: "detailed"
----</code></pre>
             </section>
 
-            <!-- Templates -->
+            <!-- ==================== CUSTOMIZATION ==================== -->
+
             <section id="templates">
                 <h2>Templates</h2>
-                <p>Customize how your daily news notes are formatted using <strong>5 template options</strong> with <strong>25 dynamic placeholders</strong>.</p>
+                <p>Control how your news notes are formatted with 5 template types and 25+ placeholders.</p>
 
-                <div class="alert alert-info my-6">
-                    <strong>💡 Quick Tip:</strong> All templates support the same 25 placeholders. Start with a preset, then customize or create your own!
-                </div>
-
-                <h3 id="template-types">📄 Template Types</h3>
-
-                <div class="grid grid-cols-1 gap-4 my-6">
-                    <div class="feature-box">
-                        <h5>1. Default Template</h5>
-                        <p>Standard format with full structure including metadata, table of contents, and timestamps.</p>
-                        <pre><code>---
+                <h4>1. Default</h4>
+                <pre><code>---
 {{METADATA}}
 ---
 
@@ -924,28 +706,22 @@ outputFormat: "detailed"
 {{TOPICS}}
 
 {{PROCESSING_STATUS}}</code></pre>
-                    </div>
 
-                    <div class="feature-box">
-                        <h5>2. Minimal Template</h5>
-                        <p>Compact layout with essential information only (no TOC or extra metadata).</p>
-                        <pre><code># Daily News - {{DATE}}
+                <h4>2. Minimal</h4>
+                <pre><code># Daily News - {{DATE}}
 {{TOPICS}}</code></pre>
-                    </div>
 
-                    <div class="feature-box">
-                        <h5>3. Detailed Template</h5>
-                        <p>Extended format with comprehensive metadata and section separators.</p>
-                        <pre><code>---
+                <h4>3. Detailed</h4>
+                <pre><code>---
 {{METADATA}}
 ---
 
-# 📰 Daily News Briefing
+# Daily News Briefing
 **Date:** {{DATE}} | **Time:** {{TIME}} | **Language:** {{LANGUAGE}}
 
 ---
 
-## 📑 Table of Contents
+## Table of Contents
 {{TABLE_OF_CONTENTS}}
 
 ---
@@ -955,1293 +731,373 @@ outputFormat: "detailed"
 ---
 
 {{PROCESSING_STATUS}}</code></pre>
-                    </div>
 
-                    <div class="feature-box">
-                        <h5>4. Custom Template</h5>
-                        <p>Write your own template using any combination of the 25 available placeholders. The plugin validates your template in real-time.</p>
-                        <div class="alert alert-warning">
-                            <strong>⚠️ Important:</strong> Your custom template must include <code>{{TOPICS}}</code> placeholder, otherwise no news content will be displayed!
-                        </div>
-                    </div>
+                <h4>4. Custom</h4>
+                <p>Write your own template using any placeholder. Must include <code>{{TOPICS}}</code>.</p>
 
-                    <div class="feature-box">
-                        <h5>5. Template File</h5>
-                        <p>Load a template from a note in your vault. Perfect for:</p>
-                        <ul>
-                            <li>Keeping your template version-controlled with your notes</li>
-                            <li>Editing templates with Obsidian's full editing features</li>
-                            <li>Sharing templates across multiple vaults</li>
-                        </ul>
-                        <p class="text-sm">Simply specify the path to your template note (e.g., <code>Templates/news-template.md</code>). Supports templates in subfolders - just use the relative path from vault root.</p>
-                        <div class="alert alert-info">
-                            <strong>💡 Tip:</strong> The plugin includes a copy button to quickly copy template examples. The <code>.md</code> extension is optional and will be added automatically if missing.
-                        </div>
-                    </div>
-                </div>
+                <h4>5. Template File</h4>
+                <p>Load a template from a <code>.md</code> file in your vault (e.g., <code>Templates/news-template.md</code>). Great for version control and sharing.</p>
+            </section>
 
-                <h3 id="placeholders">🏷️ Available Placeholders (25 Total)</h3>
-                <p>All placeholders are case-sensitive and must be wrapped in double curly braces: <code>{{PLACEHOLDER_NAME}}</code></p>
+            <section id="placeholders">
+                <h3>Placeholders Reference</h3>
 
-                <h4>Basic Placeholders (8)</h4>
+                <h4>Core (8)</h4>
                 <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 30%">Placeholder</th>
-                            <th style="width: 45%">Description</th>
-                            <th style="width: 25%">Example Output</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Placeholder</th><th>Description</th><th>Example</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td><code>{{METADATA}}</code></td>
-                            <td>Complete YAML frontmatter block (based on metadata settings)</td>
-                            <td><em>See metadata section</em></td>
-                        </tr>
-                        <tr>
-                            <td><code>{{TIMESTAMP}}</code></td>
-                            <td>Full datetime of generation</td>
-                            <td><code>2026-01-08 09:54:19</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>{{DATE}}</code></td>
-                            <td>Date in YYYY-MM-DD format</td>
-                            <td><code>2026-01-08</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>{{TIME}}</code></td>
-                            <td>Time in HH:MM:SS format (24-hour)</td>
-                            <td><code>09:54:19</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>{{TABLE_OF_CONTENTS}}</code></td>
-                            <td>Auto-generated table of contents with links to each topic section</td>
-                            <td><code>- [[#AI]]<br>- [[#Tesla]]</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>{{TOPICS}}</code> ⚠️</td>
-                            <td><strong>REQUIRED:</strong> All news content organized by topic with summaries</td>
-                            <td><em>Complete news sections</em></td>
-                        </tr>
-                        <tr>
-                            <td><code>{{PROCESSING_STATUS}}</code></td>
-                            <td>Errors or warnings if any occurred during generation</td>
-                            <td>Empty if successful, or error details</td>
-                        </tr>
-                        <tr>
-                            <td><code>{{LANGUAGE}}</code></td>
-                            <td>ISO 639-1 language code</td>
-                            <td><code>en</code></td>
-                        </tr>
+                        <tr><td><code>{{TOPICS}}</code></td><td><strong>Required.</strong> All news content by topic.</td><td>—</td></tr>
+                        <tr><td><code>{{METADATA}}</code></td><td>YAML frontmatter block</td><td>—</td></tr>
+                        <tr><td><code>{{TIMESTAMP}}</code></td><td>Full datetime</td><td><code>2026-02-26 09:30:00</code></td></tr>
+                        <tr><td><code>{{DATE}}</code></td><td>Date (YYYY-MM-DD)</td><td><code>2026-02-26</code></td></tr>
+                        <tr><td><code>{{TIME}}</code></td><td>Time (HH:MM:SS)</td><td><code>09:30:00</code></td></tr>
+                        <tr><td><code>{{TABLE_OF_CONTENTS}}</code></td><td>Auto-generated TOC</td><td><code>- [[#AI]]</code></td></tr>
+                        <tr><td><code>{{PROCESSING_STATUS}}</code></td><td>Errors/warnings (empty if none)</td><td>—</td></tr>
+                        <tr><td><code>{{LANGUAGE}}</code></td><td>ISO 639-1 code</td><td><code>en</code></td></tr>
                     </tbody>
                 </table>
 
-                <h4>Date/Time Fine-Grained (10)</h4>
+                <h4>Date & Time (10)</h4>
                 <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 30%">Placeholder</th>
-                            <th style="width: 45%">Description</th>
-                            <th style="width: 25%">Example</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Placeholder</th><th>Example</th></tr></thead>
                     <tbody>
-                        <tr><td><code>{{YEAR}}</code></td><td>4-digit year</td><td><code>2026</code></td></tr>
-                        <tr><td><code>{{MONTH}}</code></td><td>2-digit month (01-12)</td><td><code>01</code></td></tr>
-                        <tr><td><code>{{MONTH_NAME}}</code></td><td>Full month name</td><td><code>January</code></td></tr>
-                        <tr><td><code>{{MONTH_NAME_SHORT}}</code></td><td>3-letter month abbreviation</td><td><code>Jan</code></td></tr>
-                        <tr><td><code>{{DAY}}</code></td><td>2-digit day of month (01-31)</td><td><code>08</code></td></tr>
-                        <tr><td><code>{{DAY_NAME}}</code></td><td>Full day name</td><td><code>Wednesday</code></td></tr>
-                        <tr><td><code>{{DAY_NAME_SHORT}}</code></td><td>3-letter day abbreviation</td><td><code>Wed</code></td></tr>
-                        <tr><td><code>{{HOUR}}</code></td><td>2-digit hour in 24-hour format (00-23)</td><td><code>09</code></td></tr>
-                        <tr><td><code>{{MINUTE}}</code></td><td>2-digit minute (00-59)</td><td><code>54</code></td></tr>
-                        <tr><td><code>{{SECOND}}</code></td><td>2-digit second (00-59)</td><td><code>19</code></td></tr>
+                        <tr><td><code>{{YEAR}}</code></td><td><code>2026</code></td></tr>
+                        <tr><td><code>{{MONTH}}</code></td><td><code>02</code></td></tr>
+                        <tr><td><code>{{MONTH_NAME}}</code> / <code>{{MONTH_NAME_SHORT}}</code></td><td><code>February</code> / <code>Feb</code></td></tr>
+                        <tr><td><code>{{DAY}}</code></td><td><code>26</code></td></tr>
+                        <tr><td><code>{{DAY_NAME}}</code> / <code>{{DAY_NAME_SHORT}}</code></td><td><code>Thursday</code> / <code>Thu</code></td></tr>
+                        <tr><td><code>{{HOUR}}</code> / <code>{{MINUTE}}</code> / <code>{{SECOND}}</code></td><td><code>09</code> / <code>30</code> / <code>00</code></td></tr>
                     </tbody>
                 </table>
 
-                <h4>Metadata-Specific (5)</h4>
+                <h4>Metadata (5)</h4>
                 <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 35%">Placeholder</th>
-                            <th style="width: 65%">Description</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Placeholder</th><th>Description</th></tr></thead>
                     <tbody>
-                        <tr><td><code>{{METADATA_DATE}}</code></td><td>Date in YAML metadata format (YYYY-MM-DD)</td></tr>
-                        <tr><td><code>{{METADATA_TIME}}</code></td><td>Time in YAML metadata format (HH:MM:SS)</td></tr>
-                        <tr><td><code>{{METADATA_TAGS}}</code></td><td>Array of tags generated from topics: <code>["#ai", "#tesla"]</code></td></tr>
-                        <tr><td><code>{{METADATA_LANGUAGE}}</code></td><td>Language code in metadata format</td></tr>
-                        <tr><td><code>{{METADATA_PROVIDER}}</code></td><td>AI provider identifier (e.g., "google-gemini", "openai-gpt", "grok")</td></tr>
+                        <tr><td><code>{{METADATA_DATETIME}}</code></td><td>Date+time in YAML format</td></tr>
+                        <tr><td><code>{{METADATA_TAGS}}</code></td><td>Tag array: <code>["#ai", "#tesla"]</code></td></tr>
+                        <tr><td><code>{{METADATA_LANGUAGE}}</code></td><td>Language code</td></tr>
+                        <tr><td><code>{{METADATA_PROVIDER}}</code></td><td>Provider identifier</td></tr>
                     </tbody>
                 </table>
 
-                <h4>Topic Information (2)</h4>
+                <h4>Topic Info (2)</h4>
                 <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 30%">Placeholder</th>
-                            <th style="width: 45%">Description</th>
-                            <th style="width: 25%">Example</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Placeholder</th><th>Example</th></tr></thead>
                     <tbody>
-                        <tr><td><code>{{TOPIC_COUNT}}</code></td><td>Number of topics being tracked</td><td><code>3</code></td></tr>
-                        <tr><td><code>{{TOPIC_LIST}}</code></td><td>Comma-separated list of topic names</td><td><code>AI, Tesla, Bitcoin</code></td></tr>
+                        <tr><td><code>{{TOPIC_COUNT}}</code></td><td><code>3</code></td></tr>
+                        <tr><td><code>{{TOPIC_LIST}}</code></td><td><code>AI, Tesla, Bitcoin</code></td></tr>
                     </tbody>
                 </table>
 
                 <div class="alert alert-success">
-                    <strong>✅ Template Validation:</strong> The plugin automatically validates your custom templates and warns if you:<br>
-                    • Use unknown placeholders<br>
-                    • Forget to include <code>{{TOPICS}}</code> (required for content)<br>
-                    • Have empty template content
+                    The plugin validates custom templates in real-time and warns about unknown placeholders or missing <code>{{TOPICS}}</code>.
                 </div>
-
-                <h4>Example Custom Template</h4>
-                <pre><code># 📰 {{DAY_NAME}}, {{MONTH_NAME}} {{DAY}}, {{YEAR}}
-
-> Daily news digest generated at {{TIME}}
-> Tracking {{TOPIC_COUNT}} topics: {{TOPIC_LIST}}
-
----
-
-{{TOPICS}}
-
----
-
-*Generated by Daily News Briefing using {{METADATA_PROVIDER}}*
-*Language: {{LANGUAGE}}*</code></pre>
             </section>
 
-            <!-- Custom Prompts -->
             <section id="custom-prompts">
                 <h2>Custom Prompts</h2>
-                <p>You can override the default AI prompts to customize how news is analyzed and summarized.</p>
+                <p>Override the default AI prompts to customize summarization behavior.</p>
 
-                <h3>Summarization Prompt (All Providers)</h3>
-                <p>Controls how the AI summarizes news content. Available placeholder:</p>
-                <ul>
-                    <li><code>{{NEWS_TEXT}}</code> - The news articles or content to be summarized</li>
-                </ul>
+                <h3>Summarization Prompt</h3>
+                <p>Use <code>{{NEWS_TEXT}}</code> as a placeholder for the news content:</p>
 
                 <div class="feature-box">
-                    <h5>Example 1: Focus on Breaking News</h5>
+                    <h5>Example: Breaking News Focus</h5>
                     <pre><code>Analyze the following news and extract only breaking news and major announcements.
-Ignore opinion pieces, analysis articles, and minor updates.
+Ignore opinion pieces and minor updates.
 
 News content:
 {{NEWS_TEXT}}
 
-Format as bullet points with:
-- Bold headline
-- 2-3 sentence summary
-- Source link with date</code></pre>
+Format as bullet points with bold headline, 2-3 sentence summary, and source link.</code></pre>
                 </div>
 
                 <div class="feature-box">
-                    <h5>Example 2: Technical Focus</h5>
-                    <pre><code>From the following news, extract technical details and specifications.
-Focus on: product releases, technical breakthroughs, and research findings.
-
-{{NEWS_TEXT}}
-
-For each item include:
-- Technical specifications
-- Key innovations
-- Potential impact on industry</code></pre>
-                </div>
-
-                <div class="feature-box">
-                    <h5>Example 3: Investment Focus</h5>
+                    <h5>Example: Investment Focus</h5>
                     <pre><code>Analyze this news from an investor's perspective:
 
 {{NEWS_TEXT}}
 
-For each news item, provide:
-- Market impact assessment
-- Key financial metrics mentioned
-- Investment implications
-- Risk factors</code></pre>
+For each item provide: market impact, key financial metrics, and risk factors.</code></pre>
                 </div>
 
-                <h3>AI Judge Prompt (Google Providers Only)</h3>
-                <p>Controls how AI selects the best news items from search results. Available placeholders:</p>
-                <ul>
-                    <li><code>{{NEWS_TEXT}}</code> - The list of news items to evaluate</li>
-                    <li><code>{{TOPIC}}</code> - The current topic being processed</li>
-                </ul>
+                <h3>AI Judge Prompt <span class="text-sm font-normal text-gray-500">(Google providers only)</span></h3>
+                <p>Controls how AI selects the best items from search results. Use <code>{{NEWS_TEXT}}</code> and <code>{{TOPIC}}</code>:</p>
 
                 <div class="feature-box">
-                    <h5>Example 1: Quality Filter</h5>
-                    <pre><code>Select the 5 most significant and credible news items about {{TOPIC}} from the list below.
-
-Prioritize:
-- Breaking news from reputable sources
-- Major company announcements
-- Research papers and studies
-- Expert analysis
-
-Exclude:
-- Opinion pieces and editorials
-- Social media posts
-- Advertisements and sponsored content
-- Duplicate or similar stories
+                    <h5>Example: Quality Filter</h5>
+                    <pre><code>Select the 5 most significant news items about {{TOPIC}} from the list below.
+Prioritize breaking news from reputable sources. Exclude opinion pieces and ads.
 
 News list:
 {{NEWS_TEXT}}</code></pre>
                 </div>
 
-                <div class="feature-box">
-                    <h5>Example 2: Diverse Perspective</h5>
-                    <pre><code>From the following news about {{TOPIC}}, select 5 items that provide diverse perspectives.
-
-Ensure variety in:
-- Geographic regions (US, EU, Asia, etc.)
-- Source types (mainstream, tech blogs, financial, research)
-- Viewpoints (bullish, bearish, neutral)
-
-{{NEWS_TEXT}}
-
-Return items that together give a balanced, comprehensive view.</code></pre>
-                </div>
-
-                <h3>Tips for Writing Effective Prompts</h3>
+                <h3>Tips</h3>
                 <ul>
-                    <li><strong>Be specific:</strong> Clearly state what you want included and excluded</li>
-                    <li><strong>Use structure:</strong> Request specific formats (bullet points, tables, etc.)</li>
-                    <li><strong>Set priorities:</strong> Tell the AI what matters most</li>
-                    <li><strong>Include examples:</strong> Show the AI what good output looks like</li>
-                    <li><strong>Test iteratively:</strong> Start simple and refine based on results</li>
+                    <li>Be specific about what to include and exclude</li>
+                    <li>Request a specific format (bullet points, tables, etc.)</li>
+                    <li>Set clear priorities for the AI</li>
+                    <li>Test iteratively — start simple and refine</li>
                 </ul>
             </section>
 
-            <!-- Usage -->
+            <!-- ==================== USAGE ==================== -->
+
             <section id="usage">
-                <h2>Usage</h2>
-                <p>Two ways to generate your daily news briefing:</p>
+                <h2>Generating News</h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
-                    <div class="feature-box">
-                        <h5>🕐 Automatic Mode</h5>
-                        <p class="text-sm">Set it and forget it - news generates at your scheduled time</p>
-                    </div>
-                    <div class="feature-box">
-                        <h5>👆 Manual Generation</h5>
-                        <p class="text-sm">Generate on-demand via command palette or sidebar button</p>
-                    </div>
-                </div>
-
-                <h3>🕐 Automatic Mode (Recommended)</h3>
-                <p>Once configured, the plugin automatically generates news at your scheduled time:</p>
+                <h3>Automatic (Scheduled)</h3>
                 <ol>
-                    <li>Set your schedule time in settings (e.g., <code>08:00</code>)</li>
-                    <li>Keep Obsidian running or open it after the scheduled time</li>
-                    <li>Find your briefings in the configured Archive Folder, organized by month</li>
+                    <li>Set a schedule time in settings (e.g., <code>08:00</code>)</li>
+                    <li>Keep Obsidian running — news generates silently in the background</li>
+                    <li>Find briefings in your Archive Folder, organized by month</li>
                 </ol>
-
                 <div class="alert alert-info">
-                    <strong>ℹ️ Note:</strong> Obsidian must be running for automatic generation. If closed, the plugin will generate news when you next open Obsidian (if after the scheduled time).
+                    Obsidian must be running for scheduled generation. If closed, the plugin generates on next launch (if past the scheduled time).
                 </div>
 
-                <div class="alert alert-success">
-                    <strong>📁 Monthly Organization:</strong> Daily news notes are automatically saved into monthly subfolders (e.g., <code>News Archive/2026-02/</code>). Use the "Reorganize existing notes" button in settings to organize old notes.
-                </div>
+                <h3>Manual</h3>
+                <p><strong>Command Palette:</strong> <code>Ctrl/Cmd+P</code> > "Generate news now"</p>
+                <p><strong>Sidebar button:</strong> Click the newspaper icon. Opens today's note if it exists, or creates a new one.</p>
 
-                <h3>👆 Manual Generation</h3>
-                <p>Generate news on-demand using two methods:</p>
-
-                <h4>Method 1: Command Palette</h4>
-                <ol>
-                    <li>Press <code>Ctrl/Cmd + P</code> to open command palette</li>
-                    <li>Type "Generate news now"</li>
-                    <li>Press Enter</li>
-                </ol>
-
-                <h4>Method 2: Sidebar Button</h4>
-                <p>Click the 📰 icon in the left sidebar.</p>
-                <p><strong>Smart behavior:</strong></p>
-                <ul>
-                    <li>If today's news exists → <strong>Opens it</strong></li>
-                    <li>If today's news doesn't exist → <strong>Creates it</strong></li>
-                </ul>
-
-                <h3 id="workflow">Complete Workflow</h3>
-                <div class="mermaid">
-    graph TD
-        A[Scheduled Time / Manual Trigger] --> B{Today's Note Exists?}
-        B -->|Yes| C[Open Existing Note]
-        B -->|No| D[Start Generation]
-
-        D --> E{Pipeline Type?}
-        E -->|Agentic| F[AI Provider Search]
-        E -->|Search+Summarize| G[Google Search]
-
-        F --> H[AI Summarization]
-        G --> I[5 Parallel Queries]
-        I --> J[AI Filtering & Ranking]
-        J --> K[AI Summarization]
-
-        H --> L[Apply Template]
-        K --> L
-
-        L --> M[Generate Markdown]
-        M --> N[Add Metadata]
-        N --> O[Save to Vault]
-        O --> P[Show Notification]
-        P --> Q[Open Note]
-
-        style A fill:#a855f7,stroke:#d8b4fe,color:#fff
-        style O fill:#22c55e,stroke:#86efac,color:#fff
-        style Q fill:#3b82f6,stroke:#93c5fd,color:#fff
-                </div>
-
-                <h3>File Naming & Organization</h3>
-                <p><strong>Automatic naming:</strong> Notes are named <code>YYYY-MM-DD.md</code></p>
-                <p><strong>Examples:</strong></p>
-                <ul>
-                    <li><code>2026-01-08.md</code> - January 8, 2026</li>
-                    <li><code>2026-12-25.md</code> - December 25, 2026</li>
-                </ul>
-
-                <p><strong>Folder structure:</strong></p>
+                <h3>File Organization</h3>
                 <pre><code>Your Vault/
-    └── News Archive/        (or your configured folder)
-        ├── 2026-01-08.md
-        ├── 2026-01-07.md
-        ├── 2026-01-06.md
-        └── ...</code></pre>
-
-                <div class="alert alert-success">
-                    <strong>💡 Pro Tip:</strong> Use Obsidian's Daily Notes plugin alongside this for seamless integration. Link to news from your daily notes for quick reference!
-                </div>
+  News Archive/
+    2026-02/
+      2026-02-25.md
+      2026-02-26.md
+    2026-01/
+      2026-01-31.md
+      ...</code></pre>
+                <p>Notes are named <code>YYYY-MM-DD.md</code> and auto-organized into monthly subfolders. Use the "Reorganize existing notes" button in settings to migrate old notes.</p>
             </section>
 
-            <!-- Languages -->
             <section id="languages">
                 <h2>Language Support</h2>
-                <p>The plugin supports <strong>6 languages</strong> with full content translation:</p>
-
+                <p>6 fully supported languages with content translation and localized UI:</p>
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Language</th>
-                            <th>Code (ISO 639-1)</th>
-                            <th>Native Name</th>
-                            <th>Coverage</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Language</th><th>Code</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td><strong>English</strong></td>
-                            <td><code>en</code></td>
-                            <td>English</td>
-                            <td>Full</td>
-                        </tr>
-                        <tr>
-                            <td><strong>French</strong></td>
-                            <td><code>fr</code></td>
-                            <td>Français</td>
-                            <td>Full</td>
-                        </tr>
-                        <tr>
-                            <td><strong>German</strong></td>
-                            <td><code>de</code></td>
-                            <td>Deutsch</td>
-                            <td>Full</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Spanish</strong></td>
-                            <td><code>es</code></td>
-                            <td>Español</td>
-                            <td>Full</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Italian</strong></td>
-                            <td><code>it</code></td>
-                            <td>Italiano</td>
-                            <td>Full</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Chinese</strong></td>
-                            <td><code>zh</code></td>
-                            <td>中文</td>
-                            <td>Full</td>
-                        </tr>
+                        <tr><td>English</td><td><code>en</code></td></tr>
+                        <tr><td>Francais</td><td><code>fr</code></td></tr>
+                        <tr><td>Deutsch</td><td><code>de</code></td></tr>
+                        <tr><td>Espanol</td><td><code>es</code></td></tr>
+                        <tr><td>Italiano</td><td><code>it</code></td></tr>
+                        <tr><td>Chinese</td><td><code>zh</code></td></tr>
                     </tbody>
                 </table>
-
-                <h3>What Gets Translated</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 40%">Element</th>
-                            <th style="width: 60%">Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>News Content</strong></td>
-                            <td>All news summaries, headlines, and descriptions are translated to your selected language</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Section Headers</strong></td>
-                            <td>"Key Developments", "Analysis & Context", "Processing Status" - all localized</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Status Messages</strong></td>
-                            <td>Error messages, notifications, and system text</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Metadata Labels</strong></td>
-                            <td>YAML frontmatter field names (optional - usually kept in English for compatibility)</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>Implementation Details</h3>
-                <p>The AI is instructed to respond in your selected language using ISO 639-1 codes. All UI text is automatically localized with fallback to English if a translation is missing.</p>
-
-                <div class="alert alert-warning">
-                    <strong>⚠️ Note:</strong> If you select an unsupported language, you'll receive a warning notification and the plugin will default to English.
-                </div>
+                <p>News content, section headers ("Key Developments", "Analysis & Context"), and status messages are all translated. Unsupported language codes fall back to English.</p>
             </section>
 
-            <!-- Changelog -->
-            <section id="changelog">
-                <h2>Changelog</h2>
-                <p>Recent updates and improvements to Daily News Briefing.</p>
-
-                <div class="feature-box">
-                    <h5>v1.11.1 - Simplified Metadata & Monthly Folders</h5>
-                    <p><strong>Released:</strong> February 2026</p>
-                    <ul>
-                        <li><strong> ✅ Metadata Simplification:</strong> Merged `date` and `time` metadata fields into a single `datetime` field for better consistency and simpler templating. Migration logic is included to handle old formats seamlessly.</li>
-                        <li><strong> ✅ Improved Folder Organization:</strong> The "Monthly Folder Organization" is now more robust, with a clearer description in the settings.</li>
-                    </ul>
-                </div>
-
-                <div class="feature-box">
-                    <h5>v1.11.0 - RSS Support</h5>
-                    <p><strong>Released:</strong> February 2026</p>
-                    <ul>
-                        <li>✅ Support for RSS feed retriever</li>
-                        <li>✅ Improved template settings and example content display</li>
-                    </ul>
-                </div>
-
-                <details class="my-6">
-                    <summary><i class="fa-solid fa-chevron-right"></i>View Previous Versions</summary>
-
-                    <div class="space-y-4 ml-4 mt-4">
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400"><strong>v1.10.1</strong> - Improve performance and add caching</p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400"><strong>v1.10.1</strong> - Fix caching and template settings</p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400"><strong>v1.10.1</strong> - Improve performance and add caching</p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400"><strong>v1.10.0</strong> - Support Anthropic and OpenRouter models</p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400"><strong>v1.9.1</strong> - Fixed metadata settings</p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400"><strong>v1.9.0</strong> - Customizable template settings</p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400"><strong>v1.8.2</strong> - Fixed Grok agentic search</p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400"><strong>v1.8.1</strong> - Added Grok support</p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.8.0</strong> - Refactored provider architecture<br>
-                                <span class="text-xs">Separated providers into agentic-search and search-then-summarize categories</span>
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.7.7</strong> - Fixed Google issues (extended timeout, improved limits)
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.7.6</strong> - Updated OpenAI to gpt-5-search-api
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.7.5</strong> - Replaced gemini-2.0-flash with gemini-2.5-flash
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.7.4</strong> - Reduced token consumption with prompt caching
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.7.3</strong> - Added OpenAI models support
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.7.2</strong> - Multi-language support (6 languages)
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.6.2</strong> - Toggle Analysis & Context section
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.6.1</strong> - Better failure handling
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.6.0</strong> - AI-powered news filtering
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.5.1</strong> - Upgraded to Gemini Flash 2.0
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.5.0</strong> - AI-generated search queries
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.4.0</strong> - Added Perplexity Sonar support
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.3.0</strong> - Added sidebar button
-                            </p>
-                        </div>
-
-                        <div class="border-l-2 border-purple-900 pl-4">
-                            <p class="text-sm text-gray-400">
-                                <strong>v1.0.0</strong> - Initial release
-                            </p>
-                        </div>
-                    </div>
-                </details>
-
-                <div class="alert alert-info">
-                    <strong>🚀 Roadmap:</strong><br>
-                    • <s>Cache Daily News Content</s> ✅ Done in v1.10.1<br>
-                    • <s>Cache AI-generated Queries</s> ✅ Done in v1.10.1<br>
-                    • <strong>More Web Search Choices</strong> - Coming soon (alternatives to Google Search)
-                </div>
-            </section>
-
-            <!-- Troubleshooting -->
             <section id="troubleshooting">
                 <h2>Troubleshooting</h2>
-                <p>Common issues and their solutions:</p>
 
-                <h3>❌ "No news generated" or Empty Content</h3>
+                <h3>No News Generated / Empty Content</h3>
                 <div class="feature-box">
-                    <h5>Possible Causes & Solutions</h5>
-                    <ol>
-                        <li><strong>API Key Issues:</strong>
-                            <ul>
-                                <li>Check that API keys are correctly entered (no extra spaces)</li>
-                                <li>Verify keys are active and haven't expired</li>
-                                <li>For Google providers, ensure all 3 keys are entered</li>
-                            </ul>
-                        </li>
-                        <li><strong>Topics Not Configured:</strong>
-                            <ul>
-                                <li>Ensure topics are comma-separated</li>
-                                <li>Topics should be specific (not too broad)</li>
-                            </ul>
-                        </li>
-                        <li><strong>Network Issues:</strong>
-                            <ul>
-                                <li>Verify your internet connection</li>
-                                <li>Check if API endpoints are accessible</li>
-                            </ul>
-                        </li>
-                        <li><strong>Debug:</strong>
-                            <ul>
-                                <li>Try manual generation first to see detailed errors</li>
-                                <li>Open Obsidian console (<code>Ctrl/Cmd + Shift + I</code>)</li>
-                                <li>Look for error messages in the console</li>
-                            </ul>
-                        </li>
-                    </ol>
+                    <ul>
+                        <li><strong>API keys:</strong> Check for extra spaces, expired keys, or missing keys (Google providers need all 3)</li>
+                        <li><strong>Topics:</strong> Must be comma-separated. Use specific topics for better results.</li>
+                        <li><strong>Network:</strong> Verify internet connection and API endpoint access</li>
+                        <li><strong>Debug:</strong> Open Obsidian console (<code>Ctrl/Cmd+Shift+I</code>) for error details</li>
+                    </ul>
                 </div>
 
-                <h3>⚠️ "API Error" Messages</h3>
+                <h3>API Errors</h3>
                 <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 30%">Error Type</th>
-                            <th style="width: 70%">Solutions</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Error</th><th>Solution</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td><strong>Invalid API Key</strong></td>
-                            <td>
-                                • Double-check you copied the complete key<br>
-                                • Regenerate the API key from the provider<br>
-                                • Ensure no extra spaces before/after the key
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Insufficient Credits</strong></td>
-                            <td>
-                                • Verify your API account has available credits/quota<br>
-                                • Check billing status in provider dashboard<br>
-                                • For Google: Check quota usage in Cloud Console
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Rate Limiting</strong></td>
-                            <td>
-                                • Wait 5-10 minutes and try again<br>
-                                • Reduce "Max Search Results" in settings<br>
-                                • Spread out manual generations
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Google Search Quota Exceeded</strong></td>
-                            <td>
-                                • Free tier has 100 queries/day limit<br>
-                                • Reduce "Results per Topic" setting<br>
-                                • Disable "Use AI for Search Queries" temporarily<br>
-                                • Wait until next day for quota reset
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Timeout Errors</strong></td>
-                            <td>
-                                • Check internet connection stability<br>
-                                • Try a different AI provider<br>
-                                • Reduce number of topics<br>
-                                • Reduce "Max Search Results"
-                            </td>
-                        </tr>
+                        <tr><td><strong>Invalid API Key</strong></td><td>Regenerate key, check for extra whitespace</td></tr>
+                        <tr><td><strong>Insufficient Credits</strong></td><td>Check billing in provider dashboard</td></tr>
+                        <tr><td><strong>Rate Limiting</strong></td><td>Wait 5-10 minutes, reduce search results count</td></tr>
+                        <tr><td><strong>Quota Exceeded</strong></td><td>Google free tier: 100 queries/day. Wait for reset or reduce settings.</td></tr>
+                        <tr><td><strong>Timeout</strong></td><td>Check connection, try a different provider, reduce topics</td></tr>
                     </tbody>
                 </table>
 
-                <h3>📄 "Template Validation Failed"</h3>
-                <div class="feature-box">
-                    <h5>Solutions</h5>
-                    <ul>
-                        <li><strong>Missing {{TOPICS}}:</strong> Ensure your custom template includes <code>{{TOPICS}}</code> placeholder</li>
-                        <li><strong>Typos in placeholders:</strong> Check for typos (placeholders are case-sensitive)</li>
-                        <li><strong>Unknown placeholders:</strong> Remove any placeholders not listed in documentation</li>
-                        <li><strong>Empty template:</strong> Template cannot be completely empty</li>
-                        <li><strong>Test:</strong> Switch to a preset template to verify the issue</li>
-                    </ul>
-                </div>
+                <h3>Template Validation Failed</h3>
+                <ul>
+                    <li>Ensure your template includes <code>{{TOPICS}}</code></li>
+                    <li>Placeholders are case-sensitive — check for typos</li>
+                    <li>Switch to a preset template to verify the issue</li>
+                </ul>
 
-                <h3>🔄 Plugin Not Working After Update</h3>
+                <h3>Plugin Not Working After Update</h3>
                 <ol>
-                    <li>Reload Obsidian (<code>Ctrl/Cmd + R</code>)</li>
-                    <li>Disable and re-enable the plugin in settings</li>
-                    <li>Check for new plugin updates (Settings → Community Plugins)</li>
-                    <li>Clear Obsidian cache (Settings → About → Show debug info → Clear cache)</li>
-                    <li>If issue persists, create a GitHub issue with error logs</li>
-                </ol>
-
-                <h3>📰 News Quality Issues</h3>
-                <div class="feature-box">
-                    <h5>For Google-Based Providers:</h5>
-                    <ul>
-                        <li>✅ Enable "Use AI for Search Queries" for better search optimization</li>
-                        <li>✅ Enable "Use AI News Judgment" for better content selection</li>
-                        <li>Adjust "Results per Topic" (try 7-10 for better coverage)</li>
-                        <li>Shorten date range (use <code>d1</code> for most recent news)</li>
-                        <li>Use more specific topics (e.g., "NVIDIA stock news" instead of "technology")</li>
-                    </ul>
-
-                    <h5>For All Providers:</h5>
-                    <ul>
-                        <li>Be more specific with topics</li>
-                        <li>Try different AI providers to compare quality</li>
-                        <li>Use custom prompts to guide the AI's focus</li>
-                        <li>Adjust output format (detailed vs concise)</li>
-                    </ul>
-                </div>
-
-                <h3>💬 Getting Help</h3>
-                <p>If you're still experiencing issues:</p>
-                <ol>
-                    <li>📖 Check <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/issues" target="_blank">GitHub Issues</a> for similar problems</li>
-                    <li>🐛 Create a new issue with:
-                        <ul>
-                            <li>Your settings (hide API keys!)</li>
-                            <li>Error messages from console</li>
-                            <li>Steps to reproduce</li>
-                            <li>Expected vs actual behavior</li>
-                        </ul>
-                    </li>
+                    <li>Reload Obsidian (<code>Ctrl/Cmd+R</code>)</li>
+                    <li>Disable and re-enable the plugin</li>
+                    <li>Check for new updates in Community Plugins</li>
+                    <li>If unresolved, <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/issues" target="_blank">open a GitHub issue</a> with console logs</li>
                 </ol>
             </section>
 
-            <!-- Advanced Features -->
-            <section id="advanced">
-                <h2>Advanced Features</h2>
+            <!-- ==================== ADVANCED ==================== -->
+
+            <section id="search-optimization">
+                <h2>Advanced</h2>
 
                 <h3>Google Search Optimization</h3>
-                <p>When using Google + Summarizer pipelines, the plugin implements a sophisticated multi-strategy search approach:</p>
-
-                <div class="mermaid">
-    graph LR
-        A[Your Topic] --> B[Query Generator]
-        B --> C1[Optimized Query]
-        B --> C2[Specific Query]
-        B --> C3[Broad Query]
-        B --> C4[Recent Query]
-        B --> C5[Simple Query]
-
-        C1 --> D[Google Search]
-        C2 --> D
-        C3 --> D
-        C4 --> D
-        C5 --> D
-
-        D --> E[Deduplication]
-        E --> F[Quality Filtering]
-        F --> G[AI Ranking]
-        G --> H[Top N Results]
-
-        style A fill:#a855f7,stroke:#d8b4fe,color:#fff
-        style H fill:#22c55e,stroke:#86efac,color:#fff
-                </div>
-
-                <h4>5 Parallel Search Strategies</h4>
+                <p>When using Google providers, the plugin runs 5 parallel search strategies per topic:</p>
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Strategy</th>
-                            <th>Purpose</th>
-                            <th>Example</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Strategy</th><th>Purpose</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td><strong>Optimized</strong></td>
-                            <td>AI-generated query with optimal keywords and operators</td>
-                            <td><code>"Tesla stock" OR "TSLA" earnings OR revenue 2026</code></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Specific</strong></td>
-                            <td>Exact phrase matching for precision</td>
-                            <td><code>"Tesla stock news" "January 2026"</code></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Broad</strong></td>
-                            <td>Wide search for comprehensive coverage</td>
-                            <td><code>Tesla automotive stock market</code></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Recent</strong></td>
-                            <td>Time-filtered for latest developments</td>
-                            <td><code>Tesla stock latest breaking</code> + date:d1</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Simple</strong></td>
-                            <td>Basic query as fallback</td>
-                            <td><code>Tesla stock</code></td>
-                        </tr>
+                        <tr><td><strong>Optimized</strong></td><td>AI-generated query with optimal keywords</td></tr>
+                        <tr><td><strong>Specific</strong></td><td>Exact phrase matching for precision</td></tr>
+                        <tr><td><strong>Broad</strong></td><td>Wide search for comprehensive coverage</td></tr>
+                        <tr><td><strong>Recent</strong></td><td>Time-filtered for latest developments</td></tr>
+                        <tr><td><strong>Simple</strong></td><td>Basic query as fallback</td></tr>
                     </tbody>
                 </table>
+                <p>Results are deduplicated, filtered by quality sources (BBC, Reuters, TechCrunch, Bloomberg, etc.), and ranked by AI.</p>
 
-                <h3>Quality Source Filtering</h3>
-                <p>The plugin includes a curated list of high-quality news sources. Results from these sources are prioritized:</p>
+                <h3>Caching</h3>
+                <p>Two levels of caching reduce API usage and speed up generation:</p>
+                <ul>
+                    <li><strong>Query Cache:</strong> Persists AI-generated search queries per topic. Cleared manually.</li>
+                    <li><strong>Daily Content Cache:</strong> Caches processed content per topic per day. Auto-cleaned on next day.</li>
+                </ul>
 
+                <h3>Performance Tips</h3>
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Sources</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Goal</th><th>Recommendation</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td><strong>General News</strong></td>
-                            <td>BBC, Reuters, AP News, The Guardian, NPR, PBS</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Technology</strong></td>
-                            <td>TechCrunch, Ars Technica, The Verge, Wired, MIT Technology Review</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Business</strong></td>
-                            <td>Bloomberg, Financial Times, Wall Street Journal, Forbes, The Economist</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Science</strong></td>
-                            <td>Nature, Science Magazine, Scientific American, New Scientist</td>
-                        </tr>
+                        <tr><td><strong>Speed</strong></td><td>Agentic providers, fewer results per topic, concise format</td></tr>
+                        <tr><td><strong>Cost</strong></td><td>Google + Gemini, lower max search results</td></tr>
+                        <tr><td><strong>Quality</strong></td><td>Enable AI queries + AI judge, increase results per topic, use custom prompts</td></tr>
+                        <tr><td><strong>Coverage</strong></td><td>Results per topic 10-15, max search 40-50, broader date range</td></tr>
                     </tbody>
                 </table>
+            </section>
 
-                <h3>Performance Optimization Tips</h3>
+            <section id="rate-limits">
+                <h3>API Rate Limits</h3>
                 <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 30%">Goal</th>
-                            <th style="width: 70%">Recommendation</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Provider</th><th>Free Tier</th><th>Paid</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td><strong>Speed</strong></td>
-                            <td>
-                                • Use Perplexity or Grok agentic search<br>
-                                • Reduce "Results per Topic" to 3-5<br>
-                                • Use concise output format
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Cost</strong></td>
-                            <td>
-                                • Use Google + Gemini (free tier)<br>
-                                • Reduce "Max Search Results"<br>
-                                • Disable "Use AI for Search Queries" if needed
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Quality</strong></td>
-                            <td>
-                                • Use Google + GPT with AI features enabled<br>
-                                • Enable "Use AI News Judgment"<br>
-                                • Use custom prompts for focus<br>
-                                • Increase "Results per Topic" to 7-10
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Coverage</strong></td>
-                            <td>
-                                • Increase "Results per Topic" to 10-15<br>
-                                • Increase "Max Search Results" to 40-50<br>
-                                • Use broader date range (w1 or m1)
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Focus</strong></td>
-                            <td>
-                                • Use custom prompts with specific instructions<br>
-                                • Be very specific with topics<br>
-                                • Use custom AI judge prompt
-                            </td>
-                        </tr>
+                        <tr><td><strong>Google Custom Search</strong></td><td>100 queries/day</td><td>$5 per 1,000</td></tr>
+                        <tr><td><strong>Gemini</strong></td><td>1,500 req/day</td><td>Pay-as-you-go</td></tr>
+                        <tr><td><strong>OpenAI / Anthropic / Grok</strong></td><td>No free tier</td><td>Pay-per-use</td></tr>
+                        <tr><td><strong>Perplexity</strong></td><td>No free tier</td><td>Subscription</td></tr>
+                        <tr><td><strong>OpenRouter</strong></td><td>No free tier</td><td>Varies by model</td></tr>
                     </tbody>
                 </table>
-
-                <h3>API Rate Limits & Quotas</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Provider</th>
-                            <th>Free Tier Limit</th>
-                            <th>Paid Tier</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Google Custom Search</strong></td>
-                            <td>100 queries/day</td>
-                            <td>$5 per 1000 queries</td>
-                            <td>Shared across all Google projects</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Gemini API</strong></td>
-                            <td>1,500 requests/day<br>60 requests/minute</td>
-                            <td>Pay-as-you-go</td>
-                            <td>Token limits apply (~32K context)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>OpenAI GPT</strong></td>
-                            <td>No free tier</td>
-                            <td>Pay-per-use</td>
-                            <td>Varies by model</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Perplexity</strong></td>
-                            <td>No free tier</td>
-                            <td>Subscription</td>
-                            <td>Check current pricing</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Grok (xAI)</strong></td>
-                            <td>No free tier</td>
-                            <td>Pay-per-use</td>
-                            <td>Check current pricing</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Anthropic Claude</strong></td>
-                            <td>No free tier</td>
-                            <td>Pay-per-use</td>
-                            <td>Token-based pricing</td>
-                        </tr>
-                        <tr>
-                            <td><strong>OpenRouter</strong></td>
-                            <td>No free tier</td>
-                            <td>Pay-per-use</td>
-                            <td>Varies by model selected</td>
-                        </tr>
-                    </tbody>
-                </table>
-
                 <div class="alert alert-info">
-                    <strong>💡 Quota Management:</strong> For daily news generation with 3 topics, Google + Gemini typically uses:<br>
-                    • ~15-25 Google Search queries (well within 100/day limit)<br>
-                    • ~5-10 Gemini API calls (well within 1,500/day limit)
+                    For 3 topics with Google + Gemini, expect ~15-25 search queries and ~5-10 Gemini calls per day — well within free limits.
                 </div>
             </section>
 
-            <!-- Technical Documentation -->
-            <section id="technical">
-                <h2>Technical Documentation</h2>
-                <p>This section provides technical details about the plugin architecture, file structure, and contribution guidelines for developers.</p>
-
-                <h3 id="architecture">🏗️ Architecture Overview</h3>
-                <p>The plugin follows a modular provider-based architecture with clear separation of concerns:</p>
-
+            <section id="architecture">
+                <h3>Architecture</h3>
                 <div class="mermaid">
     graph TD
-        A[Plugin Main Entry] --> B[News Provider Factory]
+        A[Plugin Main] --> B[News Provider Factory]
         B --> C1[Agentic Providers]
-        B --> C2[Search-Summarize Coordinators]
+        B --> C2[Search-Summarize Coordinator]
 
         C1 --> D1[Perplexity]
         C1 --> D2[GPT Agentic]
-        C1 --> D3[Grok Agentic]
-        C1 --> D4[Claude Agentic]
+        C1 --> D3[Claude Agentic]
+        C1 --> D4[Grok Agentic]
         C1 --> D5[OpenRouter Agentic]
 
-        C2 --> E[Search + Summarize]
-        E --> F1[Google Search Retriever]
-        E --> F2[Gemini Summarizer]
-        E --> F3[GPT Summarizer]
-        E --> F4[Grok Summarizer]
-        E --> F5[Claude Summarizer]
-        E --> F6[OpenRouter Summarizer]
+        C2 --> E1[Retrievers]
+        C2 --> E2[Summarizers]
 
-        A --> G[Template Engine]
-        A --> H[Settings Tab]
-        A --> I[Utils]
+        E1 --> F1[Google Search]
+        E1 --> F2[RSS]
+        E2 --> G1[Gemini]
+        E2 --> G2[GPT]
+        E2 --> G3[Claude]
+        E2 --> G4[Grok]
+        E2 --> G5[OpenRouter]
+
+        A --> H[Template Engine]
 
         style A fill:#a855f7,stroke:#d8b4fe,color:#fff
         style B fill:#3b82f6,stroke:#93c5fd,color:#fff
-        style G fill:#22c55e,stroke:#86efac,color:#fff
+        style H fill:#22c55e,stroke:#86efac,color:#fff
                 </div>
 
                 <h4>Design Patterns</h4>
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Pattern</th>
-                            <th>Implementation</th>
-                            <th>Purpose</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Pattern</th><th>Implementation</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td><strong>Factory Pattern</strong></td>
-                            <td><code>NewsProviderFactory</code></td>
-                            <td>Creates appropriate provider instances based on user settings</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Abstract Base Classes</strong></td>
-                            <td><code>BaseNewsProvider</code>, <code>BaseRetriever</code>, <code>BaseSummarizer</code></td>
-                            <td>Defines common interfaces for all providers</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Strategy Pattern</strong></td>
-                            <td>Agentic vs Search-Summarize pipelines</td>
-                            <td>Supports different news generation strategies</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Template Pattern</strong></td>
-                            <td><code>TemplateEngine</code></td>
-                            <td>Handles template rendering with placeholders</td>
-                        </tr>
+                        <tr><td><strong>Factory</strong></td><td><code>NewsProviderFactory</code> — creates providers from settings</td></tr>
+                        <tr><td><strong>Strategy</strong></td><td>Agentic vs Modular pipeline selection</td></tr>
+                        <tr><td><strong>Template</strong></td><td><code>TemplateEngine</code> — placeholder rendering</td></tr>
+                        <tr><td><strong>Abstract Base</strong></td><td><code>BaseNewsProvider</code>, <code>BaseRetriever</code>, <code>BaseSummarizer</code></td></tr>
                     </tbody>
                 </table>
 
-                <h4>Pipeline Types</h4>
+                <h4>File Structure</h4>
+                <pre><code>src/
+  types.ts                    # Type definitions & settings
+  constants.ts                # Translations & constants
+  utils.ts                    # FileUtils, LanguageUtils, ContentUtils, MetadataUtils
+  settings-tab.ts             # Settings UI
+  providers/
+    base-news-provider.ts     # Abstract base class
+    news-provider-factory.ts  # Factory
+    agentic/                  # Perplexity, GPT, Claude, Grok, OpenRouter
+    coordinators/             # Search-Summarize coordinator
+    retrievers/               # Google Search, RSS
+    summarizers/              # Gemini, GPT, Claude, Grok, OpenRouter
+  template/
+    template-engine.ts        # Rendering engine
+    template-presets.ts       # Preset definitions</code></pre>
+            </section>
 
-                <div class="feature-box">
-                    <h5>Agentic Pipeline (Single API Call)</h5>
-                    <p><strong>Providers:</strong> Perplexity, GPT, Grok, Claude, OpenRouter</p>
-                    <p><strong>Flow:</strong> Topic → AI Provider (handles search + summary) → Formatted News</p>
-                    <p><strong>Pros:</strong> Simpler, fewer API calls, integrated search</p>
-                    <p><strong>Cons:</strong> Less control over search, single provider dependency</p>
-                </div>
-
-                <div class="feature-box">
-                    <h5>Search-Summarize Pipeline (Coordinator)</h5>
-                    <p><strong>Providers:</strong> Google Search + Any Summarizer (Gemini/GPT/Grok/Claude/OpenRouter)</p>
-                    <p><strong>Flow:</strong> Topic → Google Search → Filter & Rank → AI Summarizer → Formatted News</p>
-                    <p><strong>Pros:</strong> More control, advanced search strategies, mix & match components</p>
-                    <p><strong>Cons:</strong> More API calls, requires Google setup</p>
-                </div>
-
-                <h3 id="file-structure">📁 File Structure</h3>
-                <p>Understanding the codebase organization:</p>
-
-                <pre><code>Daily-News-Briefing/
-    ├── main.ts                          # Plugin entry point
-    ├── manifest.json                    # Plugin metadata
-    ├── package.json                     # Dependencies & scripts
-    ├── tsconfig.json                    # TypeScript config
-    ├── esbuild.config.mjs               # Build configuration
-    │
-    ├── src/
-    │   ├── types.ts                     # Type definitions & settings interface
-    │   ├── constants.ts                 # Language translations & constants
-    │   ├── utils.ts                     # Utility functions (file, language, content, metadata)
-    │   ├── settings-tab.ts              # Plugin settings UI
-    │   │
-    │   ├── providers/
-    │   │   ├── base-news-provider.ts              # Abstract base class for all providers
-    │   │   ├── news-provider-factory.ts           # Factory for creating provider instances
-    │   │   │
-    │   │   ├── agentic/                           # Single-call AI providers
-    │   │   │   ├── perplexity-provider.ts         # Perplexity Sonar
-    │   │   │   ├── gpt-agentic-provider.ts        # OpenAI GPT with web search
-    │   │   │   ├── grok-agentic-provider.ts       # Grok with web search
-    │   │   │   ├── claude-agentic-provider.ts     # Claude with web search
-    │   │   │   └── openrouter-agentic-provider.ts # OpenRouter with web search
-    │   │   │
-    │   │   ├── coordinators/
-    │   │   │   └── search-summarize-coordinator.ts # Coordinates retriever + summarizer
-    │   │   │
-    │   │   ├── retrievers/
-    │   │   │   ├── base-retriever.ts              # Abstract retriever interface
-    │   │   │   └── google-search-retriever.ts     # Google Custom Search implementation
-    │   │   │
-    │   │   └── summarizers/
-    │   │       ├── base-summarizer.ts             # Abstract summarizer interface
-    │   │       ├── gemini-summarizer.ts           # Google Gemini
-    │   │       ├── gpt-summarizer.ts              # OpenAI GPT
-    │   │       ├── grok-summarizer.ts             # xAI Grok
-    │   │       ├── claude-summarizer.ts           # Anthropic Claude
-    │   │       └── openrouter-summarizer.ts       # OpenRouter
-    │   │
-    │   └── template/
-    │       ├── template-engine.ts                 # Template rendering engine
-    │       └── template-presets.ts                # Preset template definitions
-    │
-    ├── docs.html                        # Documentation website
-    └── index.html                       # Landing page</code></pre>
-
-                <h4>Key Files Explained</h4>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>File</th>
-                            <th>Responsibility</th>
-                            <th>Key Functions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>main.ts</code></td>
-                            <td>Plugin entry point, lifecycle management</td>
-                            <td>Load settings, schedule tasks, handle commands, initialize providers</td>
-                        </tr>
-                        <tr>
-                            <td><code>src/types.ts</code></td>
-                            <td>Type definitions</td>
-                            <td>Define <code>DailyNewsSettings</code>, <code>TemplateData</code>, <code>TopicContent</code>, etc.</td>
-                        </tr>
-                        <tr>
-                            <td><code>src/utils.ts</code></td>
-                            <td>Shared utilities</td>
-                            <td><code>FileUtils</code>, <code>LanguageUtils</code>, <code>ContentUtils</code>, <code>MetadataUtils</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>src/settings-tab.ts</code></td>
-                            <td>Plugin configuration UI</td>
-                            <td>Render settings UI, validate inputs, save settings</td>
-                        </tr>
-                        <tr>
-                            <td><code>src/providers/news-provider-factory.ts</code></td>
-                            <td>Provider instantiation</td>
-                            <td>Select and create appropriate provider based on settings</td>
-                        </tr>
-                        <tr>
-                            <td><code>src/template/template-engine.ts</code></td>
-                            <td>Template processing</td>
-                            <td>Replace placeholders, handle custom templates, apply presets</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3 id="contributing">🤝 Contributing Guidelines</h3>
-                <p>We welcome contributions! Here's how to get started:</p>
+            <section id="contributing">
+                <h3>Contributing</h3>
 
                 <h4>Development Setup</h4>
-                <pre><code># Clone the repository
-    git clone https://github.com/ChenziqiAdam/Daily-News-Briefing.git
-    cd Daily-News-Briefing
+                <pre><code>git clone https://github.com/ChenziqiAdam/Daily-News-Briefing.git
+cd Daily-News-Briefing
+npm install
+npm run dev    # Watch mode
+npm run build  # Production build</code></pre>
 
-    # Install dependencies
-    npm install
-
-    # Development build (watches for changes)
-    npm run dev
-
-    # Production build (with type checking)
-    npm run build</code></pre>
-
-                <h4>Testing Your Changes</h4>
+                <h4>Testing</h4>
                 <ol>
-                    <li><strong>Build the plugin:</strong> Run <code>npm run build</code> to compile TypeScript</li>
-                    <li><strong>Copy to Obsidian:</strong> Copy <code>main.js</code>, <code>manifest.json</code>, <code>styles.css</code> to your vault's <code>.obsidian/plugins/daily-news-briefing/</code> folder</li>
-                    <li><strong>Reload Obsidian:</strong> Use Ctrl/Cmd+R to reload the plugin</li>
-                    <li><strong>Test functionality:</strong> Try manual news generation with different settings</li>
+                    <li>Run <code>npm run build</code></li>
+                    <li>Copy <code>main.js</code>, <code>manifest.json</code>, <code>styles.css</code> to your vault's <code>.obsidian/plugins/daily-news-briefing/</code></li>
+                    <li>Reload Obsidian (<code>Ctrl/Cmd+R</code>)</li>
                 </ol>
 
-                <h4>Adding a New AI Provider</h4>
-
+                <h4>Adding a New Provider</h4>
                 <details>
-                    <summary><i class="fa-solid fa-chevron-right"></i>Agentic Provider (Single API Call)</summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i> Agentic Provider</summary>
                     <div class="mt-4">
                         <ol>
-                            <li>Create <code>src/providers/agentic/newprovider-agentic-provider.ts</code></li>
-                            <li>Extend <code>BaseNewsProvider</code></li>
-                            <li>Implement <code>generateNews(topics, language)</code> method</li>
-                            <li>Add provider to <code>NewsProviderFactory</code></li>
-                            <li>Add settings UI in <code>settings-tab.ts</code></li>
-                            <li>Update types in <code>types.ts</code></li>
+                            <li>Create <code>src/providers/agentic/your-provider.ts</code></li>
+                            <li>Extend <code>BaseNewsProvider</code>, implement <code>generateNews(topics, language)</code></li>
+                            <li>Register in <code>NewsProviderFactory</code></li>
+                            <li>Add settings UI and types</li>
                         </ol>
-
-                        <pre><code>// Example structure
-    import { BaseNewsProvider } from '../base-news-provider';
-
-    export class NewProviderAgenticProvider extends BaseNewsProvider {
-        async generateNews(topics: string[], language: string): Promise&lt;TopicContent[]&gt; {
-            // Your implementation
-            // Should return array of topic content with headlines
-        }
-    }</code></pre>
                     </div>
                 </details>
-
                 <details>
-                    <summary><i class="fa-solid fa-chevron-right"></i>Search-Summarize Provider</summary>
+                    <summary><i class="fa-solid fa-chevron-right"></i> Summarizer</summary>
                     <div class="mt-4">
-                        <p><strong>Add a new Summarizer:</strong></p>
                         <ol>
-                            <li>Create <code>src/providers/summarizers/newprovider-summarizer.ts</code></li>
-                            <li>Extend <code>BaseSummarizer</code></li>
-                            <li>Implement <code>summarize(topic, articles, language)</code></li>
-                            <li>Add to factory in <code>search-summarize-coordinator.ts</code></li>
-                        </ol>
-
-                        <p class="mt-4"><strong>Add a new Retriever:</strong></p>
-                        <ol>
-                            <li>Create <code>src/providers/retrievers/newsource-retriever.ts</code></li>
-                            <li>Extend <code>BaseRetriever</code></li>
-                            <li>Implement <code>search(topic, language, maxResults)</code></li>
-                            <li>Add to coordinator factory</li>
+                            <li>Create <code>src/providers/summarizers/your-summarizer.ts</code></li>
+                            <li>Extend <code>BaseSummarizer</code>, implement <code>summarize(topic, articles, language)</code></li>
+                            <li>Register in coordinator factory</li>
                         </ol>
                     </div>
                 </details>
 
-                <h4>Pull Request Guidelines</h4>
+                <h4>Pull Requests</h4>
                 <ol>
-                    <li>Fork the repository and create a feature branch</li>
-                    <li>Make your changes with clear, descriptive commits</li>
-                    <li>Ensure <code>npm run build</code> passes without errors</li>
-                    <li>Test your changes in Obsidian</li>
-                    <li>Update documentation if needed (README.md, docs.html)</li>
-                    <li>Submit PR with description of changes and testing done</li>
+                    <li>Fork and create a feature branch</li>
+                    <li>Ensure <code>npm run build</code> passes</li>
+                    <li>Test in Obsidian</li>
+                    <li>Submit PR with description and testing notes</li>
                 </ol>
 
                 <div class="alert alert-info">
-                    <strong>💡 Good First Issues:</strong><br>
-                    • Add new language translations in <code>constants.ts</code><br>
-                    • Create new template presets in <code>template-presets.ts</code><br>
-                    • Improve error messages and user feedback<br>
-                    • Add more template placeholders<br>
-                    • Enhance documentation with examples
-                </div>
-
-                <h4>Reporting Issues</h4>
-                <p>When reporting bugs, please include:</p>
-                <ul>
-                    <li>Obsidian version and OS</li>
-                    <li>Plugin version (from manifest.json)</li>
-                    <li>Provider and settings configuration</li>
-                    <li>Steps to reproduce the issue</li>
-                    <li>Console logs (Ctrl/Cmd+Shift+I → Console tab)</li>
-                    <li>Expected vs actual behavior</li>
-                </ul>
-
-                <div class="alert alert-success">
-                    <strong>🎯 Feature Requests Welcome!</strong> Open an issue with the "enhancement" label to suggest new features. Popular requests include:
-                    <ul class="mt-2">
-                        <li>Alternative web search providers (beyond Google)</li>
-                        <li>More AI model options</li>
-                        <li>Advanced filtering and categorization</li>
-                        <li>Integration with other Obsidian plugins</li>
-                    </ul>
-                </div>
-
-                <div class="mt-8 p-6 bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border border-purple-500/30 rounded-lg">
-                    <h5 class="text-xl font-bold mb-3 text-purple-300"><i class="fa-solid fa-code mr-2"></i>Developer Resources</h5>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <p class="font-semibold text-purple-200 mb-2">Documentation</p>
-                            <ul class="space-y-1 text-sm">
-                                <li><a href="https://docs.obsidian.md/Plugins/Getting+started/Build+a+plugin" class="text-purple-400 hover:text-purple-300">Obsidian Plugin API</a></li>
-                                <li><a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/blob/main/README.md" class="text-purple-400 hover:text-purple-300">Project README</a></li>
-                                <li><a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/issues" class="text-purple-400 hover:text-purple-300">GitHub Issues</a></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-purple-200 mb-2">Community</p>
-                            <ul class="space-y-1 text-sm">
-                                <li><a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/discussions" class="text-purple-400 hover:text-purple-300">GitHub Discussions</a></li>
-                                <li><a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/pulls" class="text-purple-400 hover:text-purple-300">Pull Requests</a></li>
-                                <li><a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/graphs/contributors" class="text-purple-400 hover:text-purple-300">Contributors</a></li>
-                            </ul>
-                        </div>
-                    </div>
+                    <strong>Good First Issues:</strong> Add language translations, create template presets, improve error messages, add placeholders, or enhance docs.
                 </div>
             </section>
 
@@ -2260,18 +1116,17 @@ Return items that together give a balanced, comprehensive view.</code></pre>
 
     <footer class="border-t border-white/5 bg-[#0a0a0a] py-8 px-6 mt-24">
         <div class="max-w-7xl mx-auto text-center text-gray-500 text-sm">
-            <p>Daily News Briefing for Obsidian - Open Source (MIT License)</p>
+            <p>Daily News Briefing for Obsidian — Open Source (MIT License)</p>
             <p class="mt-2">Built with curiosity by <a href="https://github.com/ChenziqiAdam" class="text-purple-400 hover:text-purple-300">@ChenziqiAdam</a></p>
         </div>
     </footer>
 
-    <!-- Back to Top Button -->
+    <!-- Back to Top -->
     <button id="back-to-top" class="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full bg-purple-600/80 text-white flex items-center justify-center shadow-lg hover:bg-purple-500 transition-all duration-300 transform scale-0" aria-label="Back to top">
         <i class="fa-solid fa-arrow-up"></i>
     </button>
 
     <script>
-        // Initialize Mermaid with dark theme
         mermaid.initialize({
             startOnLoad: true,
             theme: 'dark',
@@ -2291,7 +1146,6 @@ Return items that together give a balanced, comprehensive view.</code></pre>
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Sidebar active link tracking
             const links = document.querySelectorAll('.sidebar-nav a');
             const sections = document.querySelectorAll('section[id], h3[id]');
             const observer = new IntersectionObserver(entries => {
@@ -2299,7 +1153,7 @@ Return items that together give a balanced, comprehensive view.</code></pre>
                     if (entry.isIntersecting) {
                         links.forEach(link => {
                             link.classList.remove('active');
-                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                            if (link.getAttribute('href') && link.getAttribute('href').substring(1) === entry.target.id) {
                                 link.classList.add('active');
                             }
                         });
@@ -2307,11 +1161,8 @@ Return items that together give a balanced, comprehensive view.</code></pre>
                 });
             }, { rootMargin: "-50% 0px -50% 0px" });
 
-            sections.forEach(section => {
-                observer.observe(section);
-            });
+            sections.forEach(section => observer.observe(section));
 
-            // Back to Top Button
             const backToTopButton = document.getElementById('back-to-top');
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 300) {

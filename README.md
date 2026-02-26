@@ -6,7 +6,7 @@
 
 ## ✨ Features
 
-- 🤖 **6 AI Providers + RSS**: Google Gemini (free!), Anthropic, OpenAI, Grok, Perplexity, OpenRouter, RSS Retriever
+- 🤖 **11 AI Pipelines + RSS**: Google, Anthropic, OpenAI, Grok, Perplexity, OpenRouter, RSS Retriever
 - 📅 **Auto-Scheduled**: Wake up to fresh news every day
 - 🎯 **Custom Topics**: Track exactly what matters to you
 - 🌍 **6 Languages**: English, French, German, Spanish, Italian, Chinese
@@ -67,13 +67,17 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## 📋 Changelog
 
-### v1.11.1
-- Merge metadata date and time, and add migration logic
-- Support monthly notes subfolder organization, and one-click reorganize
+### v1.11.2
+- Refactor workflow pipeline and support migration logic
+- Rewrite docs.html
 
 ### Previous Versions
 <details>
 <summary>Click to view changelog history</summary>
+
+**1.11.1**
+- Merge metadata date and time, and add migration logic
+- Support monthly notes subfolder organization, and one-click reorganize
 
 **1.11.0**
 - Support RSS retriever
