@@ -84,10 +84,10 @@ export interface DailyNewsSettings {
 
 export const DEFAULT_SETTINGS: DailyNewsSettings = {
     // Pipeline mode (new)
-    pipelineMode: 'modular',
+    pipelineMode: 'agentic',
     newsSource: 'google',
     summarizer: 'gemini',
-    agenticProvider: 'sonar',
+    agenticProvider: 'gemini',
 
     // Legacy field (kept for cache key compatibility)
     apiProvider: 'google-gemini', // Default to Google for backward compatibility
