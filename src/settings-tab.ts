@@ -159,7 +159,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 .setDesc('AI model used to summarize retrieved articles')
                 .addDropdown(dropdown => dropdown
                     .addOption('gemini', 'Gemini')
-                    .addOption('gpt', 'GPT (OpenAI)')
+                    .addOption('gpt', 'GPT')
                     .addOption('grok', 'Grok')
                     .addOption('claude', 'Claude')
                     .addOption('openrouter', 'OpenRouter')
@@ -174,12 +174,12 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 .setName('Provider')
                 .setDesc('Unified provider that handles both search and summarization')
                 .addDropdown(dropdown => dropdown
-                    .addOption('sonar', 'Perplexity (Sonar)')
-                    .addOption('gpt', 'GPT (OpenAI)')
+                    .addOption('sonar', 'Perplexity')
+                    .addOption('gpt', 'GPT')
                     .addOption('grok', 'Grok')
                     .addOption('claude', 'Claude')
                     .addOption('openrouter', 'OpenRouter')
-                    .addOption('gemini', 'Gemini (Google Search)')
+                    .addOption('gemini', 'Gemini')
                     .setValue(this.plugin.settings.agenticProvider)
                     .onChange(async (value: 'sonar' | 'gpt' | 'grok' | 'claude' | 'openrouter' | 'gemini') => {
                         this.plugin.settings.agenticProvider = value;
