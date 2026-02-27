@@ -1,6 +1,6 @@
 {
   "name": "obsidian-daily-news",
-  "version": "1.11.2",
+  "version": "1.11.3",
   "description": "Get AI-powered daily news summaries in your Obsidian vault",
   "main": "main.js",
   "scripts": {

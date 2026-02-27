@@ -33,9 +33,7 @@ For detailed setup instructions, API guides, and advanced features:
 ## 🔑 Quick API Setup
 
 ### Free Option (Recommended)
-**Google + Gemini** - Requires 3 free API keys:
-- [Google Custom Search API](https://console.cloud.google.com/)
-- [Search Engine ID](https://programmablesearchengine.google.com/controlpanel/all)
+**Gemini** - 1 free API key:
 - [Gemini API Key](https://aistudio.google.com/apikey)
 
 ### Paid Options (1 API Key)
@@ -67,13 +65,16 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## 📋 Changelog
 
-### v1.11.2
-- Refactor workflow pipeline and support migration logic
-- Rewrite docs.html
+### v1.11.3
+- Support Gemini agentic search and list as the top recommendation
 
 ### Previous Versions
 <details>
 <summary>Click to view changelog history</summary>
+
+**1.11.2**
+- Refactor workflow pipeline and support migration logic
+- Rewrite docs.html
 
 **1.11.1**
 - Merge metadata date and time, and add migration logic
