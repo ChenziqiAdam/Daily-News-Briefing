@@ -17,7 +17,7 @@
 ## 🚀 Quick Start
 
 1. **Install** from Obsidian Community Plugins
-2. **Choose AI Provider** (we recommend Google + Gemini - it's free!)
+2. **Choose AI Provider** (we recommend Gemini Agentic - it's free!)
 3. **Add API Key(s)** in settings
 4. **Set Topics** (e.g., "AI, Tesla, Bitcoin")
 5. **Schedule Time** (e.g., "08:00")
