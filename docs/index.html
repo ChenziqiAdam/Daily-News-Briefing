@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started - Daily News Briefing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link rel="stylesheet" href="shared.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        obsidian: {
+                            bg: '#161616',
+                            card: '#1e1e1e',
+                            border: '#2a2a2a',
+                            accent: '#a855f7',
+                            accentGlow: '#a855f740'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="relative overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 top-0 border-b border-white/5 bg-[#0d0d0d]/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                    <i class="fa-solid fa-newspaper text-white text-sm"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight text-white">Daily News Briefing</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="../index.html" class="text-sm text-gray-400 hover:text-white transition duration-200">Home</a>
+                <a href="index.html" class="text-sm text-purple-400 font-semibold">Documentation</a>
+                <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" target="_blank" class="text-sm text-gray-400 hover:text-white transition">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-24 flex gap-12">
+
+        <!-- Sidebar Navigation -->
+        <aside class="hidden lg:block w-64 flex-shrink-0">
+            <nav class="sidebar-nav">
+                <span class="nav-label">Getting Started</span>
+                <a href="#overview">Overview</a>
+                <a href="#quick-start">Quick Start</a>
+                <a href="#installation">Installation</a>
+
+                <span class="nav-label">Providers</span>
+                <a href="providers.html#pipelines">Pipeline Modes</a>
+                <a href="providers.html#agentic-providers">Agentic Providers</a>
+                <a href="providers.html#modular-providers">Modular Mode</a>
+                <a href="providers.html#api-setup">API Setup Guides</a>
+
+                <span class="nav-label">Configuration</span>
+                <a href="configuration.html#basic-settings">Basic Settings</a>
+                <a href="configuration.html#search-settings">Search Settings</a>
+                <a href="configuration.html#rss-settings">RSS Settings</a>
+                <a href="configuration.html#output-settings">Output Settings</a>
+                <a href="configuration.html#metadata-settings">Metadata</a>
+
+                <span class="nav-label">Customization</span>
+                <a href="customization.html#templates">Templates</a>
+                <a href="customization.html#placeholders">Placeholders</a>
+                <a href="customization.html#custom-prompts">Custom Prompts</a>
+
+                <span class="nav-label">Usage</span>
+                <a href="usage.html#usage">Generating News</a>
+                <a href="usage.html#languages">Languages</a>
+                <a href="usage.html#troubleshooting">Troubleshooting</a>
+
+                <span class="nav-label">Advanced</span>
+                <a href="advanced.html#search-optimization">Search Optimization</a>
+                <a href="advanced.html#rate-limits">Rate Limits</a>
+                <a href="advanced.html#architecture">Architecture</a>
+                <a href="advanced.html#contributing">Contributing</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 max-w-4xl docs-content">
+
+            <section id="overview">
+                <h1 class="text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-400">Documentation</h1>
+                <p class="text-xl text-gray-400 mb-8">Everything you need to set up and use the Daily News Briefing plugin for Obsidian.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
+                    <div class="feature-box">
+                        <h5><i class="fa-solid fa-robot mr-2"></i>12 Pipelines</h5>
+                        <p class="text-sm">6 agentic providers, 5 modular combos, plus RSS. Includes a completely free option.</p>
+                    </div>
+                    <div class="feature-box">
+                        <h5><i class="fa-solid fa-calendar mr-2"></i>Fully Automated</h5>
+                        <p class="text-sm">Schedule daily generation and wake up to fresh news every morning.</p>
+                    </div>
+                    <div class="feature-box">
+                        <h5><i class="fa-solid fa-paint-brush mr-2"></i>Highly Customizable</h5>
+                        <p class="text-sm">5 template types, 25+ placeholders, custom AI prompts, and 6 languages.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="quick-start">
+                <h2>Quick Start</h2>
+                <p>Get your first daily news briefing in under 5 minutes.</p>
+                <div class="feature-box">
+                    <ol class="list-decimal list-inside space-y-3">
+                        <li><strong>Install:</strong> In Obsidian, go to <strong>Settings > Community Plugins</strong> and search for <strong>"Daily News Briefing"</strong>.</li>
+                        <li><strong>Choose a pipeline:</strong> In plugin settings, pick an AI pipeline. We recommend <strong>Gemini Agentic Search</strong> (free, 1 key only).</li>
+                        <li><strong>Add API keys:</strong> Follow the setup guide for your chosen provider.</li>
+                        <li><strong>Set topics:</strong> Enter comma-separated topics (e.g., <code>AI, Tesla, Bitcoin</code>).</li>
+                        <li><strong>Generate:</strong> Open the Command Palette (<code>Ctrl/Cmd+P</code>) and run <strong>"Generate news now"</strong>.</li>
+                    </ol>
+                </div>
+                <p>That's it! Your news briefing is now in your vault. Optionally set a daily schedule in settings for automatic generation.</p>
+
+                <h3>How It Works</h3>
+                <div class="mermaid">
+    graph LR
+        A[Your Topics] --> B{Pipeline Mode}
+        B -->|Agentic| C[AI Provider<br/>searches + summarizes]
+        B -->|Modular| D[Google Search<br/>or RSS Feeds]
+        D --> E[AI Summarizer<br/>Gemini/GPT/Claude/Grok]
+        C --> F[Formatted Note]
+        E --> F
+        F --> G[Your Vault]
+
+        style A fill:#a855f7,stroke:#d8b4fe,color:#fff
+        style F fill:#22c55e,stroke:#86efac,color:#fff
+        style G fill:#3b82f6,stroke:#93c5fd,color:#fff
+                </div>
+            </section>
+
+            <section id="installation">
+                <h2>Installation</h2>
+                <div class="feature-box">
+                    <ol>
+                        <li>Open <strong>Obsidian Settings</strong> (gear icon)</li>
+                        <li>Navigate to <strong>Community Plugins</strong> > Turn off <strong>Safe Mode</strong></li>
+                        <li>Click <strong>Browse</strong> > Search for <strong>"Daily News Briefing"</strong></li>
+                        <li>Click <strong>Install</strong> > <strong>Enable</strong></li>
+                    </ol>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <footer class="border-t border-white/5 bg-[#0a0a0a] py-8 px-6 mt-24">
+        <div class="max-w-7xl mx-auto text-center text-gray-500 text-sm">
+            <p>Daily News Briefing for Obsidian — Open Source (MIT License)</p>
+            <p class="mt-2">Built with curiosity by <a href="https://github.com/ChenziqiAdam" class="text-purple-400 hover:text-purple-300">@ChenziqiAdam</a></p>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full bg-purple-600/80 text-white flex items-center justify-center shadow-lg hover:bg-purple-500 transition-all duration-300 transform scale-0" aria-label="Back to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- Diagram Viewer Modal -->
+    <div id="diagram-modal" role="dialog" aria-modal="true" aria-label="Diagram viewer">
+        <div id="diagram-modal-box">
+            <div id="diagram-modal-header">
+                <span>Diagram Viewer</span>
+                <div id="diagram-modal-controls">
+                    <button class="dm-btn" id="dm-zoom-in" title="Zoom in"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                    <button class="dm-btn" id="dm-zoom-out" title="Zoom out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                    <button class="dm-btn" id="dm-zoom-reset" title="Reset zoom"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    <button class="dm-btn" id="dm-close" title="Close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <div id="diagram-modal-body">
+                <div id="diagram-modal-svg-wrap"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="shared.js"></script>
+
+</body>
+</html>

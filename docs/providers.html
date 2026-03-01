@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Providers - Daily News Briefing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link rel="stylesheet" href="shared.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        obsidian: {
+                            bg: '#161616',
+                            card: '#1e1e1e',
+                            border: '#2a2a2a',
+                            accent: '#a855f7',
+                            accentGlow: '#a855f740'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="relative overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 top-0 border-b border-white/5 bg-[#0d0d0d]/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                    <i class="fa-solid fa-newspaper text-white text-sm"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight text-white">Daily News Briefing</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="../index.html" class="text-sm text-gray-400 hover:text-white transition duration-200">Home</a>
+                <a href="index.html" class="text-sm text-purple-400 font-semibold">Documentation</a>
+                <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" target="_blank" class="text-sm text-gray-400 hover:text-white transition">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-24 flex gap-12">
+
+        <!-- Sidebar Navigation -->
+        <aside class="hidden lg:block w-64 flex-shrink-0">
+            <nav class="sidebar-nav">
+                <span class="nav-label">Getting Started</span>
+                <a href="index.html#overview">Overview</a>
+                <a href="index.html#quick-start">Quick Start</a>
+                <a href="index.html#installation">Installation</a>
+
+                <span class="nav-label">Providers</span>
+                <a href="#pipelines">Pipeline Modes</a>
+                <a href="#agentic-providers">Agentic Providers</a>
+                <a href="#modular-providers">Modular Mode</a>
+                <a href="#api-setup">API Setup Guides</a>
+
+                <span class="nav-label">Configuration</span>
+                <a href="configuration.html#basic-settings">Basic Settings</a>
+                <a href="configuration.html#search-settings">Search Settings</a>
+                <a href="configuration.html#rss-settings">RSS Settings</a>
+                <a href="configuration.html#output-settings">Output Settings</a>
+                <a href="configuration.html#metadata-settings">Metadata</a>
+
+                <span class="nav-label">Customization</span>
+                <a href="customization.html#templates">Templates</a>
+                <a href="customization.html#placeholders">Placeholders</a>
+                <a href="customization.html#custom-prompts">Custom Prompts</a>
+
+                <span class="nav-label">Usage</span>
+                <a href="usage.html#usage">Generating News</a>
+                <a href="usage.html#languages">Languages</a>
+                <a href="usage.html#troubleshooting">Troubleshooting</a>
+
+                <span class="nav-label">Advanced</span>
+                <a href="advanced.html#search-optimization">Search Optimization</a>
+                <a href="advanced.html#rate-limits">Rate Limits</a>
+                <a href="advanced.html#architecture">Architecture</a>
+                <a href="advanced.html#contributing">Contributing</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 max-w-4xl docs-content">
+
+            <section id="pipelines">
+                <h2>Pipeline Modes</h2>
+                <p>The plugin offers two pipeline architectures, plus a standalone RSS option. Choose based on your needs:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                    <div class="feature-box">
+                        <h5>Agentic Mode</h5>
+                        <p class="text-sm">A single AI provider handles both web search and summarization. Simple setup — just 1 API key.</p>
+                    </div>
+                    <div class="feature-box">
+                        <h5>Modular Mode</h5>
+                        <p class="text-sm">Separate retriever (Google Search or RSS) + summarizer (Gemini, GPT, Claude, Grok, or OpenRouter). More control, mix & match.</p>
+                    </div>
+                </div>
+
+                <h4>Agentic vs Modular</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Agentic</th>
+                            <th>Modular (Search + Summarize)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>API Keys</strong></td>
+                            <td>1 key</td>
+                            <td>2-3 keys</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Setup</strong></td>
+                            <td>Simple</td>
+                            <td>More involved</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Search Control</strong></td>
+                            <td>AI decides</td>
+                            <td>5 parallel strategies, AI judge, quality filtering</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cost</strong></td>
+                            <td>Paid per request</td>
+                            <td>Free option available (Gemini Agentic Search)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best For</strong></td>
+                            <td>Quick setup, good quality</td>
+                            <td>Power users, cost-conscious, maximum control</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="agentic-providers">
+                <h3>Agentic Providers</h3>
+                <p>Each provider handles web search + summarization in one call:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Provider</th>
+                            <th>Model</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Gemini</strong> <span class="badge badge-free">FREE</span></td>
+                            <td><code>gemini-2.5-flash</code></td>
+                            <td>Google Search grounding, free tier available</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Perplexity</strong> <span class="badge badge-paid">Paid</span></td>
+                            <td><code>sonar</code></td>
+                            <td>Speed & real-time web search</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenAI GPT</strong> <span class="badge badge-paid">Paid</span></td>
+                            <td><code>gpt-5-search-api</code></td>
+                            <td>High-quality summaries with web search</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Anthropic Claude</strong> <span class="badge badge-paid">Paid</span></td>
+                            <td><code>claude-sonnet-4-5-20250929</code></td>
+                            <td>Deep analysis & reasoning</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Grok (xAI)</strong> <span class="badge badge-paid">Paid</span></td>
+                            <td><code>grok-4-fast</code></td>
+                            <td>X/Twitter data & fast processing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenRouter</strong> <span class="badge badge-paid">Paid</span></td>
+                            <td>5 models available</td>
+                            <td>Model flexibility via unified API</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="modular-providers">
+                <h3>Modular Mode (Search + Summarize)</h3>
+                <p>In modular mode, you independently choose a <strong>news retriever</strong> and an <strong>AI summarizer</strong>. This gives you maximum control over how news is fetched and processed.</p>
+
+                <div class="mermaid">
+    graph LR
+        A[Your Topics] --> B[Retriever]
+        B --> C{Which Retriever?}
+        C -->|Google Search| D[5 Parallel Queries<br/>AI Filtering & Ranking]
+        C -->|RSS Feeds| E[Fetch & Filter<br/>by Topic Keywords]
+        D --> F[AI Summarizer]
+        E --> G[Final Note<br/>no AI needed]
+        F --> G
+
+        style A fill:#a855f7,stroke:#d8b4fe,color:#fff
+        style G fill:#22c55e,stroke:#86efac,color:#fff
+                </div>
+
+                <h4>News Retrievers</h4>
+                <p>The retriever fetches raw news. You pick one:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+                    <div class="feature-box">
+                        <h5><i class="fa-brands fa-google mr-2"></i>Google Custom Search</h5>
+                        <p class="text-sm">Searches the web using 5 parallel strategies (optimized, specific, broad, recent, simple). Results are deduplicated, quality-filtered, and ranked by AI.</p>
+                        <p class="text-sm mt-2"><strong>Requires:</strong> Google Search API Key + Search Engine ID (both free)</p>
+                        <p class="text-sm"><strong>Optional:</strong> Gemini API Key for AI-powered query generation and news judging</p>
+                    </div>
+                    <div class="feature-box">
+                        <h5><i class="fa-solid fa-rss mr-2" style="color: #f97316;"></i>RSS Feeds</h5>
+                        <p class="text-sm">Fetches articles directly from any RSS/Atom feed URLs you provide. Matches articles to your topics by title, content, and categories. Deduplicates and sorts by date.</p>
+                        <p class="text-sm mt-2"><strong>Requires:</strong> Nothing — no API keys, no costs</p>
+                        <p class="text-sm"><strong>Note:</strong> Uses original feed content (no AI summarization)</p>
+                    </div>
+                </div>
+
+                <h4>AI Summarizers</h4>
+                <p>When using Google Search as the retriever, pair it with one of these summarizers:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Summarizer</th>
+                            <th>Model</th>
+                            <th>Cost</th>
+                            <th>Get API Key</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Gemini</strong> <span class="badge badge-free">FREE</span></td>
+                            <td><code>gemini-2.5-flash</code></td>
+                            <td>Free (1,500 req/day)</td>
+                            <td><a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></td>
+                        </tr>
+                        <tr>
+                            <td><strong>GPT</strong></td>
+                            <td><code>gpt-5-search-api</code></td>
+                            <td>Pay-per-use</td>
+                            <td><a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Claude</strong></td>
+                            <td><code>claude-sonnet-4-5-20250929</code></td>
+                            <td>Pay-per-use</td>
+                            <td><a href="https://console.anthropic.com/" target="_blank">Anthropic</a></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Grok</strong></td>
+                            <td><code>grok-4-fast</code></td>
+                            <td>Pay-per-use</td>
+                            <td><a href="https://x.ai/" target="_blank">xAI</a></td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenRouter</strong></td>
+                            <td>5 models available</td>
+                            <td>Pay-per-use</td>
+                            <td><a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-success">
+                    <strong>Best free option:</strong> Gemini Agentic Search. Just one free Gemini API key (1,500 req/day) — Gemini handles both search and summarization. More than enough for daily news.
+                </div>
+            </section>
+
+            <section id="api-setup">
+                <h2>API Setup Guides</h2>
+                <p>Step-by-step instructions for each provider. Click to expand:</p>
+
+                <h3>Agentic Providers <span class="text-sm font-normal text-gray-500">(1 API key each)</span></h3>
+                <p class="text-sm text-gray-400 mb-4">For any agentic provider: get the key, choose the provider in settings, paste the key. Done.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Provider</th>
+                            <th>Where to Get Key</th>
+                            <th>Select in Settings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Gemini</strong> <span class="badge badge-free">FREE</span></td>
+                            <td><a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a></td>
+                            <td>"Gemini (Google Search)"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Perplexity</strong></td>
+                            <td><a href="https://perplexity.ai/" target="_blank">perplexity.ai</a> > API settings</td>
+                            <td>"Perplexity (Agentic Search)"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenAI GPT</strong></td>
+                            <td><a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a></td>
+                            <td>"OpenAI GPT (Agentic Search)"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Anthropic Claude</strong></td>
+                            <td><a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a></td>
+                            <td>"Anthropic Claude (Agentic Search)"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Grok (xAI)</strong></td>
+                            <td><a href="https://x.ai/" target="_blank">x.ai</a></td>
+                            <td>"Grok (Agentic Search)"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenRouter</strong></td>
+                            <td><a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></td>
+                            <td>"OpenRouter (Agentic Search)" + pick model</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Google Search + Summarizer <span class="text-sm font-normal text-gray-500">(modular)</span></h3>
+                <p>All modular Google pipelines share the same two Google keys. Then add the summarizer key.</p>
+
+                <details class="my-4" open>
+                    <summary class="text-green-400 hover:text-green-300"><i class="fa-solid fa-chevron-right"></i> Step 1: Google Keys (required for all Google pipelines) <span class="badge badge-free ml-2">FREE</span></summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <p><strong>Google Custom Search API Key:</strong></p>
+                        <ol>
+                            <li>Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+                            <li>Create a project > Enable <strong>"Custom Search API"</strong></li>
+                            <li>Go to Credentials > Create Credentials > API Key</li>
+                        </ol>
+
+                        <p class="mt-4"><strong>Google Search Engine ID:</strong></p>
+                        <ol>
+                            <li>Visit <a href="https://programmablesearchengine.google.com/controlpanel/all" target="_blank">Programmable Search Engine</a></li>
+                            <li>Create a new engine > Select <strong>"Search the entire web"</strong></li>
+                            <li>Copy the Search Engine ID</li>
+                        </ol>
+                    </div>
+                </details>
+
+                <details class="my-4">
+                    <summary><i class="fa-solid fa-chevron-right"></i> Step 2: Summarizer Key</summary>
+                    <div class="feature-box ml-6 mt-2">
+                        <p>Add the API key for whichever summarizer you choose:</p>
+                        <table>
+                            <thead><tr><th>Summarizer</th><th>Get Key From</th><th>Cost</th></tr></thead>
+                            <tbody>
+                                <tr><td><strong>Gemini</strong></td><td><a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></td><td>Free</td></tr>
+                                <tr><td><strong>GPT</strong></td><td><a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a></td><td>Paid</td></tr>
+                                <tr><td><strong>Claude</strong></td><td><a href="https://console.anthropic.com/" target="_blank">Anthropic</a></td><td>Paid</td></tr>
+                                <tr><td><strong>Grok</strong></td><td><a href="https://x.ai/" target="_blank">xAI</a></td><td>Paid</td></tr>
+                                <tr><td><strong>OpenRouter</strong></td><td><a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a></td><td>Paid</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="text-sm text-gray-400 mt-2">Then select your pipeline in settings (e.g., "Google Search + Gemini Summarizer") and enter all keys.</p>
+                    </div>
+                </details>
+
+                <div class="alert alert-success">
+                    <strong>Free Tier Limits:</strong>
+                    Google Custom Search: 100 queries/day &bull;
+                    Gemini API: 1,500 requests/day &bull;
+                    More than enough for daily news generation.
+                </div>
+
+                <h3 id="rss">RSS Retriever <span class="text-sm font-normal text-gray-500">(no setup needed)</span></h3>
+                <div class="feature-box">
+                    <ol>
+                        <li>Select <strong>"RSS Retriever"</strong> as your pipeline in settings</li>
+                        <li>Enter your RSS/Atom feed URLs (one per line)</li>
+                        <li>Set your topics — the plugin matches articles by title, content, and categories</li>
+                    </ol>
+                    <p class="text-sm text-gray-400 mt-3">No API keys, no accounts, no costs. Works with any standard RSS or Atom feed.</p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <footer class="border-t border-white/5 bg-[#0a0a0a] py-8 px-6 mt-24">
+        <div class="max-w-7xl mx-auto text-center text-gray-500 text-sm">
+            <p>Daily News Briefing for Obsidian — Open Source (MIT License)</p>
+            <p class="mt-2">Built with curiosity by <a href="https://github.com/ChenziqiAdam" class="text-purple-400 hover:text-purple-300">@ChenziqiAdam</a></p>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full bg-purple-600/80 text-white flex items-center justify-center shadow-lg hover:bg-purple-500 transition-all duration-300 transform scale-0" aria-label="Back to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- Diagram Viewer Modal -->
+    <div id="diagram-modal" role="dialog" aria-modal="true" aria-label="Diagram viewer">
+        <div id="diagram-modal-box">
+            <div id="diagram-modal-header">
+                <span>Diagram Viewer</span>
+                <div id="diagram-modal-controls">
+                    <button class="dm-btn" id="dm-zoom-in" title="Zoom in"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                    <button class="dm-btn" id="dm-zoom-out" title="Zoom out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                    <button class="dm-btn" id="dm-zoom-reset" title="Reset zoom"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    <button class="dm-btn" id="dm-close" title="Close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <div id="diagram-modal-body">
+                <div id="diagram-modal-svg-wrap"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="shared.js"></script>
+
+</body>
+</html>

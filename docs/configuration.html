@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration - Daily News Briefing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link rel="stylesheet" href="shared.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        obsidian: {
+                            bg: '#161616',
+                            card: '#1e1e1e',
+                            border: '#2a2a2a',
+                            accent: '#a855f7',
+                            accentGlow: '#a855f740'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="relative overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 top-0 border-b border-white/5 bg-[#0d0d0d]/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                    <i class="fa-solid fa-newspaper text-white text-sm"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight text-white">Daily News Briefing</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="../index.html" class="text-sm text-gray-400 hover:text-white transition duration-200">Home</a>
+                <a href="index.html" class="text-sm text-purple-400 font-semibold">Documentation</a>
+                <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" target="_blank" class="text-sm text-gray-400 hover:text-white transition">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-24 flex gap-12">
+
+        <!-- Sidebar Navigation -->
+        <aside class="hidden lg:block w-64 flex-shrink-0">
+            <nav class="sidebar-nav">
+                <span class="nav-label">Getting Started</span>
+                <a href="index.html#overview">Overview</a>
+                <a href="index.html#quick-start">Quick Start</a>
+                <a href="index.html#installation">Installation</a>
+
+                <span class="nav-label">Providers</span>
+                <a href="providers.html#pipelines">Pipeline Modes</a>
+                <a href="providers.html#agentic-providers">Agentic Providers</a>
+                <a href="providers.html#modular-providers">Modular Mode</a>
+                <a href="providers.html#api-setup">API Setup Guides</a>
+
+                <span class="nav-label">Configuration</span>
+                <a href="#basic-settings">Basic Settings</a>
+                <a href="#search-settings">Search Settings</a>
+                <a href="#rss-settings">RSS Settings</a>
+                <a href="#output-settings">Output Settings</a>
+                <a href="#metadata-settings">Metadata</a>
+
+                <span class="nav-label">Customization</span>
+                <a href="customization.html#templates">Templates</a>
+                <a href="customization.html#placeholders">Placeholders</a>
+                <a href="customization.html#custom-prompts">Custom Prompts</a>
+
+                <span class="nav-label">Usage</span>
+                <a href="usage.html#usage">Generating News</a>
+                <a href="usage.html#languages">Languages</a>
+                <a href="usage.html#troubleshooting">Troubleshooting</a>
+
+                <span class="nav-label">Advanced</span>
+                <a href="advanced.html#search-optimization">Search Optimization</a>
+                <a href="advanced.html#rate-limits">Rate Limits</a>
+                <a href="advanced.html#architecture">Architecture</a>
+                <a href="advanced.html#contributing">Contributing</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 max-w-4xl docs-content">
+
+            <section id="basic-settings">
+                <h2>Configuration</h2>
+                <p>Access settings via: <strong>Settings > Community Plugins > Daily News Briefing</strong></p>
+
+                <h3>Basic Settings</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 25%">Setting</th>
+                            <th style="width: 40%">Description</th>
+                            <th style="width: 35%">Options / Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>News Pipeline</strong></td>
+                            <td>Your AI provider and architecture</td>
+                            <td>12 options (6 agentic, 5 modular, RSS)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Topics</strong></td>
+                            <td>Comma-separated list of news topics</td>
+                            <td><code>AI, Tesla Stock, Bitcoin</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Schedule Time</strong></td>
+                            <td>Auto-generate at this time daily (24h format)</td>
+                            <td><code>08:00</code>, <code>17:30</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Language</strong></td>
+                            <td>Language for content and UI (ISO 639-1)</td>
+                            <td><code>en</code> <code>fr</code> <code>de</code> <code>es</code> <code>it</code> <code>zh</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Archive Folder</strong></td>
+                            <td>Where news notes are saved (auto-created)</td>
+                            <td><code>News Archive</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="search-settings">
+                <h3>Search Settings <span class="text-sm font-normal text-gray-500">(Google providers only)</span></h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 30%">Setting</th>
+                            <th style="width: 45%">Description</th>
+                            <th style="width: 25%">Default</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Results per Topic</strong></td>
+                            <td>News items in final summary per topic</td>
+                            <td>5 (range: 3-15)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Max Search Results</strong></td>
+                            <td>Total results to fetch before filtering</td>
+                            <td>30 (range: 10-50)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Date Range</strong></td>
+                            <td>Recency filter: <code>d1</code> yesterday, <code>d3</code> 3 days, <code>w1</code> week, <code>m1</code> month</td>
+                            <td><code>d1</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use AI for Queries</strong></td>
+                            <td>Gemini generates optimized search queries using 5 parallel strategies</td>
+                            <td>Enabled</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Use AI News Judgment</strong></td>
+                            <td>AI selects the most relevant items from results</td>
+                            <td>Enabled</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Custom AI Judge Prompt</strong></td>
+                            <td>Override AI judgment logic. Use <code>{{NEWS_TEXT}}</code> and <code>{{TOPIC}}</code></td>
+                            <td>Empty (default)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="rss-settings">
+                <h3>RSS Settings <span class="text-sm font-normal text-gray-500">(RSS Retriever only)</span></h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 30%">Setting</th>
+                            <th style="width: 45%">Description</th>
+                            <th style="width: 25%">Default</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>RSS Feed URLs</strong></td>
+                            <td>One URL per line. Supports any RSS/Atom feed.</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Results per Topic</strong></td>
+                            <td>Max items per topic after filtering</td>
+                            <td>5 (range: 3-15)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Date Range</strong></td>
+                            <td>Filter by publish date</td>
+                            <td><code>d3</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="output-settings">
+                <h3>Output Settings</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 30%">Setting</th>
+                            <th style="width: 50%">Description</th>
+                            <th style="width: 20%">Default</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Output Format</strong></td>
+                            <td><strong>Detailed:</strong> full summaries with "Key Developments" + optional "Analysis & Context". <strong>Concise:</strong> bullet points only.</td>
+                            <td><code>detailed</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Analysis & Context</strong></td>
+                            <td>Include analytical section after key developments</td>
+                            <td>Enabled</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Notifications</strong></td>
+                            <td>Show desktop notifications on generation</td>
+                            <td>Enabled</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Monthly Folders</strong></td>
+                            <td>Auto-organize notes into <code>YYYY-MM</code> subfolders</td>
+                            <td>Always on</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Custom AI Prompt</strong></td>
+                            <td>Override summarization prompt. Use <code>{{NEWS_TEXT}}</code> for modular or <code>{{TOPIC}}</code> for agentic.</td>
+                            <td>Empty</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="metadata-settings">
+                <h3>Metadata (YAML Frontmatter)</h3>
+                <p>Toggle individual fields in the generated frontmatter:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 30%">Field</th>
+                            <th style="width: 40%">Description</th>
+                            <th style="width: 30%">Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Date & Time</strong></td><td>Generation timestamp</td><td><code>datetime: "2026-02-26T09:30:00"</code></td></tr>
+                        <tr><td><strong>Topics</strong></td><td>Topics array</td><td><code>topics: ["AI", "Tesla"]</code></td></tr>
+                        <tr><td><strong>Tags</strong></td><td>Auto-generated Obsidian tags</td><td><code>tags: ["ai", "tesla", "daily-news"]</code></td></tr>
+                        <tr><td><strong>Language</strong></td><td>Language code</td><td><code>language: "en"</code></td></tr>
+                        <tr><td><strong>Source</strong></td><td>Provider used</td><td><code>source: "Google Search + Gemini AI"</code></td></tr>
+                        <tr><td><strong>Processing Time</strong></td><td>Generation duration</td><td><code>processingTime: "12s"</code></td></tr>
+                        <tr><td><strong>Output Format</strong></td><td>Format setting</td><td><code>outputFormat: "detailed"</code></td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+        </main>
+    </div>
+
+    <footer class="border-t border-white/5 bg-[#0a0a0a] py-8 px-6 mt-24">
+        <div class="max-w-7xl mx-auto text-center text-gray-500 text-sm">
+            <p>Daily News Briefing for Obsidian — Open Source (MIT License)</p>
+            <p class="mt-2">Built with curiosity by <a href="https://github.com/ChenziqiAdam" class="text-purple-400 hover:text-purple-300">@ChenziqiAdam</a></p>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full bg-purple-600/80 text-white flex items-center justify-center shadow-lg hover:bg-purple-500 transition-all duration-300 transform scale-0" aria-label="Back to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- Diagram Viewer Modal -->
+    <div id="diagram-modal" role="dialog" aria-modal="true" aria-label="Diagram viewer">
+        <div id="diagram-modal-box">
+            <div id="diagram-modal-header">
+                <span>Diagram Viewer</span>
+                <div id="diagram-modal-controls">
+                    <button class="dm-btn" id="dm-zoom-in" title="Zoom in"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                    <button class="dm-btn" id="dm-zoom-out" title="Zoom out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                    <button class="dm-btn" id="dm-zoom-reset" title="Reset zoom"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    <button class="dm-btn" id="dm-close" title="Close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <div id="diagram-modal-body">
+                <div id="diagram-modal-svg-wrap"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="shared.js"></script>
+
+</body>
+</html>

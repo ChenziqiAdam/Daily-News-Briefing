@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customization - Daily News Briefing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link rel="stylesheet" href="shared.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        obsidian: {
+                            bg: '#161616',
+                            card: '#1e1e1e',
+                            border: '#2a2a2a',
+                            accent: '#a855f7',
+                            accentGlow: '#a855f740'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="relative overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 top-0 border-b border-white/5 bg-[#0d0d0d]/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                    <i class="fa-solid fa-newspaper text-white text-sm"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight text-white">Daily News Briefing</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="../index.html" class="text-sm text-gray-400 hover:text-white transition duration-200">Home</a>
+                <a href="index.html" class="text-sm text-purple-400 font-semibold">Documentation</a>
+                <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" target="_blank" class="text-sm text-gray-400 hover:text-white transition">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-24 flex gap-12">
+
+        <!-- Sidebar Navigation -->
+        <aside class="hidden lg:block w-64 flex-shrink-0">
+            <nav class="sidebar-nav">
+                <span class="nav-label">Getting Started</span>
+                <a href="index.html#overview">Overview</a>
+                <a href="index.html#quick-start">Quick Start</a>
+                <a href="index.html#installation">Installation</a>
+
+                <span class="nav-label">Providers</span>
+                <a href="providers.html#pipelines">Pipeline Modes</a>
+                <a href="providers.html#agentic-providers">Agentic Providers</a>
+                <a href="providers.html#modular-providers">Modular Mode</a>
+                <a href="providers.html#api-setup">API Setup Guides</a>
+
+                <span class="nav-label">Configuration</span>
+                <a href="configuration.html#basic-settings">Basic Settings</a>
+                <a href="configuration.html#search-settings">Search Settings</a>
+                <a href="configuration.html#rss-settings">RSS Settings</a>
+                <a href="configuration.html#output-settings">Output Settings</a>
+                <a href="configuration.html#metadata-settings">Metadata</a>
+
+                <span class="nav-label">Customization</span>
+                <a href="#templates">Templates</a>
+                <a href="#placeholders">Placeholders</a>
+                <a href="#custom-prompts">Custom Prompts</a>
+
+                <span class="nav-label">Usage</span>
+                <a href="usage.html#usage">Generating News</a>
+                <a href="usage.html#languages">Languages</a>
+                <a href="usage.html#troubleshooting">Troubleshooting</a>
+
+                <span class="nav-label">Advanced</span>
+                <a href="advanced.html#search-optimization">Search Optimization</a>
+                <a href="advanced.html#rate-limits">Rate Limits</a>
+                <a href="advanced.html#architecture">Architecture</a>
+                <a href="advanced.html#contributing">Contributing</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 max-w-4xl docs-content">
+
+            <section id="templates">
+                <h2>Templates</h2>
+                <p>Control how your news notes are formatted with 5 template types and 25+ placeholders.</p>
+
+                <h4>1. Default</h4>
+                <pre><code>---
+{{METADATA}}
+---
+
+# Daily News Briefing
+*Generated at {{TIMESTAMP}}*
+
+## Table of Contents
+{{TABLE_OF_CONTENTS}}
+
+{{TOPICS}}
+
+{{PROCESSING_STATUS}}</code></pre>
+
+                <h4>2. Minimal</h4>
+                <pre><code># Daily News - {{DATE}}
+{{TOPICS}}</code></pre>
+
+                <h4>3. Detailed</h4>
+                <pre><code>---
+{{METADATA}}
+---
+
+# Daily News Briefing
+**Date:** {{DATE}} | **Time:** {{TIME}} | **Language:** {{LANGUAGE}}
+
+---
+
+## Table of Contents
+{{TABLE_OF_CONTENTS}}
+
+---
+
+{{TOPICS}}
+
+---
+
+{{PROCESSING_STATUS}}</code></pre>
+
+                <h4>4. Custom</h4>
+                <p>Write your own template using any placeholder. Must include <code>{{TOPICS}}</code>.</p>
+
+                <h4>5. Template File</h4>
+                <p>Load a template from a <code>.md</code> file in your vault (e.g., <code>Templates/news-template.md</code>). Great for version control and sharing.</p>
+            </section>
+
+            <section id="placeholders">
+                <h3>Placeholders Reference</h3>
+
+                <h4>Core (8)</h4>
+                <table>
+                    <thead><tr><th>Placeholder</th><th>Description</th><th>Example</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>{{TOPICS}}</code></td><td><strong>Required.</strong> All news content by topic.</td><td>—</td></tr>
+                        <tr><td><code>{{METADATA}}</code></td><td>YAML frontmatter block</td><td>—</td></tr>
+                        <tr><td><code>{{TIMESTAMP}}</code></td><td>Full datetime</td><td><code>2026-02-26 09:30:00</code></td></tr>
+                        <tr><td><code>{{DATE}}</code></td><td>Date (YYYY-MM-DD)</td><td><code>2026-02-26</code></td></tr>
+                        <tr><td><code>{{TIME}}</code></td><td>Time (HH:MM:SS)</td><td><code>09:30:00</code></td></tr>
+                        <tr><td><code>{{TABLE_OF_CONTENTS}}</code></td><td>Auto-generated TOC</td><td><code>- [[#AI]]</code></td></tr>
+                        <tr><td><code>{{PROCESSING_STATUS}}</code></td><td>Errors/warnings (empty if none)</td><td>—</td></tr>
+                        <tr><td><code>{{LANGUAGE}}</code></td><td>ISO 639-1 code</td><td><code>en</code></td></tr>
+                    </tbody>
+                </table>
+
+                <h4>Date & Time (10)</h4>
+                <table>
+                    <thead><tr><th>Placeholder</th><th>Example</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>{{YEAR}}</code></td><td><code>2026</code></td></tr>
+                        <tr><td><code>{{MONTH}}</code></td><td><code>02</code></td></tr>
+                        <tr><td><code>{{MONTH_NAME}}</code> / <code>{{MONTH_NAME_SHORT}}</code></td><td><code>February</code> / <code>Feb</code></td></tr>
+                        <tr><td><code>{{DAY}}</code></td><td><code>26</code></td></tr>
+                        <tr><td><code>{{DAY_NAME}}</code> / <code>{{DAY_NAME_SHORT}}</code></td><td><code>Thursday</code> / <code>Thu</code></td></tr>
+                        <tr><td><code>{{HOUR}}</code> / <code>{{MINUTE}}</code> / <code>{{SECOND}}</code></td><td><code>09</code> / <code>30</code> / <code>00</code></td></tr>
+                    </tbody>
+                </table>
+
+                <h4>Metadata (5)</h4>
+                <table>
+                    <thead><tr><th>Placeholder</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>{{METADATA_DATETIME}}</code></td><td>Date+time in YAML format</td></tr>
+                        <tr><td><code>{{METADATA_TAGS}}</code></td><td>Tag array: <code>["#ai", "#tesla"]</code></td></tr>
+                        <tr><td><code>{{METADATA_LANGUAGE}}</code></td><td>Language code</td></tr>
+                        <tr><td><code>{{METADATA_PROVIDER}}</code></td><td>Provider identifier</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>Topic Info (2)</h4>
+                <table>
+                    <thead><tr><th>Placeholder</th><th>Example</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>{{TOPIC_COUNT}}</code></td><td><code>3</code></td></tr>
+                        <tr><td><code>{{TOPIC_LIST}}</code></td><td><code>AI, Tesla, Bitcoin</code></td></tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-success">
+                    The plugin validates custom templates in real-time and warns about unknown placeholders or missing <code>{{TOPICS}}</code>.
+                </div>
+            </section>
+
+            <section id="custom-prompts">
+                <h2>Custom Prompts</h2>
+                <p>Override the default AI prompts to customize summarization behavior.</p>
+
+                <h3>Summarization Prompt</h3>
+                <p>Use <code>{{NEWS_TEXT}}</code> as a placeholder for the news content:</p>
+
+                <div class="feature-box">
+                    <h5>Example: Breaking News Focus</h5>
+                    <pre><code>Analyze the following news and extract only breaking news and major announcements.
+Ignore opinion pieces and minor updates.
+
+News content:
+{{NEWS_TEXT}}
+
+Format as bullet points with bold headline, 2-3 sentence summary, and source link.</code></pre>
+                </div>
+
+                <div class="feature-box">
+                    <h5>Example: Investment Focus</h5>
+                    <pre><code>Analyze this news from an investor's perspective:
+
+{{NEWS_TEXT}}
+
+For each item provide: market impact, key financial metrics, and risk factors.</code></pre>
+                </div>
+
+                <h3>AI Judge Prompt <span class="text-sm font-normal text-gray-500">(Google providers only)</span></h3>
+                <p>Controls how AI selects the best items from search results. Use <code>{{NEWS_TEXT}}</code> and <code>{{TOPIC}}</code>:</p>
+
+                <div class="feature-box">
+                    <h5>Example: Quality Filter</h5>
+                    <pre><code>Select the 5 most significant news items about {{TOPIC}} from the list below.
+Prioritize breaking news from reputable sources. Exclude opinion pieces and ads.
+
+News list:
+{{NEWS_TEXT}}</code></pre>
+                </div>
+
+                <h3>Tips</h3>
+                <ul>
+                    <li>Be specific about what to include and exclude</li>
+                    <li>Request a specific format (bullet points, tables, etc.)</li>
+                    <li>Set clear priorities for the AI</li>
+                    <li>Test iteratively — start simple and refine</li>
+                </ul>
+            </section>
+
+        </main>
+    </div>
+
+    <footer class="border-t border-white/5 bg-[#0a0a0a] py-8 px-6 mt-24">
+        <div class="max-w-7xl mx-auto text-center text-gray-500 text-sm">
+            <p>Daily News Briefing for Obsidian — Open Source (MIT License)</p>
+            <p class="mt-2">Built with curiosity by <a href="https://github.com/ChenziqiAdam" class="text-purple-400 hover:text-purple-300">@ChenziqiAdam</a></p>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full bg-purple-600/80 text-white flex items-center justify-center shadow-lg hover:bg-purple-500 transition-all duration-300 transform scale-0" aria-label="Back to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- Diagram Viewer Modal -->
+    <div id="diagram-modal" role="dialog" aria-modal="true" aria-label="Diagram viewer">
+        <div id="diagram-modal-box">
+            <div id="diagram-modal-header">
+                <span>Diagram Viewer</span>
+                <div id="diagram-modal-controls">
+                    <button class="dm-btn" id="dm-zoom-in" title="Zoom in"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                    <button class="dm-btn" id="dm-zoom-out" title="Zoom out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                    <button class="dm-btn" id="dm-zoom-reset" title="Reset zoom"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    <button class="dm-btn" id="dm-close" title="Close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <div id="diagram-modal-body">
+                <div id="diagram-modal-svg-wrap"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="shared.js"></script>
+
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Daily News Briefing for Obsidian
 
-> [Official Website](https://chenziqiadam.github.io/Daily-News-Briefing/) | [Full Documentation](https://chenziqiadam.github.io/Daily-News-Briefing/docs.html)
+> [Official Website](https://chenziqiadam.github.io/Daily-News-Briefing/) | [Full Documentation](https://chenziqiadam.github.io/Daily-News-Briefing/docs/index.html)
 
 **AI-powered daily news summaries delivered automatically to your Obsidian vault.**
 
@@ -28,7 +28,7 @@ Done! News will generate automatically at your scheduled time.
 
 For detailed setup instructions, API guides, and advanced features:
 
-**[→ Read Full Documentation](https://chenziqiadam.github.io/Daily-News-Briefing/docs.html)**
+**[→ Read Full Documentation](https://chenziqiadam.github.io/Daily-News-Briefing/docs/index.html)**
 
 ## 🔑 Quick API Setup
 
@@ -61,7 +61,7 @@ For detailed setup instructions, API guides, and advanced features:
 **API errors?**
 - Check API key validity
 - Verify account has credits/quota
-- Check [full documentation](https://chenziqiadam.github.io/Daily-News-Briefing/docs.html#troubleshooting)
+- Check [full documentation](https://chenziqiadam.github.io/Daily-News-Briefing/docs/usage.html#troubleshooting)
 
 ## 📋 Changelog
 
@@ -240,4 +240,4 @@ MIT License - Use freely and modify as needed
 
 ---
 
-**[Full Documentation](https://chenziqiadam.github.io/Daily-News-Briefing/docs.html)** | [Report Issues](https://github.com/ChenziqiAdam/Daily-News-Briefing/issues) | [GitHub](https://github.com/ChenziqiAdam/Daily-News-Briefing)
+**[Full Documentation](https://chenziqiadam.github.io/Daily-News-Briefing/docs/index.html)** | [Report Issues](https://github.com/ChenziqiAdam/Daily-News-Briefing/issues) | [GitHub](https://github.com/ChenziqiAdam/Daily-News-Briefing)

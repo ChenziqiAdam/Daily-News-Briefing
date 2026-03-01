@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced - Daily News Briefing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link rel="stylesheet" href="shared.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        obsidian: {
+                            bg: '#161616',
+                            card: '#1e1e1e',
+                            border: '#2a2a2a',
+                            accent: '#a855f7',
+                            accentGlow: '#a855f740'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="relative overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 top-0 border-b border-white/5 bg-[#0d0d0d]/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                    <i class="fa-solid fa-newspaper text-white text-sm"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight text-white">Daily News Briefing</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="../index.html" class="text-sm text-gray-400 hover:text-white transition duration-200">Home</a>
+                <a href="index.html" class="text-sm text-purple-400 font-semibold">Documentation</a>
+                <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" target="_blank" class="text-sm text-gray-400 hover:text-white transition">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-24 flex gap-12">
+
+        <!-- Sidebar Navigation -->
+        <aside class="hidden lg:block w-64 flex-shrink-0">
+            <nav class="sidebar-nav">
+                <span class="nav-label">Getting Started</span>
+                <a href="index.html#overview">Overview</a>
+                <a href="index.html#quick-start">Quick Start</a>
+                <a href="index.html#installation">Installation</a>
+
+                <span class="nav-label">Providers</span>
+                <a href="providers.html#pipelines">Pipeline Modes</a>
+                <a href="providers.html#agentic-providers">Agentic Providers</a>
+                <a href="providers.html#modular-providers">Modular Mode</a>
+                <a href="providers.html#api-setup">API Setup Guides</a>
+
+                <span class="nav-label">Configuration</span>
+                <a href="configuration.html#basic-settings">Basic Settings</a>
+                <a href="configuration.html#search-settings">Search Settings</a>
+                <a href="configuration.html#rss-settings">RSS Settings</a>
+                <a href="configuration.html#output-settings">Output Settings</a>
+                <a href="configuration.html#metadata-settings">Metadata</a>
+
+                <span class="nav-label">Customization</span>
+                <a href="customization.html#templates">Templates</a>
+                <a href="customization.html#placeholders">Placeholders</a>
+                <a href="customization.html#custom-prompts">Custom Prompts</a>
+
+                <span class="nav-label">Usage</span>
+                <a href="usage.html#usage">Generating News</a>
+                <a href="usage.html#languages">Languages</a>
+                <a href="usage.html#troubleshooting">Troubleshooting</a>
+
+                <span class="nav-label">Advanced</span>
+                <a href="#search-optimization">Search Optimization</a>
+                <a href="#rate-limits">Rate Limits</a>
+                <a href="#architecture">Architecture</a>
+                <a href="#contributing">Contributing</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 max-w-4xl docs-content">
+
+            <section id="search-optimization">
+                <h2>Advanced</h2>
+
+                <h3>Google Search Optimization</h3>
+                <p>When using Google providers, the plugin runs 5 parallel search strategies per topic:</p>
+                <table>
+                    <thead><tr><th>Strategy</th><th>Purpose</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Optimized</strong></td><td>AI-generated query with optimal keywords</td></tr>
+                        <tr><td><strong>Specific</strong></td><td>Exact phrase matching for precision</td></tr>
+                        <tr><td><strong>Broad</strong></td><td>Wide search for comprehensive coverage</td></tr>
+                        <tr><td><strong>Recent</strong></td><td>Time-filtered for latest developments</td></tr>
+                        <tr><td><strong>Simple</strong></td><td>Basic query as fallback</td></tr>
+                    </tbody>
+                </table>
+                <p>Results are deduplicated, filtered by quality sources (BBC, Reuters, TechCrunch, Bloomberg, etc.), and ranked by AI.</p>
+
+                <h3>Caching</h3>
+                <p>Two levels of caching reduce API usage and speed up generation:</p>
+                <ul>
+                    <li><strong>Query Cache:</strong> Persists AI-generated search queries per topic. Cleared manually.</li>
+                    <li><strong>Daily Content Cache:</strong> Caches processed content per topic per day. Auto-cleaned on next day.</li>
+                </ul>
+
+                <h3>Performance Tips</h3>
+                <table>
+                    <thead><tr><th>Goal</th><th>Recommendation</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Speed</strong></td><td>Agentic providers, fewer results per topic, concise format</td></tr>
+                        <tr><td><strong>Cost</strong></td><td>Gemini Agentic Search, lower max search results</td></tr>
+                        <tr><td><strong>Quality</strong></td><td>Enable AI queries + AI judge, increase results per topic, use custom prompts</td></tr>
+                        <tr><td><strong>Coverage</strong></td><td>Results per topic 10-15, max search 40-50, broader date range</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="rate-limits">
+                <h3>API Rate Limits</h3>
+                <table>
+                    <thead><tr><th>Provider</th><th>Free Tier</th><th>Paid</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Google Custom Search</strong></td><td>100 queries/day</td><td>$5 per 1,000</td></tr>
+                        <tr><td><strong>Gemini</strong></td><td>1,500 req/day</td><td>Pay-as-you-go</td></tr>
+                        <tr><td><strong>OpenAI / Anthropic / Grok</strong></td><td>No free tier</td><td>Pay-per-use</td></tr>
+                        <tr><td><strong>Perplexity</strong></td><td>No free tier</td><td>Subscription</td></tr>
+                        <tr><td><strong>OpenRouter</strong></td><td>No free tier</td><td>Varies by model</td></tr>
+                    </tbody>
+                </table>
+                <div class="alert alert-info">
+                    For 3 topics with Gemini Agentic Search, expect ~3-6 Gemini calls per day — well within free limits (1,500 req/day).
+                </div>
+            </section>
+
+            <section id="architecture">
+                <h3>Architecture</h3>
+                <div class="mermaid">
+    graph TD
+        A[Plugin Main] --> B[News Provider Factory]
+        B --> C1[Agentic Providers]
+        B --> C2[Search-Summarize Coordinator]
+
+        C1 --> D1[Perplexity]
+        C1 --> D2[GPT Agentic]
+        C1 --> D3[Claude Agentic]
+        C1 --> D4[Grok Agentic]
+        C1 --> D5[Gemini Agentic]
+        C1 --> D5[OpenRouter Agentic]
+
+        C2 --> E1[Retrievers]
+        C2 --> E2[Summarizers]
+
+        E1 --> F1[Google Search]
+        E1 --> F2[RSS]
+        E2 --> G1[Gemini]
+        E2 --> G2[GPT]
+        E2 --> G3[Claude]
+        E2 --> G4[Grok]
+        E2 --> G5[OpenRouter]
+
+        A --> H[Template Engine]
+
+        style A fill:#a855f7,stroke:#d8b4fe,color:#fff
+        style B fill:#3b82f6,stroke:#93c5fd,color:#fff
+        style H fill:#22c55e,stroke:#86efac,color:#fff
+                </div>
+
+                <h4>Design Patterns</h4>
+                <table>
+                    <thead><tr><th>Pattern</th><th>Implementation</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Factory</strong></td><td><code>NewsProviderFactory</code> — creates providers from settings</td></tr>
+                        <tr><td><strong>Strategy</strong></td><td>Agentic vs Modular pipeline selection</td></tr>
+                        <tr><td><strong>Template</strong></td><td><code>TemplateEngine</code> — placeholder rendering</td></tr>
+                        <tr><td><strong>Abstract Base</strong></td><td><code>BaseNewsProvider</code>, <code>BaseRetriever</code>, <code>BaseSummarizer</code></td></tr>
+                    </tbody>
+                </table>
+
+                <h4>File Structure</h4>
+                <pre><code>src/
+  types.ts                    # Type definitions & settings
+  constants.ts                # Translations & constants
+  utils.ts                    # FileUtils, LanguageUtils, ContentUtils, MetadataUtils
+  settings-tab.ts             # Settings UI
+  providers/
+    base-news-provider.ts     # Abstract base class
+    news-provider-factory.ts  # Factory
+    agentic/                  # Perplexity, GPT, Claude, Grok, OpenRouter, Gemini
+    coordinators/             # Search-Summarize coordinator
+    retrievers/               # Google Search, RSS
+    summarizers/              # Gemini, GPT, Claude, Grok, OpenRouter
+  template/
+    template-engine.ts        # Rendering engine
+    template-presets.ts       # Preset definitions</code></pre>
+            </section>
+
+            <section id="contributing">
+                <h3>Contributing</h3>
+
+                <h4>Development Setup</h4>
+                <pre><code>git clone https://github.com/ChenziqiAdam/Daily-News-Briefing.git
+cd Daily-News-Briefing
+npm install
+npm run dev    # Watch mode
+npm run build  # Production build</code></pre>
+
+                <h4>Testing</h4>
+                <ol>
+                    <li>Run <code>npm run build</code></li>
+                    <li>Copy <code>main.js</code>, <code>manifest.json</code>, <code>styles.css</code> to your vault's <code>.obsidian/plugins/daily-news-briefing/</code></li>
+                    <li>Reload Obsidian (<code>Ctrl/Cmd+R</code>)</li>
+                </ol>
+
+                <h4>Adding a New Provider</h4>
+                <details>
+                    <summary><i class="fa-solid fa-chevron-right"></i> Agentic Provider</summary>
+                    <div class="mt-4">
+                        <ol>
+                            <li>Create <code>src/providers/agentic/your-provider.ts</code></li>
+                            <li>Extend <code>BaseNewsProvider</code>, implement <code>generateNews(topics, language)</code></li>
+                            <li>Register in <code>NewsProviderFactory</code></li>
+                            <li>Add settings UI and types</li>
+                        </ol>
+                    </div>
+                </details>
+                <details>
+                    <summary><i class="fa-solid fa-chevron-right"></i> Summarizer</summary>
+                    <div class="mt-4">
+                        <ol>
+                            <li>Create <code>src/providers/summarizers/your-summarizer.ts</code></li>
+                            <li>Extend <code>BaseSummarizer</code>, implement <code>summarize(topic, articles, language)</code></li>
+                            <li>Register in coordinator factory</li>
+                        </ol>
+                    </div>
+                </details>
+
+                <h4>Pull Requests</h4>
+                <ol>
+                    <li>Fork and create a feature branch</li>
+                    <li>Ensure <code>npm run build</code> passes</li>
+                    <li>Test in Obsidian</li>
+                    <li>Submit PR with description and testing notes</li>
+                </ol>
+
+                <div class="alert alert-info">
+                    <strong>Good First Issues:</strong> Add language translations, create template presets, improve error messages, add placeholders, or enhance docs.
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <div class="mt-20 pt-12 border-t border-white/10 text-center">
+                <p class="text-gray-400 mb-4">Need more help?</p>
+                <div class="flex gap-6 justify-center flex-wrap">
+                    <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/issues" class="text-purple-400 hover:text-purple-300">Report an Issue</a>
+                    <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" class="text-purple-400 hover:text-purple-300">View on GitHub</a>
+                    <a href="https://www.buymeacoffee.com/adamchen" class="text-purple-400 hover:text-purple-300">Support Development</a>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer class="border-t border-white/5 bg-[#0a0a0a] py-8 px-6 mt-24">
+        <div class="max-w-7xl mx-auto text-center text-gray-500 text-sm">
+            <p>Daily News Briefing for Obsidian — Open Source (MIT License)</p>
+            <p class="mt-2">Built with curiosity by <a href="https://github.com/ChenziqiAdam" class="text-purple-400 hover:text-purple-300">@ChenziqiAdam</a></p>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full bg-purple-600/80 text-white flex items-center justify-center shadow-lg hover:bg-purple-500 transition-all duration-300 transform scale-0" aria-label="Back to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- Diagram Viewer Modal -->
+    <div id="diagram-modal" role="dialog" aria-modal="true" aria-label="Diagram viewer">
+        <div id="diagram-modal-box">
+            <div id="diagram-modal-header">
+                <span>Diagram Viewer</span>
+                <div id="diagram-modal-controls">
+                    <button class="dm-btn" id="dm-zoom-in" title="Zoom in"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                    <button class="dm-btn" id="dm-zoom-out" title="Zoom out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                    <button class="dm-btn" id="dm-zoom-reset" title="Reset zoom"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    <button class="dm-btn" id="dm-close" title="Close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <div id="diagram-modal-body">
+                <div id="diagram-modal-svg-wrap"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="shared.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usage - Daily News Briefing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link rel="stylesheet" href="shared.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        obsidian: {
+                            bg: '#161616',
+                            card: '#1e1e1e',
+                            border: '#2a2a2a',
+                            accent: '#a855f7',
+                            accentGlow: '#a855f740'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="relative overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 top-0 border-b border-white/5 bg-[#0d0d0d]/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                    <i class="fa-solid fa-newspaper text-white text-sm"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight text-white">Daily News Briefing</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="../index.html" class="text-sm text-gray-400 hover:text-white transition duration-200">Home</a>
+                <a href="index.html" class="text-sm text-purple-400 font-semibold">Documentation</a>
+                <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" target="_blank" class="text-sm text-gray-400 hover:text-white transition">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-24 flex gap-12">
+
+        <!-- Sidebar Navigation -->
+        <aside class="hidden lg:block w-64 flex-shrink-0">
+            <nav class="sidebar-nav">
+                <span class="nav-label">Getting Started</span>
+                <a href="index.html#overview">Overview</a>
+                <a href="index.html#quick-start">Quick Start</a>
+                <a href="index.html#installation">Installation</a>
+
+                <span class="nav-label">Providers</span>
+                <a href="providers.html#pipelines">Pipeline Modes</a>
+                <a href="providers.html#agentic-providers">Agentic Providers</a>
+                <a href="providers.html#modular-providers">Modular Mode</a>
+                <a href="providers.html#api-setup">API Setup Guides</a>
+
+                <span class="nav-label">Configuration</span>
+                <a href="configuration.html#basic-settings">Basic Settings</a>
+                <a href="configuration.html#search-settings">Search Settings</a>
+                <a href="configuration.html#rss-settings">RSS Settings</a>
+                <a href="configuration.html#output-settings">Output Settings</a>
+                <a href="configuration.html#metadata-settings">Metadata</a>
+
+                <span class="nav-label">Customization</span>
+                <a href="customization.html#templates">Templates</a>
+                <a href="customization.html#placeholders">Placeholders</a>
+                <a href="customization.html#custom-prompts">Custom Prompts</a>
+
+                <span class="nav-label">Usage</span>
+                <a href="#usage">Generating News</a>
+                <a href="#languages">Languages</a>
+                <a href="#troubleshooting">Troubleshooting</a>
+
+                <span class="nav-label">Advanced</span>
+                <a href="advanced.html#search-optimization">Search Optimization</a>
+                <a href="advanced.html#rate-limits">Rate Limits</a>
+                <a href="advanced.html#architecture">Architecture</a>
+                <a href="advanced.html#contributing">Contributing</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 max-w-4xl docs-content">
+
+            <section id="usage">
+                <h2>Generating News</h2>
+
+                <h3>Automatic (Scheduled)</h3>
+                <ol>
+                    <li>Set a schedule time in settings (e.g., <code>08:00</code>)</li>
+                    <li>Keep Obsidian running — news generates silently in the background</li>
+                    <li>Find briefings in your Archive Folder, organized by month</li>
+                </ol>
+                <div class="alert alert-info">
+                    Obsidian must be running for scheduled generation. If closed, the plugin generates on next launch (if past the scheduled time).
+                </div>
+
+                <h3>Manual</h3>
+                <p><strong>Command Palette:</strong> <code>Ctrl/Cmd+P</code> > "Generate news now"</p>
+                <p><strong>Sidebar button:</strong> Click the newspaper icon. Opens today's note if it exists, or creates a new one.</p>
+
+                <h3>File Organization</h3>
+                <pre><code>Your Vault/
+  News Archive/
+    2026-02/
+      2026-02-25.md
+      2026-02-26.md
+    2026-01/
+      2026-01-31.md
+      ...</code></pre>
+                <p>Notes are named <code>YYYY-MM-DD.md</code> and auto-organized into monthly subfolders. Use the "Reorganize existing notes" button in settings to migrate old notes.</p>
+            </section>
+
+            <section id="languages">
+                <h2>Language Support</h2>
+                <p>6 fully supported languages with content translation and localized UI:</p>
+                <table>
+                    <thead><tr><th>Language</th><th>Code</th></tr></thead>
+                    <tbody>
+                        <tr><td>English</td><td><code>en</code></td></tr>
+                        <tr><td>Francais</td><td><code>fr</code></td></tr>
+                        <tr><td>Deutsch</td><td><code>de</code></td></tr>
+                        <tr><td>Espanol</td><td><code>es</code></td></tr>
+                        <tr><td>Italiano</td><td><code>it</code></td></tr>
+                        <tr><td>Chinese</td><td><code>zh</code></td></tr>
+                    </tbody>
+                </table>
+                <p>News content, section headers ("Key Developments", "Analysis & Context"), and status messages are all translated. Unsupported language codes fall back to English.</p>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+
+                <h3>No News Generated / Empty Content</h3>
+                <div class="feature-box">
+                    <ul>
+                        <li><strong>API keys:</strong> Check for extra spaces, expired keys, or missing keys (Google providers need all 3)</li>
+                        <li><strong>Topics:</strong> Must be comma-separated. Use specific topics for better results.</li>
+                        <li><strong>Network:</strong> Verify internet connection and API endpoint access</li>
+                        <li><strong>Debug:</strong> Open Obsidian console (<code>Ctrl/Cmd+Shift+I</code>) for error details</li>
+                    </ul>
+                </div>
+
+                <h3>API Errors</h3>
+                <table>
+                    <thead><tr><th>Error</th><th>Solution</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Invalid API Key</strong></td><td>Regenerate key, check for extra whitespace</td></tr>
+                        <tr><td><strong>Insufficient Credits</strong></td><td>Check billing in provider dashboard</td></tr>
+                        <tr><td><strong>Rate Limiting</strong></td><td>Wait 5-10 minutes, reduce search results count</td></tr>
+                        <tr><td><strong>Quota Exceeded</strong></td><td>Google free tier: 100 queries/day. Wait for reset or reduce settings.</td></tr>
+                        <tr><td><strong>Timeout</strong></td><td>Check connection, try a different provider, reduce topics</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Template Validation Failed</h3>
+                <ul>
+                    <li>Ensure your template includes <code>{{TOPICS}}</code></li>
+                    <li>Placeholders are case-sensitive — check for typos</li>
+                    <li>Switch to a preset template to verify the issue</li>
+                </ul>
+
+                <h3>Plugin Not Working After Update</h3>
+                <ol>
+                    <li>Reload Obsidian (<code>Ctrl/Cmd+R</code>)</li>
+                    <li>Disable and re-enable the plugin</li>
+                    <li>Check for new updates in Community Plugins</li>
+                    <li>If unresolved, <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/issues" target="_blank">open a GitHub issue</a> with console logs</li>
+                </ol>
+            </section>
+
+        </main>
+    </div>
+
+    <footer class="border-t border-white/5 bg-[#0a0a0a] py-8 px-6 mt-24">
+        <div class="max-w-7xl mx-auto text-center text-gray-500 text-sm">
+            <p>Daily News Briefing for Obsidian — Open Source (MIT License)</p>
+            <p class="mt-2">Built with curiosity by <a href="https://github.com/ChenziqiAdam" class="text-purple-400 hover:text-purple-300">@ChenziqiAdam</a></p>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full bg-purple-600/80 text-white flex items-center justify-center shadow-lg hover:bg-purple-500 transition-all duration-300 transform scale-0" aria-label="Back to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- Diagram Viewer Modal -->
+    <div id="diagram-modal" role="dialog" aria-modal="true" aria-label="Diagram viewer">
+        <div id="diagram-modal-box">
+            <div id="diagram-modal-header">
+                <span>Diagram Viewer</span>
+                <div id="diagram-modal-controls">
+                    <button class="dm-btn" id="dm-zoom-in" title="Zoom in"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                    <button class="dm-btn" id="dm-zoom-out" title="Zoom out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                    <button class="dm-btn" id="dm-zoom-reset" title="Reset zoom"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    <button class="dm-btn" id="dm-close" title="Close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <div id="diagram-modal-body">
+                <div id="diagram-modal-svg-wrap"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="shared.js"></script>
+
+</body>
+</html>
