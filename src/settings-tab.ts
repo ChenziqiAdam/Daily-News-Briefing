@@ -17,9 +17,34 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         this.plugin = plugin;
     }
 
+    /** Creates an API key setting with a SecretComponent and a label showing the current secret ID. */
+    private addApiKeySetting(containerEl: HTMLElement, name: string, desc: string, getValue: () => string, setValue: (v: string) => Promise<void>): void {
+        const setting = new Setting(containerEl)
+            .setName(name)
+            .setDesc(desc);
+
+        const secretIdLabel = setting.controlEl.createEl('span', {
+            cls: 'secret-id-label',
+            text: getValue() || '',
+        });
+
+        setting.addComponent(el => new SecretComponent(this.app, el)
+            .setValue(getValue())
+            .onChange(async (value) => {
+                secretIdLabel.textContent = value;
+                await setValue(value);
+            }));
+    }
+
     private addStyles(containerEl: HTMLElement): void {
         const styleEl = containerEl.createEl('style');
         styleEl.textContent = `
+            .secret-id-label {
+                font-size: 0.85em;
+                color: var(--text-muted);
+                margin-right: 0.5em;
+                font-family: var(--font-monospace);
+            }
             .settings-section {
                 margin-bottom: 2em;
                 padding: 1.5em;
@@ -198,15 +223,9 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         if (pipelineMode === 'modular' && newsSource === 'google') {
             apiSection.createEl('div', {text: 'Google Search API', cls: 'setting-item-heading'});
 
-            new Setting(apiSection)
-                .setName('API key')
-                .setDesc('Your Google Custom Search API key')
-                .addComponent(el => new SecretComponent(this.app, el)
-                    .setValue(this.plugin.settings.googleSearchApiKey)
-                    .onChange(async (value) => {
-                        this.plugin.settings.googleSearchApiKey = value;
-                        await this.plugin.saveSettings();
-                    }));
+            this.addApiKeySetting(apiSection, 'API key', 'Your Google Custom Search API key',
+                () => this.plugin.settings.googleSearchApiKey,
+                async (v) => { this.plugin.settings.googleSearchApiKey = v; await this.plugin.saveSettings(); });
 
             new Setting(apiSection)
                 .setName('Search engine ID')
@@ -249,80 +268,44 @@ export class DailyNewsSettingTab extends PluginSettingTab {
 
         if ((pipelineMode === 'modular' && summarizer === 'gemini') || (pipelineMode === 'agentic' && agenticProvider === 'gemini')) {
             apiSection.createEl('div', {text: 'Gemini API', cls: 'setting-item-heading'});
-            new Setting(apiSection)
-                .setName('API key')
-                .setDesc('Your Google Gemini API key for news summarization')
-                .addComponent(el => new SecretComponent(this.app, el)
-                    .setValue(this.plugin.settings.geminiApiKey)
-                    .onChange(async (value) => {
-                        this.plugin.settings.geminiApiKey = value;
-                        await this.plugin.saveSettings();
-                    }));
+            this.addApiKeySetting(apiSection, 'API key', 'Your Google Gemini API key for news summarization',
+                () => this.plugin.settings.geminiApiKey,
+                async (v) => { this.plugin.settings.geminiApiKey = v; await this.plugin.saveSettings(); });
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'gpt') || (pipelineMode === 'agentic' && agenticProvider === 'gpt')) {
             apiSection.createEl('div', {text: 'OpenAI API', cls: 'setting-item-heading'});
-            new Setting(apiSection)
-                .setName('API key')
-                .setDesc('Your OpenAI API key')
-                .addComponent(el => new SecretComponent(this.app, el)
-                    .setValue(this.plugin.settings.openaiApiKey)
-                    .onChange(async (value) => {
-                        this.plugin.settings.openaiApiKey = value;
-                        await this.plugin.saveSettings();
-                    }));
+            this.addApiKeySetting(apiSection, 'API key', 'Your OpenAI API key',
+                () => this.plugin.settings.openaiApiKey,
+                async (v) => { this.plugin.settings.openaiApiKey = v; await this.plugin.saveSettings(); });
         }
 
         if (pipelineMode === 'agentic' && agenticProvider === 'sonar') {
             apiSection.createEl('div', {text: 'Perplexity API', cls: 'setting-item-heading'});
-            new Setting(apiSection)
-                .setName('API key')
-                .setDesc('Your Perplexity API key')
-                .addComponent(el => new SecretComponent(this.app, el)
-                    .setValue(this.plugin.settings.perplexityApiKey)
-                    .onChange(async (value) => {
-                        this.plugin.settings.perplexityApiKey = value;
-                        await this.plugin.saveSettings();
-                    }));
+            this.addApiKeySetting(apiSection, 'API key', 'Your Perplexity API key',
+                () => this.plugin.settings.perplexityApiKey,
+                async (v) => { this.plugin.settings.perplexityApiKey = v; await this.plugin.saveSettings(); });
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'grok') || (pipelineMode === 'agentic' && agenticProvider === 'grok')) {
             apiSection.createEl('div', {text: 'Grok API', cls: 'setting-item-heading'});
-            new Setting(apiSection)
-                .setName('API key')
-                .setDesc('Your Grok API key')
-                .addComponent(el => new SecretComponent(this.app, el)
-                    .setValue(this.plugin.settings.grokApiKey)
-                    .onChange(async (value) => {
-                        this.plugin.settings.grokApiKey = value;
-                        await this.plugin.saveSettings();
-                    }));
+            this.addApiKeySetting(apiSection, 'API key', 'Your Grok API key',
+                () => this.plugin.settings.grokApiKey,
+                async (v) => { this.plugin.settings.grokApiKey = v; await this.plugin.saveSettings(); });
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'claude') || (pipelineMode === 'agentic' && agenticProvider === 'claude')) {
             apiSection.createEl('div', {text: 'Anthropic API', cls: 'setting-item-heading'});
-            new Setting(apiSection)
-                .setName('API key')
-                .setDesc('Your Anthropic API key for Claude')
-                .addComponent(el => new SecretComponent(this.app, el)
-                    .setValue(this.plugin.settings.anthropicApiKey)
-                    .onChange(async (value) => {
-                        this.plugin.settings.anthropicApiKey = value;
-                        await this.plugin.saveSettings();
-                    }));
+            this.addApiKeySetting(apiSection, 'API key', 'Your Anthropic API key for Claude',
+                () => this.plugin.settings.anthropicApiKey,
+                async (v) => { this.plugin.settings.anthropicApiKey = v; await this.plugin.saveSettings(); });
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'openrouter') || (pipelineMode === 'agentic' && agenticProvider === 'openrouter')) {
             apiSection.createEl('div', {text: 'OpenRouter API', cls: 'setting-item-heading'});
-            new Setting(apiSection)
-                .setName('API key')
-                .setDesc('Your OpenRouter API key')
-                .addComponent(el => new SecretComponent(this.app, el)
-                    .setValue(this.plugin.settings.openrouterApiKey)
-                    .onChange(async (value) => {
-                        this.plugin.settings.openrouterApiKey = value;
-                        await this.plugin.saveSettings();
-                    }));
+            this.addApiKeySetting(apiSection, 'API key', 'Your OpenRouter API key',
+                () => this.plugin.settings.openrouterApiKey,
+                async (v) => { this.plugin.settings.openrouterApiKey = v; await this.plugin.saveSettings(); });
 
             new Setting(apiSection)
                 .setName('Model')
