@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting, Notice } from 'obsidian';
+import { App, PluginSettingTab, Setting, Notice, SecretComponent } from 'obsidian';
 import type { DailyNewsSettings } from './types';
 import type DailyNewsPlugin from '../main';
 import { NewsProviderFactory } from './providers/news-provider-factory';
@@ -201,8 +201,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             new Setting(apiSection)
                 .setName('API key')
                 .setDesc('Your Google Custom Search API key')
-                .addText(text => text
-                    .setPlaceholder('Enter API key')
+                .addComponent(el => new SecretComponent(this.app, el)
                     .setValue(this.plugin.settings.googleSearchApiKey)
                     .onChange(async (value) => {
                         this.plugin.settings.googleSearchApiKey = value;
@@ -253,8 +252,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             new Setting(apiSection)
                 .setName('API key')
                 .setDesc('Your Google Gemini API key for news summarization')
-                .addText(text => text
-                    .setPlaceholder('Enter Gemini API key')
+                .addComponent(el => new SecretComponent(this.app, el)
                     .setValue(this.plugin.settings.geminiApiKey)
                     .onChange(async (value) => {
                         this.plugin.settings.geminiApiKey = value;
@@ -267,8 +265,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             new Setting(apiSection)
                 .setName('API key')
                 .setDesc('Your OpenAI API key')
-                .addText(text => text
-                    .setPlaceholder('Enter OpenAI API key')
+                .addComponent(el => new SecretComponent(this.app, el)
                     .setValue(this.plugin.settings.openaiApiKey)
                     .onChange(async (value) => {
                         this.plugin.settings.openaiApiKey = value;
@@ -281,8 +278,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             new Setting(apiSection)
                 .setName('API key')
                 .setDesc('Your Perplexity API key')
-                .addText(text => text
-                    .setPlaceholder('Enter Perplexity API key')
+                .addComponent(el => new SecretComponent(this.app, el)
                     .setValue(this.plugin.settings.perplexityApiKey)
                     .onChange(async (value) => {
                         this.plugin.settings.perplexityApiKey = value;
@@ -295,8 +291,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             new Setting(apiSection)
                 .setName('API key')
                 .setDesc('Your Grok API key')
-                .addText(text => text
-                    .setPlaceholder('Enter Grok API key')
+                .addComponent(el => new SecretComponent(this.app, el)
                     .setValue(this.plugin.settings.grokApiKey)
                     .onChange(async (value) => {
                         this.plugin.settings.grokApiKey = value;
@@ -309,8 +304,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             new Setting(apiSection)
                 .setName('API key')
                 .setDesc('Your Anthropic API key for Claude')
-                .addText(text => text
-                    .setPlaceholder('Enter Anthropic API key')
+                .addComponent(el => new SecretComponent(this.app, el)
                     .setValue(this.plugin.settings.anthropicApiKey)
                     .onChange(async (value) => {
                         this.plugin.settings.anthropicApiKey = value;
@@ -323,8 +317,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             new Setting(apiSection)
                 .setName('API key')
                 .setDesc('Your OpenRouter API key')
-                .addText(text => text
-                    .setPlaceholder('Enter OpenRouter API key')
+                .addComponent(el => new SecretComponent(this.app, el)
                     .setValue(this.plugin.settings.openrouterApiKey)
                     .onChange(async (value) => {
                         this.plugin.settings.openrouterApiKey = value;

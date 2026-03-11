@@ -12,6 +12,51 @@ export default class DailyNewsPlugin extends Plugin {
     settings: DailyNewsSettings;
     private newsProvider: BaseNewsProvider;
 
+    /** Returns a copy of settings with secret IDs resolved to actual key values. */
+    resolveSecrets(): DailyNewsSettings {
+        const s = this.app.secretStorage;
+        const resolve = (id: string) => (id ? (s.getSecret(id) ?? '') : '');
+        return {
+            ...this.settings,
+            googleSearchApiKey: resolve(this.settings.googleSearchApiKey),
+            geminiApiKey: resolve(this.settings.geminiApiKey),
+            perplexityApiKey: resolve(this.settings.perplexityApiKey),
+            openaiApiKey: resolve(this.settings.openaiApiKey),
+            grokApiKey: resolve(this.settings.grokApiKey),
+            anthropicApiKey: resolve(this.settings.anthropicApiKey),
+            openrouterApiKey: resolve(this.settings.openrouterApiKey),
+        };
+    }
+
+    /** Migrates raw API key values stored in data.json into SecretStorage. */
+    private async migrateRawApiKeys() {
+        const s = this.app.secretStorage;
+        const fields: Array<{ key: keyof DailyNewsSettings; secretId: string }> = [
+            { key: 'googleSearchApiKey', secretId: 'daily-news-google-search-api-key' },
+            { key: 'geminiApiKey',        secretId: 'daily-news-gemini-api-key' },
+            { key: 'perplexityApiKey',    secretId: 'daily-news-perplexity-api-key' },
+            { key: 'openaiApiKey',        secretId: 'daily-news-openai-api-key' },
+            { key: 'grokApiKey',          secretId: 'daily-news-grok-api-key' },
+            { key: 'anthropicApiKey',     secretId: 'daily-news-anthropic-api-key' },
+            { key: 'openrouterApiKey',    secretId: 'daily-news-openrouter-api-key' },
+        ];
+
+        let migrated = false;
+        for (const { key, secretId } of fields) {
+            const value = this.settings[key] as string;
+            // If value is non-empty and not already a known secret ID, it's a raw key
+            if (value && s.getSecret(value) === null) {
+                s.setSecret(secretId, value);
+                (this.settings as any)[key] = secretId;
+                migrated = true;
+            }
+        }
+
+        if (migrated) {
+            await this.saveData(this.settings);
+        }
+    }
+
     async onload() {
         await this.loadSettings();
 
@@ -48,6 +93,11 @@ export default class DailyNewsPlugin extends Plugin {
     async loadSettings() {
         const loadedData = await this.loadData();
         this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData);
+
+        // Migration: move raw API key values from data.json into SecretStorage.
+        // If a field value is non-empty and getSecret(value) returns null,
+        // it's a raw key — store it under a fixed secret ID and replace the field.
+        await this.migrateRawApiKeys();
 
         // Migration: old single-field apiProvider -> new pipelineMode/newsSource/summarizer/agenticProvider
         if (loadedData && loadedData.apiProvider && !loadedData.pipelineMode) {
@@ -92,7 +142,7 @@ export default class DailyNewsPlugin extends Plugin {
 
     private initializeNewsProvider() {
         this.newsProvider = NewsProviderFactory.createProvider(
-            this.settings,
+            this.resolveSecrets(),
             async () => await this.saveSettings()
         );
     }
@@ -139,7 +189,8 @@ export default class DailyNewsPlugin extends Plugin {
 
     async generateDailyNews() {
         // Validate API configuration first
-        if (!NewsProviderFactory.validateProviderConfig(this.settings)) {
+        const resolvedSettings = this.resolveSecrets();
+        if (!NewsProviderFactory.validateProviderConfig(resolvedSettings)) {
             new Notice(`Missing API configuration for ${NewsProviderFactory.getProviderName(this.settings)}. Please check settings.`, 5000);
             return null;
         }
