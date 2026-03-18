@@ -26,6 +26,7 @@ export class RSSRetriever implements NewsRetriever {
         }
 
         const allNews: NewsItem[] = [];
+        const failedFeeds: string[] = [];
 
         // Fetch from all configured RSS feeds
         await Promise.all(this.settings.rssFeeds.map(async (feedUrl) => {
@@ -47,8 +48,19 @@ export class RSSRetriever implements NewsRetriever {
 
             } catch (error) {
                 console.error(`Error fetching RSS feed ${feedUrl}:`, error);
+                failedFeeds.push(feedUrl);
             }
         }));
+
+        if (failedFeeds.length > 0) {
+            if (failedFeeds.length === this.settings.rssFeeds.length) {
+                throw new Error(`All RSS feeds failed to load:\n${failedFeeds.join('\n')}`);
+            } else {
+                console.warn(`Some RSS feeds failed: ${failedFeeds.join(', ')}`);
+                // Store failed feeds so callers can surface them
+                (this as any)._lastFailedFeeds = failedFeeds;
+            }
+        }
 
         // Sort by published date (newest first)
         allNews.sort((a, b) => {

@@ -65,12 +65,18 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## 📋 Changelog
 
-### v1.11.4
-- Support Obsidian secret storage and add migration function. Requires update Obsidian to latest.
+### v1.11.5
+- Fix daily news content cache. Now it only caches when news generation succeeds
+- Remove duplicate notification and add more failure info
+- Add schedule time
+
 
 ### Previous Versions
 <details>
 <summary>Click to view changelog history</summary>
+
+**1.11.4**
+- Support Obsidian secret storage and add migration function. Requires update Obsidian to latest.
 
 **1.11.3**
 - Support Gemini agentic search and list as the top recommendation

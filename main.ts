@@ -7,6 +7,7 @@ import type { BaseNewsProvider } from './src/providers/base-news-provider';
 import { FileUtils, LanguageUtils, ContentUtils, MetadataUtils } from './src/utils';
 import { LANGUAGE_TRANSLATIONS } from './src/constants';
 import { TemplateEngine } from './src/template/template-engine';
+import { SearchSummarizeCoordinator } from './src/providers/coordinators/search-summarize-coordinator';
 
 export default class DailyNewsPlugin extends Plugin {
     settings: DailyNewsSettings;
@@ -207,6 +208,12 @@ export default class DailyNewsPlugin extends Plugin {
             new Notice(`No translations available for "${this.settings.language}". UI will show in English, but content will be in the selected language.`, 4000);
         }
 
+        // Warn if AI query feature is enabled but Gemini key is missing (only applies to modular + Google Search)
+        if (this.settings.pipelineMode === 'modular' && this.settings.newsSource === 'google'
+            && this.settings.useAIForQueries && !this.settings.geminiApiKey) {
+            new Notice('AI search queries are enabled but no Gemini API key is set — feature will be skipped. Add your key in Settings.', 6000);
+        }
+
         const date = new Date().toISOString().split('T')[0];
         const processingStartTime = Date.now();
 
@@ -260,20 +267,24 @@ export default class DailyNewsPlugin extends Plugin {
                         // Use the news provider to fetch and summarize news
                         const summary = await this.newsProvider.fetchAndSummarizeNews(topic);
 
-                        // Check if summary contains error messages
-                        if (summary.includes('Error') || summary.includes('error')) {
-                            topicStatus.error = `${this.newsProvider.getProviderName()} error for topic "${topic}"`;
-                            topicContent = `**Error processing ${topic} with ${this.newsProvider.getProviderName()}.**\n\n${summary}\n`;
-                        } else if (summary.includes(LanguageUtils.getTranslation('noRecentNews', this.settings.language)) ||
-                                   summary.includes('No recent news found')) {
+                        const noNewsPhrase = LanguageUtils.getTranslation('noRecentNews', this.settings.language);
+                        if (summary.includes(noNewsPhrase) || summary.includes('No recent news found')) {
                             topicStatus.error = `No news found for topic "${topic}"`;
                             topicContent = `${summary}\n\n`;
                         } else {
                             // Success case
                             topicStatus.retrievalSuccess = true;
                             topicStatus.summarizationSuccess = true;
-                            topicStatus.newsCount = 1; // We don't have granular info from unified interface
+                            topicStatus.newsCount = 1;
                             topicContent = summary + '\n';
+                        }
+
+                        // Warn user about any RSS feeds that partially failed
+                        if (this.newsProvider instanceof SearchSummarizeCoordinator) {
+                            const failedFeeds = this.newsProvider.getLastFailedFeeds();
+                            if (failedFeeds.length > 0) {
+                                new Notice(`Some RSS feeds failed to load for "${topic}":\n${failedFeeds.join('\n')}`, 7000);
+                            }
                         }
                     } catch (providerError) {
                         console.error(`${this.newsProvider.getProviderName()} error for ${topic}:`, providerError);
@@ -296,8 +307,10 @@ export default class DailyNewsPlugin extends Plugin {
                 topicStatuses.push(topicStatus);
                 topicContents.push(topicContentObj);
 
-                // Cache this topic's content
-                this.settings.dailyTopicCache[topicCacheKey] = topicContentObj;
+                // Cache this topic's content only if successful (no errors)
+                if (topicStatus.retrievalSuccess && topicStatus.summarizationSuccess) {
+                    this.settings.dailyTopicCache[topicCacheKey] = topicContentObj;
+                }
             }
 
             // Analyze results
@@ -308,12 +321,7 @@ export default class DailyNewsPlugin extends Plugin {
                 const errorMessage = analysis.atLeastOneNewsItem
                     ? 'News was retrieved for some topics, but summarization failed for all of them.'
                     : 'Failed to retrieve news for any topics.';
-
                 console.warn(`${errorMessage} Creating note with error information.\nError details:\n${analysis.errorSummary}`);
-
-                if (this.settings.enableNotifications) {
-                    new Notice(`${errorMessage} Creating note with error details.`, 5000);
-                }
             }
 
             // Create folders if they don't exist
@@ -420,17 +428,21 @@ export default class DailyNewsPlugin extends Plugin {
                 await this.saveSettings();
 
                 if (this.settings.enableNotifications) {
+                    const successCount = topicStatuses.filter(s => s.retrievalSuccess).length;
+                    const totalCount = topicStatuses.length;
                     if (analysis.allTopicsFailed || !analysis.atLeastOneSuccessfulTopic) {
-                        new Notice('Daily news note created with errors. Please check the note.', 4000);
+                        new Notice(`Daily news: all ${totalCount} topics failed. Check the note for details.`, 6000);
+                    } else if (successCount < totalCount) {
+                        new Notice(`Daily news generated: ${successCount}/${totalCount} topics succeeded.`, 5000);
                     } else {
-                        new Notice('Daily news generated successfully', 3000);
+                        new Notice(`Daily news generated: all ${totalCount} topics succeeded.`, 3000);
                     }
                 }
 
                 return fileName;
             } catch (createError) {
                 console.error('Failed to create note file:', createError);
-                new Notice('Failed to create note file. Check console for details.', 5000);
+                new Notice(`Failed to create note file: ${createError.message}`, 7000);
                 return null;
             }
 
@@ -489,7 +501,7 @@ export default class DailyNewsPlugin extends Plugin {
             }
         } catch (error) {
             console.error('Error opening or creating daily news:', error);
-            new Notice('Unable to open or create daily news');
+            new Notice(`Unable to open or create daily news: ${error.message}`, 6000);
         }
     }
 

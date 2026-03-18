@@ -27,18 +27,21 @@ export class SearchSummarizeCoordinator extends BaseNewsProvider {
         return true;
     }
 
-    async fetchAndSummarizeNews(topic: string): Promise<string> {
-        try {
-            const newsItems = await this.retriever.fetchNews(topic);
-            
-            if (newsItems.length === 0) {
-                return `${LanguageUtils.getTranslation('noRecentNews', this.settings.language)} ${topic}.`;
-            }
+    /** Returns feed URLs that failed during the last fetchAndSummarizeNews call (partial failures only). */
+    getLastFailedFeeds(): string[] {
+        return (this.retriever as any)._lastFailedFeeds ?? [];
+    }
 
-            return await this.summarizer.summarize(newsItems, topic);
-        } catch (error) {
-            console.error(`${this.getProviderName()} provider error for ${topic}:`, error);
-            return `Error retrieving news for ${topic}. ${error.message}`;
+    async fetchAndSummarizeNews(topic: string): Promise<string> {
+        // Reset failed feeds tracking before each call
+        (this.retriever as any)._lastFailedFeeds = [];
+
+        const newsItems = await this.retriever.fetchNews(topic);
+
+        if (newsItems.length === 0) {
+            return `${LanguageUtils.getTranslation('noRecentNews', this.settings.language)} ${topic}.`;
         }
+
+        return await this.summarizer.summarize(newsItems, topic);
     }
 }

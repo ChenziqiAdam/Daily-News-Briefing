@@ -455,6 +455,12 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 .setPlaceholder('HH:MM')
                 .setValue(this.plugin.settings.scheduleTime)
                 .onChange(async (value) => {
+                    const isValid = /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
+                    if (!isValid) {
+                        new Notice('Invalid time format. Please use HH:MM (e.g., 08:00).', 4000);
+                        text.setValue(this.plugin.settings.scheduleTime);
+                        return;
+                    }
                     this.plugin.settings.scheduleTime = value;
                     await this.plugin.saveSettings();
                 }));
@@ -773,10 +779,13 @@ export class DailyNewsSettingTab extends PluginSettingTab {
 
                 new Setting(advancedSection)
                     .setName('Use AI for search queries')
-                    .setDesc('Use AI to generate optimized search queries (uses Gemini API)')
+                    .setDesc('Use Gemini AI to generate optimized Google search queries (requires Gemini API key)')
                     .addToggle(toggle => toggle
                         .setValue(this.plugin.settings.useAIForQueries)
                         .onChange(async (value) => {
+                            if (value && !this.plugin.settings.geminiApiKey) {
+                                new Notice('AI search query generation requires a Gemini API key. Please add it in the API Keys section.', 6000);
+                            }
                             this.plugin.settings.useAIForQueries = value;
                             await this.plugin.saveSettings();
                         }));

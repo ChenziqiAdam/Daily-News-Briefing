@@ -358,7 +358,7 @@ Only return the search query string itself, without any explanations or addition
                 }
                 
                 if (i < actualRequests - 1) {
-                    await new Promise(r => setTimeout(r, 200));
+                    await new Promise(r => setTimeout(r, 600));
                 }
                 
             } catch (error) {
