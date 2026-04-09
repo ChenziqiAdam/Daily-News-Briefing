@@ -5,7 +5,7 @@ import { DailyNewsSettingTab } from './src/settings-tab';
 import { NewsProviderFactory } from './src/providers/news-provider-factory';
 import type { BaseNewsProvider } from './src/providers/base-news-provider';
 import { FileUtils, LanguageUtils, ContentUtils, MetadataUtils } from './src/utils';
-import { LANGUAGE_TRANSLATIONS } from './src/constants';
+import { LANGUAGE_TRANSLATIONS, SECRET_FIELDS } from './src/constants';
 import { TemplateEngine } from './src/template/template-engine';
 import { SearchSummarizeCoordinator } from './src/providers/coordinators/search-summarize-coordinator';
 
@@ -16,7 +16,13 @@ export default class DailyNewsPlugin extends Plugin {
     /** Returns a copy of settings with secret IDs resolved to actual key values. */
     resolveSecrets(): DailyNewsSettings {
         const s = this.app.secretStorage;
-        const resolve = (id: string) => (id ? (s.getSecret(id) ?? '') : '');
+        const resolve = (val: string) => {
+            if (!val) return '';
+            const secret = s.getSecret(val);
+            if (secret === null) return val;
+            if (secret === val) return '';
+            return secret;
+        };
         return {
             ...this.settings,
             googleSearchApiKey: resolve(this.settings.googleSearchApiKey),
@@ -32,21 +38,10 @@ export default class DailyNewsPlugin extends Plugin {
     /** Migrates raw API key values stored in data.json into SecretStorage. */
     private async migrateRawApiKeys() {
         const s = this.app.secretStorage;
-        const fields: Array<{ key: keyof DailyNewsSettings; secretId: string }> = [
-            { key: 'googleSearchApiKey', secretId: 'daily-news-google-search-api-key' },
-            { key: 'geminiApiKey',        secretId: 'daily-news-gemini-api-key' },
-            { key: 'perplexityApiKey',    secretId: 'daily-news-perplexity-api-key' },
-            { key: 'openaiApiKey',        secretId: 'daily-news-openai-api-key' },
-            { key: 'grokApiKey',          secretId: 'daily-news-grok-api-key' },
-            { key: 'anthropicApiKey',     secretId: 'daily-news-anthropic-api-key' },
-            { key: 'openrouterApiKey',    secretId: 'daily-news-openrouter-api-key' },
-        ];
-
         let migrated = false;
-        for (const { key, secretId } of fields) {
-            const value = this.settings[key] as string;
-            // If value is non-empty and not already a known secret ID, it's a raw key
-            if (value && s.getSecret(value) === null) {
+        for (const { key, secretId } of SECRET_FIELDS) {
+            const value = this.settings[key as keyof DailyNewsSettings] as string;
+            if (value && value !== secretId && s.getSecret(value) === null) {
                 s.setSecret(secretId, value);
                 (this.settings as any)[key] = secretId;
                 migrated = true;

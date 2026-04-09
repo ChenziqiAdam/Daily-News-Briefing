@@ -17,34 +17,28 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         this.plugin = plugin;
     }
 
-    /** Creates an API key setting with a SecretComponent and a label showing the current secret ID. */
-    private addApiKeySetting(containerEl: HTMLElement, name: string, desc: string, getValue: () => string, setValue: (v: string) => Promise<void>): void {
+    /** Creates an API key setting with a SecretComponent that manages SecretStorage directly. */
+    private addApiKeySetting(containerEl: HTMLElement, name: string, desc: string, settingKey: keyof DailyNewsSettings, secretId: string): void {
         const setting = new Setting(containerEl)
             .setName(name)
             .setDesc(desc);
 
-        const secretIdLabel = setting.controlEl.createEl('span', {
-            cls: 'secret-id-label',
-            text: getValue() || '',
-        });
+        const s = this.app.secretStorage;
+        const val = this.plugin.settings[settingKey] as string;
+        const currentValue = val === secretId ? (s.getSecret(secretId) ?? '') : (val || '');
 
         setting.addComponent(el => new SecretComponent(this.app, el)
-            .setValue(getValue())
+            .setValue(currentValue)
             .onChange(async (value) => {
-                secretIdLabel.textContent = value;
-                await setValue(value);
+                await s.setSecret(secretId, value);
+                (this.plugin.settings as any)[settingKey] = secretId;
+                await this.plugin.saveSettings();
             }));
     }
 
     private addStyles(containerEl: HTMLElement): void {
         const styleEl = containerEl.createEl('style');
         styleEl.textContent = `
-            .secret-id-label {
-                font-size: 0.85em;
-                color: var(--text-muted);
-                margin-right: 0.5em;
-                font-family: var(--font-monospace);
-            }
             .settings-section {
                 margin-bottom: 2em;
                 padding: 1.5em;
@@ -223,9 +217,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         if (pipelineMode === 'modular' && newsSource === 'google') {
             apiSection.createEl('div', {text: 'Google Search API', cls: 'setting-item-heading'});
 
-            this.addApiKeySetting(apiSection, 'API key', 'Your Google Custom Search API key',
-                () => this.plugin.settings.googleSearchApiKey,
-                async (v) => { this.plugin.settings.googleSearchApiKey = v; await this.plugin.saveSettings(); });
+            this.addApiKeySetting(apiSection, 'API key', 'Your Google Custom Search API key', 'googleSearchApiKey', 'daily-news-google-search-api-key');
 
             new Setting(apiSection)
                 .setName('Search engine ID')
@@ -268,44 +260,32 @@ export class DailyNewsSettingTab extends PluginSettingTab {
 
         if ((pipelineMode === 'modular' && summarizer === 'gemini') || (pipelineMode === 'agentic' && agenticProvider === 'gemini')) {
             apiSection.createEl('div', {text: 'Gemini API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Your Google Gemini API key for news summarization',
-                () => this.plugin.settings.geminiApiKey,
-                async (v) => { this.plugin.settings.geminiApiKey = v; await this.plugin.saveSettings(); });
+            this.addApiKeySetting(apiSection, 'API key', 'Your Google Gemini API key for news summarization', 'geminiApiKey', 'daily-news-gemini-api-key');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'gpt') || (pipelineMode === 'agentic' && agenticProvider === 'gpt')) {
             apiSection.createEl('div', {text: 'OpenAI API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Your OpenAI API key',
-                () => this.plugin.settings.openaiApiKey,
-                async (v) => { this.plugin.settings.openaiApiKey = v; await this.plugin.saveSettings(); });
+            this.addApiKeySetting(apiSection, 'API key', 'Your OpenAI API key', 'openaiApiKey', 'daily-news-openai-api-key');
         }
 
         if (pipelineMode === 'agentic' && agenticProvider === 'sonar') {
             apiSection.createEl('div', {text: 'Perplexity API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Your Perplexity API key',
-                () => this.plugin.settings.perplexityApiKey,
-                async (v) => { this.plugin.settings.perplexityApiKey = v; await this.plugin.saveSettings(); });
+            this.addApiKeySetting(apiSection, 'API key', 'Your Perplexity API key', 'perplexityApiKey', 'daily-news-perplexity-api-key');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'grok') || (pipelineMode === 'agentic' && agenticProvider === 'grok')) {
             apiSection.createEl('div', {text: 'Grok API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Your Grok API key',
-                () => this.plugin.settings.grokApiKey,
-                async (v) => { this.plugin.settings.grokApiKey = v; await this.plugin.saveSettings(); });
+            this.addApiKeySetting(apiSection, 'API key', 'Your Grok API key', 'grokApiKey', 'daily-news-grok-api-key');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'claude') || (pipelineMode === 'agentic' && agenticProvider === 'claude')) {
             apiSection.createEl('div', {text: 'Anthropic API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Your Anthropic API key for Claude',
-                () => this.plugin.settings.anthropicApiKey,
-                async (v) => { this.plugin.settings.anthropicApiKey = v; await this.plugin.saveSettings(); });
+            this.addApiKeySetting(apiSection, 'API key', 'Your Anthropic API key for Claude', 'anthropicApiKey', 'daily-news-anthropic-api-key');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'openrouter') || (pipelineMode === 'agentic' && agenticProvider === 'openrouter')) {
             apiSection.createEl('div', {text: 'OpenRouter API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Your OpenRouter API key',
-                () => this.plugin.settings.openrouterApiKey,
-                async (v) => { this.plugin.settings.openrouterApiKey = v; await this.plugin.saveSettings(); });
+            this.addApiKeySetting(apiSection, 'API key', 'Your OpenRouter API key', 'openrouterApiKey', 'daily-news-openrouter-api-key');
 
             new Setting(apiSection)
                 .setName('Model')

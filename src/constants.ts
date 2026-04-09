@@ -94,6 +94,17 @@ export const LANGUAGE_TRANSLATIONS: Record<string, Record<string, string>> = {
     }
 };
 
+// Secret storage field mappings for API keys
+export const SECRET_FIELDS: Array<{ key: string; secretId: string }> = [
+    { key: 'googleSearchApiKey', secretId: 'daily-news-google-search-api-key' },
+    { key: 'geminiApiKey',       secretId: 'daily-news-gemini-api-key' },
+    { key: 'perplexityApiKey',   secretId: 'daily-news-perplexity-api-key' },
+    { key: 'openaiApiKey',       secretId: 'daily-news-openai-api-key' },
+    { key: 'grokApiKey',         secretId: 'daily-news-grok-api-key' },
+    { key: 'anthropicApiKey',    secretId: 'daily-news-anthropic-api-key' },
+    { key: 'openrouterApiKey',   secretId: 'daily-news-openrouter-api-key' },
+];
+
 // Language display names for the dropdown
 export const LANGUAGE_NAMES: Record<string, string> = {
     'en': 'English',
