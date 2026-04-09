@@ -65,15 +65,18 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## 📋 Changelog
 
-### v1.11.5
-- Fix daily news content cache. Now it only caches when news generation succeeds
-- Remove duplicate notification and add more failure info
-- Add schedule time
+### v1.11.6
+- Fix Obsidian secret storage migration logic
 
 
 ### Previous Versions
 <details>
 <summary>Click to view changelog history</summary>
+
+1.11.5
+- Fix daily news content cache. Now it only caches when news generation succeeds
+- Remove duplicate notification and add more failure info
+- Add schedule time
 
 **1.11.4**
 - Support Obsidian secret storage and add migration function. Requires update Obsidian to latest.
