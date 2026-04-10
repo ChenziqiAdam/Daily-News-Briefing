@@ -303,8 +303,8 @@ export default class DailyNewsPlugin extends Plugin {
                 topicStatuses.push(topicStatus);
                 topicContents.push(topicContentObj);
 
-                // Cache this topic's content only if successful (no errors)
-                if (topicStatus.retrievalSuccess && topicStatus.summarizationSuccess) {
+                // Cache this topic's content only if successful (no errors) and content is non-empty
+                if (topicStatus.retrievalSuccess && topicStatus.summarizationSuccess && topicContent.length > 0) {
                     this.settings.dailyTopicCache[topicCacheKey] = topicContentObj;
                 }
             }

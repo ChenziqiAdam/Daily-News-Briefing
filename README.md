@@ -68,7 +68,7 @@ For detailed setup instructions, API guides, and advanced features:
 ### v1.11.7
 - Fix secret key migration logic, and refactor to an optional button
 - Fix OpenRouter Claude model name
-
+- Improve daily news content caching logic
 
 ### Previous Versions
 <details>
