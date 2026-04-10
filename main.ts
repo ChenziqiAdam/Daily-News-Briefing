@@ -19,9 +19,8 @@ export default class DailyNewsPlugin extends Plugin {
         const resolve = (val: string) => {
             if (!val) return '';
             const secret = s.getSecret(val);
-            if (secret === null) return val;
-            if (secret === val) return '';
-            return secret;
+            // If val is a secret ID, return its value; otherwise treat val as a raw key.
+            return secret !== null ? secret : val;
         };
         return {
             ...this.settings,
@@ -35,22 +34,29 @@ export default class DailyNewsPlugin extends Plugin {
         };
     }
 
-    /** Migrates raw API key values stored in data.json into SecretStorage. */
-    private async migrateRawApiKeys() {
+    /**
+     * Migrates raw API key values stored in data.json into SecretStorage.
+     * Only migrates values that look like raw keys (not already a secret label).
+     * Returns the number of keys migrated.
+     */
+    async migrateRawApiKeys(): Promise<number> {
         const s = this.app.secretStorage;
-        let migrated = false;
+        let count = 0;
         for (const { key, secretId } of SECRET_FIELDS) {
             const value = this.settings[key as keyof DailyNewsSettings] as string;
-            if (value && value !== secretId && s.getSecret(value) === null) {
-                s.setSecret(secretId, value);
-                (this.settings as any)[key] = secretId;
-                migrated = true;
-            }
+            if (!value) continue;
+            // Skip if already a known secret ID or resolvable as a secret label
+            if (value === secretId || s.getSecret(value) !== null) continue;
+            // Skip if value looks like a secret label (lowercase alphanumeric + dashes)
+            if (/^[a-z0-9-]+$/.test(value)) continue;
+            s.setSecret(secretId, value);
+            (this.settings as any)[key] = secretId;
+            count++;
         }
-
-        if (migrated) {
+        if (count > 0) {
             await this.saveData(this.settings);
         }
+        return count;
     }
 
     async onload() {
@@ -89,11 +95,6 @@ export default class DailyNewsPlugin extends Plugin {
     async loadSettings() {
         const loadedData = await this.loadData();
         this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData);
-
-        // Migration: move raw API key values from data.json into SecretStorage.
-        // If a field value is non-empty and getSecret(value) returns null,
-        // it's a raw key — store it under a fixed secret ID and replace the field.
-        await this.migrateRawApiKeys();
 
         // Migration: old single-field apiProvider -> new pipelineMode/newsSource/summarizer/agenticProvider
         if (loadedData && loadedData.apiProvider && !loadedData.pipelineMode) {

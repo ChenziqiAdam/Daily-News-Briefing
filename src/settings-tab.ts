@@ -17,21 +17,18 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         this.plugin = plugin;
     }
 
-    /** Creates an API key setting with a SecretComponent that manages SecretStorage directly. */
-    private addApiKeySetting(containerEl: HTMLElement, name: string, desc: string, settingKey: keyof DailyNewsSettings, secretId: string): void {
+    /** Creates an API key setting backed by Obsidian's SecretStorage selector. */
+    private addApiKeySetting(containerEl: HTMLElement, name: string, desc: string, settingKey: keyof DailyNewsSettings): void {
         const setting = new Setting(containerEl)
             .setName(name)
             .setDesc(desc);
 
-        const s = this.app.secretStorage;
-        const val = this.plugin.settings[settingKey] as string;
-        const currentValue = val === secretId ? (s.getSecret(secretId) ?? '') : (val || '');
+        const currentValue = (this.plugin.settings[settingKey] as string) || '';
 
         setting.addComponent(el => new SecretComponent(this.app, el)
             .setValue(currentValue)
             .onChange(async (value) => {
-                await s.setSecret(secretId, value);
-                (this.plugin.settings as any)[settingKey] = secretId;
+                (this.plugin.settings as any)[settingKey] = value;
                 await this.plugin.saveSettings();
             }));
     }
@@ -214,10 +211,25 @@ export class DailyNewsSettingTab extends PluginSettingTab {
 
         const { pipelineMode, newsSource, summarizer, agenticProvider } = this.plugin.settings;
 
+        new Setting(apiSection)
+            .setName('Migrate legacy API keys')
+            .setDesc('If you installed this plugin before v1.11.4 and have raw API keys stored in data.json, click to move them into Obsidian SecretStorage.')
+            .addButton(btn => btn
+                .setButtonText('Migrate')
+                .onClick(async () => {
+                    const count = await this.plugin.migrateRawApiKeys();
+                    if (count > 0) {
+                        new Notice(`Migrated ${count} API key(s) into SecretStorage.`);
+                        this.display();
+                    } else {
+                        new Notice('No legacy API keys found to migrate.');
+                    }
+                }));
+
         if (pipelineMode === 'modular' && newsSource === 'google') {
             apiSection.createEl('div', {text: 'Google Search API', cls: 'setting-item-heading'});
 
-            this.addApiKeySetting(apiSection, 'API key', 'Your Google Custom Search API key', 'googleSearchApiKey', 'daily-news-google-search-api-key');
+            this.addApiKeySetting(apiSection, 'API key', 'Select the Google Custom Search API key from Obsidian Secret Storage', 'googleSearchApiKey');
 
             new Setting(apiSection)
                 .setName('Search engine ID')
@@ -260,32 +272,32 @@ export class DailyNewsSettingTab extends PluginSettingTab {
 
         if ((pipelineMode === 'modular' && summarizer === 'gemini') || (pipelineMode === 'agentic' && agenticProvider === 'gemini')) {
             apiSection.createEl('div', {text: 'Gemini API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Your Google Gemini API key for news summarization', 'geminiApiKey', 'daily-news-gemini-api-key');
+            this.addApiKeySetting(apiSection, 'API key', 'Select the Google Gemini API key from Obsidian Secret Storage', 'geminiApiKey');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'gpt') || (pipelineMode === 'agentic' && agenticProvider === 'gpt')) {
             apiSection.createEl('div', {text: 'OpenAI API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Your OpenAI API key', 'openaiApiKey', 'daily-news-openai-api-key');
+            this.addApiKeySetting(apiSection, 'API key', 'Select the OpenAI API key from Obsidian Secret Storage', 'openaiApiKey');
         }
 
         if (pipelineMode === 'agentic' && agenticProvider === 'sonar') {
             apiSection.createEl('div', {text: 'Perplexity API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Your Perplexity API key', 'perplexityApiKey', 'daily-news-perplexity-api-key');
+            this.addApiKeySetting(apiSection, 'API key', 'Select the Perplexity API key from Obsidian Secret Storage', 'perplexityApiKey');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'grok') || (pipelineMode === 'agentic' && agenticProvider === 'grok')) {
             apiSection.createEl('div', {text: 'Grok API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Your Grok API key', 'grokApiKey', 'daily-news-grok-api-key');
+            this.addApiKeySetting(apiSection, 'API key', 'Select the Grok API key from Obsidian Secret Storage', 'grokApiKey');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'claude') || (pipelineMode === 'agentic' && agenticProvider === 'claude')) {
             apiSection.createEl('div', {text: 'Anthropic API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Your Anthropic API key for Claude', 'anthropicApiKey', 'daily-news-anthropic-api-key');
+            this.addApiKeySetting(apiSection, 'API key', 'Select the Anthropic API key from Obsidian Secret Storage', 'anthropicApiKey');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'openrouter') || (pipelineMode === 'agentic' && agenticProvider === 'openrouter')) {
             apiSection.createEl('div', {text: 'OpenRouter API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Your OpenRouter API key', 'openrouterApiKey', 'daily-news-openrouter-api-key');
+            this.addApiKeySetting(apiSection, 'API key', 'Select the OpenRouter API key from Obsidian Secret Storage', 'openrouterApiKey');
 
             new Setting(apiSection)
                 .setName('Model')

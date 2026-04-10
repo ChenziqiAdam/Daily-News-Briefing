@@ -1,4 +1,4 @@
-import { CLAUDE_MODEL_NAME } from './constants';
+import { CLAUDE_MODEL_NAME, OPENROUTER_DEFAULT_MODEL } from './constants';
 
 export interface DailyNewsSettings {
     // Pipeline mode selection (new)
@@ -111,7 +111,7 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
 
     // OpenRouter API settings
     openrouterApiKey: '',
-    openrouterModel: CLAUDE_MODEL_NAME,
+    openrouterModel: OPENROUTER_DEFAULT_MODEL,
 
     // RSS settings
     rssFeeds: [],
