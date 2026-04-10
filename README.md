@@ -65,13 +65,17 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## 📋 Changelog
 
-### v1.11.6
-- Fix Obsidian secret storage migration logic
+### v1.11.7
+- Fix secret key migration logic, and refactor to an optional button
+- Fix OpenRouter Claude model name
 
 
 ### Previous Versions
 <details>
 <summary>Click to view changelog history</summary>
+
+1.11.6
+- Fix Obsidian secret storage migration logic
 
 1.11.5
 - Fix daily news content cache. Now it only caches when news generation succeeds
