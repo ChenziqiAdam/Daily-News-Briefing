@@ -74,10 +74,10 @@ For detailed setup instructions, API guides, and advanced features:
 <details>
 <summary>Click to view changelog history</summary>
 
-1.11.6
+**1.11.6**
 - Fix Obsidian secret storage migration logic
 
-1.11.5
+**1.11.5**
 - Fix daily news content cache. Now it only caches when news generation succeeds
 - Remove duplicate notification and add more failure info
 - Add schedule time
