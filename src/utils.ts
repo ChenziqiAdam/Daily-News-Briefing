@@ -1,6 +1,7 @@
 import { App, TFile, Notice } from 'obsidian';
 import type { DailyNewsSettings, TopicStatus, NewsMetadata} from './types';
 import { LANGUAGE_TRANSLATIONS } from './constants';
+import { NewsProviderFactory } from './providers/news-provider-factory';
 
 export class FileUtils {
     static normalizePath(path: string): string {
@@ -95,42 +96,13 @@ export class MetadataUtils {
             const topicTags = settings.topics.map(topic =>
                 topic.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
             );
-            const standardTags = ['daily-news', settings.apiProvider];
+            const providerKey = NewsProviderFactory.getProviderKey(settings);
+            const standardTags = ['daily-news', providerKey];
             metadata.tags = [...new Set([...topicTags, ...standardTags])];
         }
 
         if (settings.includeSource) {
-            switch (settings.apiProvider) {
-                case 'google-gemini':
-                    metadata.source = 'Google Search + Gemini AI';
-                    break;
-                case 'google-gpt':
-                    metadata.source = 'Google Search + OpenAI GPT';
-                    break;
-                case 'google-grok':
-                    metadata.source = 'Google Search + Grok';
-                    break;
-                case 'google-claude':
-                    metadata.source = 'Google Search + Anthropic Claude';
-                    break;
-                case 'google-openrouter':
-                    metadata.source = 'Google Search + OpenRouter';
-                    break;
-                case 'sonar':
-                    metadata.source = 'Perplexity Sonar';
-                    break;
-                case 'gpt':
-                    metadata.source = 'OpenAI GPT';
-                    break;
-                case 'grok':
-                    metadata.source = 'Grok';
-                    break;
-                case 'claude':
-                    metadata.source = 'Anthropic Claude';
-                    break;
-                case 'openrouter':
-                    metadata.source = 'OpenRouter';
-            }
+            metadata.source = NewsProviderFactory.getProviderName(settings);
         }
 
         if (settings.includeOutputFormat) {
