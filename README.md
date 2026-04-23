@@ -65,14 +65,17 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## 📋 Changelog
 
-### v1.11.7
-- Fix secret key migration logic, and refactor to an optional button
-- Fix OpenRouter Claude model name
-- Improve daily news content caching logic
+### v1.11.8
+- Fix metadata tags and source legacy generation issue
 
 ### Previous Versions
 <details>
 <summary>Click to view changelog history</summary>
+
+**1.11.7**
+- Fix secret key migration logic, and refactor to an optional button
+- Fix OpenRouter Claude model name
+- Improve daily news content caching logic
 
 **1.11.6**
 - Fix Obsidian secret storage migration logic
