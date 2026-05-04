@@ -627,15 +627,30 @@ export default class DailyNewsPlugin extends Plugin {
         });
 
         let deleted = 0;
+        const affectedFolders = new Set<string>();
         for (const file of files) {
             const dateMatch = file.name.match(/Daily News - (\d{4}-\d{2}-\d{2})\.md/);
             if (!dateMatch) continue;
             if (dateMatch[1] < cutoffStr) {
                 try {
+                    affectedFolders.add(FileUtils.normalizePath(file.parent?.path ?? ''));
                     await this.app.vault.trash(file, true);
                     deleted++;
                 } catch (e) {
                     console.error(`Failed to delete ${file.path}:`, e);
+                }
+            }
+        }
+
+        // Remove any monthly folders that are now empty
+        for (const folderPath of affectedFolders) {
+            if (!folderPath || folderPath === archiveFolder) continue;
+            const folder = this.app.vault.getAbstractFileByPath(folderPath);
+            if (folder && 'children' in folder && (folder as any).children.length === 0) {
+                try {
+                    await this.app.vault.trash(folder as any, true);
+                } catch (e) {
+                    console.error(`Failed to delete empty folder ${folderPath}:`, e);
                 }
             }
         }
