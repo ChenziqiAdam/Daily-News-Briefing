@@ -500,31 +500,28 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 .onChange(async (value) => {
                     this.plugin.settings.autoDeleteEnabled = value;
                     await this.plugin.saveSettings();
-                    this.display();
                 }));
 
-        if (this.plugin.settings.autoDeleteEnabled) {
-            new Setting(scheduleSection)
-                .setName('Retention period')
-                .setDesc('Delete news notes older than this period')
-                .addDropdown(dropdown => {
-                    dropdown.addOption('1d', '1 day');
-                    dropdown.addOption('3d', '3 days');
-                    dropdown.addOption('1w', '1 week');
-                    dropdown.addOption('2w', '2 weeks');
-                    dropdown.addOption('1m', '1 month');
-                    dropdown.addOption('3m', '3 months');
-                    dropdown.addOption('6m', '6 months');
-                    dropdown.addOption('1y', '1 year');
-                    dropdown.addOption('never', 'Never (disabled)');
-                    return dropdown
-                        .setValue(this.plugin.settings.autoDeleteRetention)
-                        .onChange(async (value: any) => {
-                            this.plugin.settings.autoDeleteRetention = value;
-                            await this.plugin.saveSettings();
-                        });
-                });
-        }
+        new Setting(scheduleSection)
+            .setName('Retention period')
+            .setDesc('Delete news notes older than this period (applies to both auto-delete and manual deletion)')
+            .addDropdown(dropdown => {
+                dropdown.addOption('1d', '1 day');
+                dropdown.addOption('3d', '3 days');
+                dropdown.addOption('1w', '1 week');
+                dropdown.addOption('2w', '2 weeks');
+                dropdown.addOption('1m', '1 month');
+                dropdown.addOption('3m', '3 months');
+                dropdown.addOption('6m', '6 months');
+                dropdown.addOption('1y', '1 year');
+                dropdown.addOption('never', 'Never (disabled)');
+                return dropdown
+                    .setValue(this.plugin.settings.autoDeleteRetention)
+                    .onChange(async (value: any) => {
+                        this.plugin.settings.autoDeleteRetention = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
 
         new Setting(scheduleSection)
             .setName('Delete old notes now')
