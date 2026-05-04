@@ -65,12 +65,16 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## Changelog
 
-### v1.11.8
-- Fix metadata tags and source legacy generation issue
+### v1.11.9
+- Add old news notes auto deletion function
+- Remove empty news folders after deletion
 
 ### Previous Versions
 <details>
 <summary>Click to view changelog history</summary>
+
+**1.11.8**
+- Fix metadata tags and source legacy generation issue
 
 **1.11.7**
 - Fix secret key migration logic, and refactor to an optional button
