@@ -4,17 +4,17 @@
 
 **AI-powered daily news summaries delivered automatically to your Obsidian vault.**
 
-## ✨ Features
+## Features
 
-- 🤖 **11 AI Pipelines + RSS**: Google, Anthropic, OpenAI, Grok, Perplexity, OpenRouter, RSS Retriever
-- 📅 **Auto-Scheduled**: Wake up to fresh news every day
-- 🎯 **Custom Topics**: Track exactly what matters to you
-- 🌍 **6 Languages**: English, French, German, Spanish, Italian, Chinese
-- 🎨 **Flexible Templates**: 5 presets + custom templates with 25 placeholders
-- 📱 **One-Click Access**: Sidebar button for instant generation
-- 📁 **Auto-Organization**: Monthly subfolders keep your archive clean and organized
+- **11 AI Pipelines + RSS**: Google, Anthropic, OpenAI, Grok, Perplexity, OpenRouter, RSS Retriever
+- **Auto-Scheduled**: Wake up to fresh news every day
+- **Custom Topics**: Track exactly what matters to you
+- **6 Languages**: English, French, German, Spanish, Italian, Chinese
+- **Flexible Templates**: 5 presets + custom templates with 25 placeholders
+- **One-Click Access**: Sidebar button for instant generation
+- **Auto-Organization**: Monthly subfolders keep your archive clean and organized
 
-## 🚀 Quick Start
+## Quick Start
 
 1. **Install** from Obsidian Community Plugins
 2. **Choose AI Provider** (we recommend Gemini Agentic - it's free!)
@@ -24,13 +24,13 @@
 
 Done! News will generate automatically at your scheduled time.
 
-## 📖 Documentation
+## Documentation
 
 For detailed setup instructions, API guides, and advanced features:
 
 **[→ Read Full Documentation](https://chenziqiadam.github.io/Daily-News-Briefing/docs/index.html)**
 
-## 🔑 Quick API Setup
+## Quick API Setup
 
 ### Free Option (Recommended)
 **Gemini** - 1 free API key:
@@ -43,7 +43,7 @@ For detailed setup instructions, API guides, and advanced features:
 - **Anthropic**: [console.anthropic.com](https://console.anthropic.com/)
 - **OpenRouter**: [openrouter.ai](https://openrouter.ai/keys)
 
-## 📱 Usage
+## Usage
 
 **Automatic**: Set schedule time, plugin generates daily at that time
 
@@ -51,7 +51,7 @@ For detailed setup instructions, API guides, and advanced features:
 - Command Palette: `Ctrl/Cmd + P` → "Generate news now"
 - Sidebar: Click 📰 icon (opens today's news or creates it)
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 **No news generated?**
 - Verify API keys (no extra spaces)
@@ -63,7 +63,7 @@ For detailed setup instructions, API guides, and advanced features:
 - Verify account has credits/quota
 - Check [full documentation](https://chenziqiadam.github.io/Daily-News-Briefing/docs/usage.html#troubleshooting)
 
-## 📋 Changelog
+## Changelog
 
 ### v1.11.8
 - Fix metadata tags and source legacy generation issue
@@ -225,7 +225,7 @@ For detailed setup instructions, API guides, and advanced features:
 - Core news fetching and summarization
 </details>
 
-## 🤝 Contribute & Roadmap
+## Contribute & Roadmap
 
 Contributions welcome! We especially appreciate:
 - Bug reports and fixes
@@ -247,13 +247,13 @@ Contributions welcome! We especially appreciate:
   <img src="https://contrib.rocks/image?repo=ChenziqiAdam/Daily-News-Briefing" />
 </a>
 
-## ❤️ Support
+## Support
 
 If this plugin helps you stay informed:
 
 [![Buy Me a Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/adamchen)
 
-## 📄 License
+## License
 
 MIT License - Use freely and modify as needed
 
