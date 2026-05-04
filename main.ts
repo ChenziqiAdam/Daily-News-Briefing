@@ -626,7 +626,7 @@ export default class DailyNewsPlugin extends Plugin {
                    file.name.startsWith('Daily News - ');
         });
 
-        let deleted = 0;
+        let deletedFiles = 0;
         const affectedFolders = new Set<string>();
         for (const file of files) {
             const dateMatch = file.name.match(/Daily News - (\d{4}-\d{2}-\d{2})\.md/);
@@ -635,7 +635,7 @@ export default class DailyNewsPlugin extends Plugin {
                 try {
                     affectedFolders.add(FileUtils.normalizePath(file.parent?.path ?? ''));
                     await this.app.vault.trash(file, true);
-                    deleted++;
+                    deletedFiles++;
                 } catch (e) {
                     console.error(`Failed to delete ${file.path}:`, e);
                 }
@@ -643,20 +643,22 @@ export default class DailyNewsPlugin extends Plugin {
         }
 
         // Remove any monthly folders that are now empty
+        let deletedFolders = 0;
         for (const folderPath of affectedFolders) {
             if (!folderPath || folderPath === archiveFolder) continue;
             const folder = this.app.vault.getAbstractFileByPath(folderPath);
             if (folder && 'children' in folder && (folder as any).children.length === 0) {
                 try {
                     await this.app.vault.trash(folder as any, true);
+                    deletedFolders++;
                 } catch (e) {
                     console.error(`Failed to delete empty folder ${folderPath}:`, e);
                 }
             }
         }
 
-        if (deleted > 0) {
-            new Notice(`Deleted ${deleted} old news note${deleted > 1 ? 's' : ''}.`, 4000);
+        if (deletedFiles > 0 || deletedFolders > 0) {
+            new Notice(`Deleted ${deletedFiles} old news note${deletedFiles > 1 ? 's' : ''} and ${deletedFolders} empty folder${deletedFolders > 1 ? 's' : ''}.`, 4000);
         }
     }
 }
