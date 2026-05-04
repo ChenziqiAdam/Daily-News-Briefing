@@ -65,6 +65,9 @@ export default class DailyNewsPlugin extends Plugin {
         // Clean up old cache entries on startup
         await this.cleanupOldCache();
 
+        // Auto-delete old news notes on startup if enabled
+        await this.deleteOldNewsNotes();
+
         // Initialize news provider
         this.initializeNewsProvider();
 
@@ -88,6 +91,14 @@ export default class DailyNewsPlugin extends Plugin {
             callback: async () => {
                 new Notice('Generating news...');
                 await this.generateDailyNews();
+            }
+        });
+
+        this.addCommand({
+            id: 'delete-old-news-notes',
+            name: 'Delete old news notes',
+            callback: async () => {
+                await this.deleteOldNewsNotes();
             }
         });
     }
@@ -587,6 +598,50 @@ export default class DailyNewsPlugin extends Plugin {
         } catch (error) {
             console.error('Error during reorganization:', error);
             new Notice('Failed to reorganize notes. Check console for details.', 5000);
+        }
+    }
+
+    async deleteOldNewsNotes() {
+        if (!this.settings.autoDeleteEnabled || this.settings.autoDeleteRetention === 'never') {
+            return;
+        }
+
+        const retentionDays: Record<string, number> = {
+            '1d': 1, '3d': 3, '1w': 7, '2w': 14,
+            '1m': 30, '3m': 90, '6m': 180, '1y': 365
+        };
+
+        const days = retentionDays[this.settings.autoDeleteRetention];
+        if (!days) return;
+
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - days);
+        const cutoffStr = cutoff.toISOString().split('T')[0];
+
+        const archiveFolder = FileUtils.normalizePath(this.settings.archiveFolder);
+        const files = this.app.vault.getFiles().filter(file => {
+            const normalizedPath = FileUtils.normalizePath(file.path);
+            return normalizedPath.startsWith(archiveFolder + '/') &&
+                   file.extension === 'md' &&
+                   file.name.startsWith('Daily News - ');
+        });
+
+        let deleted = 0;
+        for (const file of files) {
+            const dateMatch = file.name.match(/Daily News - (\d{4}-\d{2}-\d{2})\.md/);
+            if (!dateMatch) continue;
+            if (dateMatch[1] < cutoffStr) {
+                try {
+                    await this.app.vault.trash(file, true);
+                    deleted++;
+                } catch (e) {
+                    console.error(`Failed to delete ${file.path}:`, e);
+                }
+            }
+        }
+
+        if (deleted > 0) {
+            new Notice(`Deleted ${deleted} old news note${deleted > 1 ? 's' : ''}.`, 4000);
         }
     }
 }

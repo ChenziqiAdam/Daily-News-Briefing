@@ -141,7 +141,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         // =========================
         // Pipeline Configuration
         // =========================
-        const pipelineSection = this.createSection(containerEl, '🔌 News Pipeline', 'Choose your news retrieval and summarization pipeline');
+        const pipelineSection = this.createSection(containerEl, 'News Pipeline', 'Choose your news retrieval and summarization pipeline');
 
         new Setting(pipelineSection)
             .setName('Pipeline mode')
@@ -207,7 +207,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         // =========================
         // API Configuration
         // =========================
-        const apiSection = this.createSection(containerEl, '🔑 API Configuration', 'Configure API keys for your selected pipeline');
+        const apiSection = this.createSection(containerEl, 'API Configuration', 'Configure API keys for your selected pipeline');
 
         const { pipelineMode, newsSource, summarizer, agenticProvider } = this.plugin.settings;
 
@@ -318,7 +318,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         // =========================
         // News Configuration
         // =========================
-        const newsSection = this.createSection(containerEl, '📰 News Configuration', 'Configure news topics, language, and output preferences');
+        const newsSection = this.createSection(containerEl, 'News Configuration', 'Configure news topics, language, and output preferences');
 
         new Setting(newsSection)
             .setName('Language')
@@ -438,7 +438,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         // =========================
         // Scheduling & Storage
         // =========================
-        const scheduleSection = this.createSection(containerEl, '⏰ Scheduling & Storage', 'Configure when and where to generate news');
+        const scheduleSection = this.createSection(containerEl, 'Scheduling & Storage', 'Configure when and where to generate news, and how long to keep notes');
 
         new Setting(scheduleSection)
             .setName('Schedule time')
@@ -492,10 +492,58 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
+        new Setting(scheduleSection)
+            .setName('Enable auto-delete')
+            .setDesc('Automatically delete news notes older than the retention period on plugin startup')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.autoDeleteEnabled)
+                .onChange(async (value) => {
+                    this.plugin.settings.autoDeleteEnabled = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+
+        if (this.plugin.settings.autoDeleteEnabled) {
+            new Setting(scheduleSection)
+                .setName('Retention period')
+                .setDesc('Delete news notes older than this period')
+                .addDropdown(dropdown => {
+                    dropdown.addOption('1d', '1 day');
+                    dropdown.addOption('3d', '3 days');
+                    dropdown.addOption('1w', '1 week');
+                    dropdown.addOption('2w', '2 weeks');
+                    dropdown.addOption('1m', '1 month');
+                    dropdown.addOption('3m', '3 months');
+                    dropdown.addOption('6m', '6 months');
+                    dropdown.addOption('1y', '1 year');
+                    dropdown.addOption('never', 'Never (disabled)');
+                    return dropdown
+                        .setValue(this.plugin.settings.autoDeleteRetention)
+                        .onChange(async (value: any) => {
+                            this.plugin.settings.autoDeleteRetention = value;
+                            await this.plugin.saveSettings();
+                        });
+                });
+        }
+
+        new Setting(scheduleSection)
+            .setName('Delete old notes now')
+            .setDesc('Manually delete notes older than the retention period')
+            .addButton(button => button
+                .setButtonText('Delete old notes')
+                .setTooltip('Delete news notes older than the configured retention period')
+                .onClick(async () => {
+                    button.setDisabled(true);
+                    button.setButtonText('Deleting...');
+                    await this.plugin.deleteOldNewsNotes();
+                    button.setDisabled(false);
+                    button.setButtonText('Delete old notes');
+                }));
+
         // =========================
         // Metadata Configuration
         // =========================
-        const metadataSection = this.createSection(containerEl, '📋 Metadata Configuration', 'Configure YAML frontmatter metadata for generated news files');
+        const metadataSection = this.createSection(containerEl, 'Metadata Configuration', 'Configure YAML frontmatter metadata for generated news files');
 
         new Setting(metadataSection)
             .setName('Enable metadata')
@@ -590,7 +638,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         // =========================
         // Template Configuration
         // =========================
-        const templateSection = this.createSection(containerEl, '📝 Template Configuration', 'Customize the format of your daily news notes');
+        const templateSection = this.createSection(containerEl, 'Template Configuration', 'Customize the format of your daily news notes');
 
         new Setting(templateSection)
             .setName('Template type')
@@ -753,7 +801,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         // =========================
         // Advanced Configuration
         // =========================
-        const advancedSection = this.createSection(containerEl, '⚙️ Advanced Configuration', 'Advanced settings for fine-tuning');
+        const advancedSection = this.createSection(containerEl, 'Advanced Configuration', 'Advanced settings for fine-tuning');
 
         new Setting(advancedSection)
             .setName('Show advanced settings')

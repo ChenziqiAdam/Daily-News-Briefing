@@ -77,6 +77,10 @@ export interface DailyNewsSettings {
     customTemplate: string; // Custom template with placeholders
     templateFilePath: string; // Path to template note file
 
+    // Note management
+    autoDeleteEnabled: boolean;
+    autoDeleteRetention: '1d' | '3d' | '1w' | '2w' | '1m' | '3m' | '6m' | '1y' | 'never';
+
     // Cache settings
     queryCache: { [topic: string]: string }; // AI-generated query cache: topic -> query
     dailyTopicCache: { [cacheKey: string]: TopicContent }; // Per-topic cache: "date_provider_topic" -> TopicContent
@@ -158,6 +162,10 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
     templateType: 'default',
     customTemplate: '',
     templateFilePath: '',
+
+    // Note management
+    autoDeleteEnabled: false,
+    autoDeleteRetention: 'never',
 
     // Cache settings
     queryCache: {},
