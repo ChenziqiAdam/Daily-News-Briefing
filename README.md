@@ -65,13 +65,18 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## Changelog
 
-### v1.11.9
-- Add old news notes auto deletion function
-- Remove empty news folders after deletion
+### v1.11.10
+- Add daily news content caching as a button, enabled by default
+- Improve generation failure check
+- Fix old news notes manual deletion
 
 ### Previous Versions
 <details>
 <summary>Click to view changelog history</summary>
+
+**1.11.9**
+- Add old news notes auto deletion function
+- Remove empty news folders after deletion
 
 **1.11.8**
 - Fix metadata tags and source legacy generation issue
