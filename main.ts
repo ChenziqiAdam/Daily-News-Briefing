@@ -66,7 +66,9 @@ export default class DailyNewsPlugin extends Plugin {
         await this.cleanupOldCache();
 
         // Auto-delete old news notes on startup if enabled
-        await this.deleteOldNewsNotes();
+        if (this.settings.autoDeleteEnabled) {
+            await this.deleteOldNewsNotes();
+        }
 
         // Initialize news provider
         this.initializeNewsProvider();
@@ -98,7 +100,7 @@ export default class DailyNewsPlugin extends Plugin {
             id: 'delete-old-news-notes',
             name: 'Delete old news notes',
             callback: async () => {
-                await this.deleteOldNewsNotes(true);
+                await this.deleteOldNewsNotes();
             }
         });
     }
@@ -605,10 +607,7 @@ export default class DailyNewsPlugin extends Plugin {
         }
     }
 
-    async deleteOldNewsNotes(isManual = false) {
-        if (!isManual && !this.settings.autoDeleteEnabled) {
-            return;
-        }
+    async deleteOldNewsNotes() {
         if (this.settings.autoDeleteRetention === 'never') {
             return;
         }
