@@ -98,7 +98,7 @@ export default class DailyNewsPlugin extends Plugin {
             id: 'delete-old-news-notes',
             name: 'Delete old news notes',
             callback: async () => {
-                await this.deleteOldNewsNotes();
+                await this.deleteOldNewsNotes(true);
             }
         });
     }
@@ -250,7 +250,7 @@ export default class DailyNewsPlugin extends Plugin {
                 const topicCacheKey = `${date}_${NewsProviderFactory.getProviderKey(this.settings)}_${topic}`;
 
                 // Check if this topic is already cached
-                if (this.settings.dailyTopicCache[topicCacheKey]) {
+                if (this.settings.dailyTopicCacheEnabled && this.settings.dailyTopicCache[topicCacheKey]) {
                     new Notice(`Using cached content for ${topic}...`);
                     const cachedTopicContent = this.settings.dailyTopicCache[topicCacheKey];
                     topicStatuses.push(cachedTopicContent.status);
@@ -277,6 +277,10 @@ export default class DailyNewsPlugin extends Plugin {
                         const noNewsPhrase = LanguageUtils.getTranslation('noRecentNews', this.settings.language);
                         if (summary.includes(noNewsPhrase) || summary.includes('No recent news found')) {
                             topicStatus.error = `No news found for topic "${topic}"`;
+                            topicContent = `${summary}\n\n`;
+                        } else if (summary.startsWith('Error')) {
+                            // Provider returned an error string (e.g. API unavailable, rate limit, bad key)
+                            topicStatus.error = summary;
                             topicContent = `${summary}\n\n`;
                         } else {
                             // Success case
@@ -315,7 +319,7 @@ export default class DailyNewsPlugin extends Plugin {
                 topicContents.push(topicContentObj);
 
                 // Cache this topic's content only if successful (no errors) and content is non-empty
-                if (topicStatus.retrievalSuccess && topicStatus.summarizationSuccess && topicContent.length > 0) {
+                if (this.settings.dailyTopicCacheEnabled && topicStatus.retrievalSuccess && topicStatus.summarizationSuccess && topicContent.length > 0) {
                     this.settings.dailyTopicCache[topicCacheKey] = topicContentObj;
                 }
             }
@@ -601,8 +605,11 @@ export default class DailyNewsPlugin extends Plugin {
         }
     }
 
-    async deleteOldNewsNotes() {
-        if (!this.settings.autoDeleteEnabled || this.settings.autoDeleteRetention === 'never') {
+    async deleteOldNewsNotes(isManual = false) {
+        if (!isManual && !this.settings.autoDeleteEnabled) {
+            return;
+        }
+        if (this.settings.autoDeleteRetention === 'never') {
             return;
         }
 

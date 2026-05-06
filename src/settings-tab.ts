@@ -881,6 +881,16 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             // Daily topic cache (available for all providers)
             advancedSection.createEl('div', {text: 'Content Cache', cls: 'setting-item-heading'});
 
+            new Setting(advancedSection)
+                .setName('Enable content cache')
+                .setDesc('Cache daily news content to avoid redundant API calls when regenerating for the same day')
+                .addToggle(toggle => toggle
+                    .setValue(this.plugin.settings.dailyTopicCacheEnabled)
+                    .onChange(async (value) => {
+                        this.plugin.settings.dailyTopicCacheEnabled = value;
+                        await this.plugin.saveSettings();
+                    }));
+
             // Count cache entries for current provider
             const currentProvider = NewsProviderFactory.getProviderKey(this.plugin.settings);
             const allCacheKeys = Object.keys(this.plugin.settings.dailyTopicCache);

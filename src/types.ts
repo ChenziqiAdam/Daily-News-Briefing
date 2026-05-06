@@ -82,6 +82,7 @@ export interface DailyNewsSettings {
     autoDeleteRetention: '1d' | '3d' | '1w' | '2w' | '1m' | '3m' | '6m' | '1y' | 'never';
 
     // Cache settings
+    dailyTopicCacheEnabled: boolean; // Whether to cache daily topic content (avoids redundant API calls)
     queryCache: { [topic: string]: string }; // AI-generated query cache: topic -> query
     dailyTopicCache: { [cacheKey: string]: TopicContent }; // Per-topic cache: "date_provider_topic" -> TopicContent
 }
@@ -168,6 +169,7 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
     autoDeleteRetention: 'never',
 
     // Cache settings
+    dailyTopicCacheEnabled: true,
     queryCache: {},
     dailyTopicCache: {}
 }
