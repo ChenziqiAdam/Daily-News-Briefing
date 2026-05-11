@@ -1,9 +1,9 @@
 // API and Model Constants
 export const GEMINI_MODEL_NAME = "gemini-2.5-flash";
-export const GPT_MODEL_NAME = "gpt-5-search-api";
+export const GPT_MODEL_NAME = "gpt-5.5";
 export const PERPLEXITY_MODEL_NAME = "sonar";
-export const GROK_MODEL_NAME = "grok-4-fast";
-export const CLAUDE_MODEL_NAME = "claude-sonnet-4-5-20250929";
+export const GROK_MODEL_NAME = "grok-4.3";
+export const CLAUDE_MODEL_NAME = "claude-sonnet-4-6";
 export const GOOGLE_API_URL = "https://www.googleapis.com/customsearch/v1";
 export const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
 export const OPENAI_API_URL = "https://api.openai.com/v1";
@@ -11,9 +11,9 @@ export const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 
 // OpenRouter Constants
 export const OPENROUTER_API_URL = "https://openrouter.ai/api/v1";
-export const OPENROUTER_DEFAULT_MODEL = "anthropic/claude-sonnet-4.5";
+export const OPENROUTER_DEFAULT_MODEL = "anthropic/claude-sonnet-4.6";
 export const OPENROUTER_MODELS = [
-    { id: 'anthropic/claude-sonnet-4.5', name: 'Claude 4.5 Sonnet' },
+    { id: 'anthropic/claude-sonnet-4.6', name: 'Claude 4.6 Sonnet' },
     { id: 'openai/gpt-4o', name: 'GPT-4o' },
     { id: 'google/gemini-2.5-flash', name: 'Gemini Flash 2.5' },
     { id: 'mistralai/mistral-large', name: 'Mistral Large' },
