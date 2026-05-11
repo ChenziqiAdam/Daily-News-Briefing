@@ -27,6 +27,21 @@ export class ClaudeAgenticProvider extends BaseNewsProvider {
         });
     }
 
+    async testConnection(): Promise<{ success: boolean; message: string }> {
+        if (!this.settings.anthropicApiKey) return { success: false, message: 'Anthropic API key is not set.' };
+        try {
+            const client = this.getClient();
+            await client.messages.create({
+                model: CLAUDE_MODEL_NAME,
+                max_tokens: 1,
+                messages: [{ role: 'user', content: 'hi' }],
+            });
+            return { success: true, message: `Anthropic (${CLAUDE_MODEL_NAME}) connection successful.` };
+        } catch (error: any) {
+            return { success: false, message: error?.message || 'Unknown error.' };
+        }
+    }
+
     async fetchAndSummarizeNews(topic: string): Promise<string> {
         if (!this.settings.anthropicApiKey) {
             return `Error: Anthropic API key is not configured. Please add your API key in the plugin settings.`;

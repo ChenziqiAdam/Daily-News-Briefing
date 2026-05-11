@@ -17,6 +17,21 @@ export class GeminiAgenticProvider extends BaseNewsProvider {
         return !!this.settings.geminiApiKey;
     }
 
+    async testConnection(): Promise<{ success: boolean; message: string }> {
+        if (!this.settings.geminiApiKey) return { success: false, message: 'Gemini API key is not set.' };
+        try {
+            const ai = new GoogleGenAI({ apiKey: this.settings.geminiApiKey });
+            await ai.models.generateContent({
+                model: GEMINI_MODEL_NAME,
+                contents: 'hi',
+                config: { maxOutputTokens: 1 },
+            });
+            return { success: true, message: `Gemini (${GEMINI_MODEL_NAME}) connection successful.` };
+        } catch (error: any) {
+            return { success: false, message: error?.message || 'Unknown error.' };
+        }
+    }
+
     async fetchAndSummarizeNews(topic: string): Promise<string> {
         if (!this.settings.geminiApiKey) {
             return `Error: Gemini API key is not configured. Please add your API key in the plugin settings.`;

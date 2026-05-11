@@ -33,6 +33,22 @@ export class OpenRouterAgenticProvider extends BaseNewsProvider {
         return this.settings.openrouterModel || OPENROUTER_DEFAULT_MODEL;
     }
 
+    async testConnection(): Promise<{ success: boolean; message: string }> {
+        if (!this.settings.openrouterApiKey) return { success: false, message: 'OpenRouter API key is not set.' };
+        const model = this.getModel();
+        try {
+            const client = this.getClient();
+            await client.chat.completions.create({
+                model,
+                messages: [{ role: 'user', content: 'hi' }],
+                max_tokens: 1,
+            });
+            return { success: true, message: `OpenRouter (${model}) connection successful.` };
+        } catch (error: any) {
+            return { success: false, message: error?.message || 'Unknown error.' };
+        }
+    }
+
     async fetchAndSummarizeNews(topic: string): Promise<string> {
         if (!this.settings.openrouterApiKey) {
             return `Error: OpenRouter API key is not configured. Please add your API key in the plugin settings.`;

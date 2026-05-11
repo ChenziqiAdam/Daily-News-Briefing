@@ -54,16 +54,22 @@ For detailed setup instructions, API guides, and advanced features:
 ## Troubleshooting
 
 **No news generated?**
+- Use the **Test Connection** button in API Configuration settings to verify your key and model
 - Verify API keys (no extra spaces)
 - Check topics are configured
 - Try manual generation to see errors
 
 **API errors?**
+- Use the **Test Connection** button to identify the exact error
 - Check API key validity
 - Verify account has credits/quota
 - Check [full documentation](https://chenziqiadam.github.io/Daily-News-Briefing/docs/usage.html#troubleshooting)
 
 ## Changelog
+
+### v1.11.11
+- OpenRouter model is now a free-text input (supports any model from openrouter.ai)
+- Add Test Connection button in API Configuration to verify API key and model for all providers
 
 ### v1.11.10
 - Add daily news content caching as a button, enabled by default

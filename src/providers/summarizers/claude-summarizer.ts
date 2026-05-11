@@ -11,6 +11,21 @@ export class ClaudeSummarizer implements AISummarizer {
         this.settings = settings;
     }
 
+    async testConnection(): Promise<{ success: boolean; message: string }> {
+        if (!this.settings.anthropicApiKey) return { success: false, message: 'Anthropic API key is not set.' };
+        try {
+            const client = new Anthropic({ apiKey: this.settings.anthropicApiKey, dangerouslyAllowBrowser: true });
+            await client.messages.create({
+                model: CLAUDE_MODEL_NAME,
+                max_tokens: 1,
+                messages: [{ role: 'user', content: 'hi' }],
+            });
+            return { success: true, message: `Anthropic (${CLAUDE_MODEL_NAME}) connection successful.` };
+        } catch (error: any) {
+            return { success: false, message: error?.message || 'Unknown error.' };
+        }
+    }
+
     async summarize(newsItems: NewsItem[], topic: string): Promise<string> {
         if (!newsItems.length) {
             return `No recent news found for ${topic}.`;

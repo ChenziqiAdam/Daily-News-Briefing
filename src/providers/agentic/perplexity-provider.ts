@@ -17,6 +17,32 @@ export class PerplexityNewsProvider extends BaseNewsProvider {
         return !!this.settings.perplexityApiKey;
     }
 
+    async testConnection(): Promise<{ success: boolean; message: string }> {
+        if (!this.settings.perplexityApiKey) return { success: false, message: 'Perplexity API key is not set.' };
+        try {
+            const response = await requestUrl({
+                url: PERPLEXITY_API_URL,
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.settings.perplexityApiKey}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model: PERPLEXITY_MODEL_NAME,
+                    messages: [{ role: 'user', content: 'hi' }],
+                    max_tokens: 1,
+                }),
+            });
+            if (response.status >= 200 && response.status < 300) {
+                return { success: true, message: `Perplexity (${PERPLEXITY_MODEL_NAME}) connection successful.` };
+            }
+            const err = JSON.parse(response.text);
+            return { success: false, message: `Error ${response.status}: ${err?.error?.message || response.text}` };
+        } catch (error: any) {
+            return { success: false, message: error?.message || 'Unknown error.' };
+        }
+    }
+
     async fetchAndSummarizeNews(topic: string): Promise<string> {
         try {
             // Build system message based on output format

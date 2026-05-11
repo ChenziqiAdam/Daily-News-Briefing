@@ -12,6 +12,20 @@ export class GrokSummarizer implements AISummarizer {
         this.settings = settings;
     }
 
+    async testConnection(): Promise<{ success: boolean; message: string }> {
+        if (!this.settings.grokApiKey) return { success: false, message: 'Grok API key is not set.' };
+        try {
+            const xai = createXai({ apiKey: this.settings.grokApiKey });
+            await generateText({
+                model: xai.responses(GROK_MODEL_NAME),
+                messages: [{ role: 'user', content: 'hi' }],
+            });
+            return { success: true, message: `Grok (${GROK_MODEL_NAME}) connection successful.` };
+        } catch (error: any) {
+            return { success: false, message: error?.message || 'Unknown error.' };
+        }
+    }
+
     async summarize(newsItems: NewsItem[], topic: string): Promise<string> {
         if (!this.settings.grokApiKey) {
             return `Error: Grok API key is not configured. Please add your API key in the plugin settings.`;

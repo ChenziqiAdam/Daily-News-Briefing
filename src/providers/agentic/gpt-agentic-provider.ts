@@ -25,6 +25,20 @@ export class GptAgenticProvider extends BaseNewsProvider {
     }
 
 
+    async testConnection(): Promise<{ success: boolean; message: string }> {
+        if (!this.settings.openaiApiKey) return { success: false, message: 'OpenAI API key is not set.' };
+        try {
+            await this.client.chat.completions.create({
+                model: GPT_MODEL_NAME,
+                messages: [{ role: 'user', content: 'hi' }],
+                max_tokens: 1,
+            });
+            return { success: true, message: `OpenAI (${GPT_MODEL_NAME}) connection successful.` };
+        } catch (error: any) {
+            return { success: false, message: error?.message || 'Unknown error.' };
+        }
+    }
+
     async fetchAndSummarizeNews(topic: string): Promise<string> {
         try {
             let systemMessage: string;

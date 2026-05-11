@@ -11,6 +11,18 @@ export class GeminiSummarizer implements AISummarizer {
         this.settings = settings;
     }
 
+    async testConnection(): Promise<{ success: boolean; message: string }> {
+        if (!this.settings.geminiApiKey) return { success: false, message: 'Gemini API key is not set.' };
+        try {
+            const genAI = new GoogleGenerativeAI(this.settings.geminiApiKey);
+            const model = genAI.getGenerativeModel({ model: GEMINI_MODEL_NAME });
+            await model.generateContent({ contents: [{ role: 'user', parts: [{ text: 'hi' }] }], generationConfig: { maxOutputTokens: 1 } });
+            return { success: true, message: `Gemini (${GEMINI_MODEL_NAME}) connection successful.` };
+        } catch (error: any) {
+            return { success: false, message: error?.message || 'Unknown error.' };
+        }
+    }
+
     async summarize(newsItems: NewsItem[], topic: string): Promise<string> {
         if (!newsItems.length) {
             return `No recent news found for ${topic}.`;

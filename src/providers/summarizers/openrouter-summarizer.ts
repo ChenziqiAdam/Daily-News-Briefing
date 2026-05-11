@@ -15,6 +15,27 @@ export class OpenRouterSummarizer implements AISummarizer {
         return this.settings.openrouterModel || OPENROUTER_DEFAULT_MODEL;
     }
 
+    async testConnection(): Promise<{ success: boolean; message: string }> {
+        if (!this.settings.openrouterApiKey) return { success: false, message: 'OpenRouter API key is not set.' };
+        const model = this.getModel();
+        try {
+            const client = new OpenAI({
+                baseURL: OPENROUTER_API_URL,
+                apiKey: this.settings.openrouterApiKey,
+                dangerouslyAllowBrowser: true,
+                defaultHeaders: { 'HTTP-Referer': 'https://obsidian.md', 'X-Title': 'Obsidian Daily News Briefing' },
+            });
+            await client.chat.completions.create({
+                model,
+                messages: [{ role: 'user', content: 'hi' }],
+                max_tokens: 1,
+            });
+            return { success: true, message: `OpenRouter (${model}) connection successful.` };
+        } catch (error: any) {
+            return { success: false, message: error?.message || 'Unknown error.' };
+        }
+    }
+
     async summarize(newsItems: NewsItem[], topic: string): Promise<string> {
         if (!newsItems.length) {
             return `No recent news found for ${topic}.`;

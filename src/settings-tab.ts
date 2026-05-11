@@ -2,9 +2,20 @@ import { App, PluginSettingTab, Setting, Notice, SecretComponent } from 'obsidia
 import type { DailyNewsSettings } from './types';
 import type DailyNewsPlugin from '../main';
 import { NewsProviderFactory } from './providers/news-provider-factory';
-import { LANGUAGE_NAMES, OPENROUTER_MODELS } from './constants';
+import { LANGUAGE_NAMES } from './constants';
 import { TemplateEngine } from './template/template-engine';
 import { TEMPLATE_DESCRIPTIONS, TEMPLATE_EXAMPLE, TEMPLATE_FILE_EXAMPLE } from './template/template-presets';
+import { GeminiSummarizer } from './providers/summarizers/gemini-summarizer';
+import { GptSummarizer } from './providers/summarizers/gpt-summarizer';
+import { ClaudeSummarizer } from './providers/summarizers/claude-summarizer';
+import { GrokSummarizer } from './providers/summarizers/grok-summarizer';
+import { OpenRouterSummarizer } from './providers/summarizers/openrouter-summarizer';
+import { GeminiAgenticProvider } from './providers/agentic/gemini-agentic-provider';
+import { GptAgenticProvider } from './providers/agentic/gpt-agentic-provider';
+import { ClaudeAgenticProvider } from './providers/agentic/claude-agentic-provider';
+import { GrokAgenticProvider } from './providers/agentic/grok-agentic-provider';
+import { OpenRouterAgenticProvider } from './providers/agentic/openrouter-agentic-provider';
+import { PerplexityNewsProvider } from './providers/agentic/perplexity-provider';
 
 export class DailyNewsSettingTab extends PluginSettingTab {
     plugin: DailyNewsPlugin;
@@ -15,6 +26,29 @@ export class DailyNewsSettingTab extends PluginSettingTab {
     constructor(app: App, plugin: DailyNewsPlugin) {
         super(app, plugin);
         this.plugin = plugin;
+    }
+
+    /** Sends a minimal request to the active AI provider to verify the API key and model are valid. */
+    private async testAIConnection(): Promise<{ success: boolean; message: string }> {
+        const { pipelineMode, summarizer, agenticProvider } = this.plugin.settings;
+        const s = this.plugin.settings;
+
+        if (pipelineMode === 'modular') {
+            if (summarizer === 'gemini') return new GeminiSummarizer(s).testConnection();
+            if (summarizer === 'gpt') return new GptSummarizer(s).testConnection();
+            if (summarizer === 'claude') return new ClaudeSummarizer(s).testConnection();
+            if (summarizer === 'grok') return new GrokSummarizer(s).testConnection();
+            if (summarizer === 'openrouter') return new OpenRouterSummarizer(s).testConnection();
+        } else {
+            if (agenticProvider === 'gemini') return new GeminiAgenticProvider(s).testConnection();
+            if (agenticProvider === 'gpt') return new GptAgenticProvider(s).testConnection();
+            if (agenticProvider === 'claude') return new ClaudeAgenticProvider(s).testConnection();
+            if (agenticProvider === 'grok') return new GrokAgenticProvider(s).testConnection();
+            if (agenticProvider === 'openrouter') return new OpenRouterAgenticProvider(s).testConnection();
+            if (agenticProvider === 'sonar') return new PerplexityNewsProvider(s).testConnection();
+        }
+
+        return { success: false, message: `Unknown AI provider.` };
     }
 
     /** Creates an API key setting backed by Obsidian's SecretStorage selector. */
@@ -301,19 +335,31 @@ export class DailyNewsSettingTab extends PluginSettingTab {
 
             new Setting(apiSection)
                 .setName('Model')
-                .setDesc('Select the AI model to use')
-                .addDropdown(dropdown => {
-                    OPENROUTER_MODELS.forEach(model => {
-                        dropdown.addOption(model.id, model.name);
-                    });
-                    return dropdown
+                .setDesc('Enter the OpenRouter model ID to use (e.g. anthropic/claude-sonnet-4-5)')
+                .addText(text => {
+                    return text
+                        .setPlaceholder('anthropic/claude-sonnet-4-5')
                         .setValue(this.plugin.settings.openrouterModel)
                         .onChange(async (value) => {
-                            this.plugin.settings.openrouterModel = value;
+                            this.plugin.settings.openrouterModel = value.trim();
                             await this.plugin.saveSettings();
                         });
                 });
         }
+
+        new Setting(apiSection)
+            .setName('Test connection')
+            .setDesc('Send a minimal request to verify your API key and model are working.')
+            .addButton(btn => btn
+                .setButtonText('Test')
+                .onClick(async () => {
+                    btn.setButtonText('Testing…');
+                    btn.setDisabled(true);
+                    const result = await this.testAIConnection();
+                    btn.setButtonText('Test');
+                    btn.setDisabled(false);
+                    new Notice(result.success ? `✓ ${result.message}` : `✗ ${result.message}`, 6000);
+                }));
 
         // =========================
         // News Configuration
