@@ -31,7 +31,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
     /** Sends a minimal request to the active AI provider to verify the API key and model are valid. */
     private async testAIConnection(): Promise<{ success: boolean; message: string }> {
         const { pipelineMode, summarizer, agenticProvider } = this.plugin.settings;
-        const s = this.plugin.settings;
+        const s = this.plugin.resolveSecrets();
 
         if (pipelineMode === 'modular') {
             if (summarizer === 'gemini') return new GeminiSummarizer(s).testConnection();
