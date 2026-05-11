@@ -197,8 +197,9 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 .addDropdown(dropdown => dropdown
                     .addOption('google', 'Google Search')
                     .addOption('rss', 'RSS Feeds')
+                    .addOption('perplexity', 'Perplexity Search')
                     .setValue(this.plugin.settings.newsSource)
-                    .onChange(async (value: 'google' | 'rss') => {
+                    .onChange(async (value: 'google' | 'rss' | 'perplexity') => {
                         this.plugin.settings.newsSource = value;
                         await this.plugin.saveSettings();
                         this.display();
@@ -275,6 +276,11 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         this.plugin.settings.googleSearchEngineId = value;
                         await this.plugin.saveSettings();
                     }));
+        }
+
+        if (pipelineMode === 'modular' && newsSource === 'perplexity') {
+            apiSection.createEl('div', {text: 'Perplexity Search API', cls: 'setting-item-heading'});
+            this.addApiKeySetting(apiSection, 'API key', 'Select the Perplexity API key from Obsidian Secret Storage', 'perplexityApiKey');
         }
 
         if (pipelineMode === 'modular' && newsSource === 'rss') {
@@ -450,6 +456,34 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.dateRange)
                     .onChange(async (value) => {
                         this.plugin.settings.dateRange = value;
+                        await this.plugin.saveSettings();
+                    }));
+        }
+
+        if (pipelineMode === 'modular' && newsSource === 'perplexity') {
+            newsSection.createEl('div', {text: 'Search Settings', cls: 'setting-item-heading'});
+
+            new Setting(newsSection)
+                .setName('News items per topic')
+                .setDesc('Maximum number of news items to include per topic')
+                .addSlider(slider => slider
+                    .setLimits(3, 15, 1)
+                    .setValue(this.plugin.settings.resultsPerTopic)
+                    .setDynamicTooltip()
+                    .onChange(async (value) => {
+                        this.plugin.settings.resultsPerTopic = value;
+                        await this.plugin.saveSettings();
+                    }));
+
+            new Setting(newsSection)
+                .setName('Maximum search results')
+                .setDesc('Total search results to fetch')
+                .addSlider(slider => slider
+                    .setLimits(10, 50, 5)
+                    .setValue(this.plugin.settings.maxSearchResults)
+                    .setDynamicTooltip()
+                    .onChange(async (value) => {
+                        this.plugin.settings.maxSearchResults = value;
                         await this.plugin.saveSettings();
                     }));
         }

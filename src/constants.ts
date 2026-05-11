@@ -6,6 +6,7 @@ export const GROK_MODEL_NAME = "grok-4.3";
 export const CLAUDE_MODEL_NAME = "claude-sonnet-4-6";
 export const GOOGLE_API_URL = "https://www.googleapis.com/customsearch/v1";
 export const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
+export const PERPLEXITY_SEARCH_API_URL = "https://api.perplexity.ai/search";
 export const OPENAI_API_URL = "https://api.openai.com/v1";
 export const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 

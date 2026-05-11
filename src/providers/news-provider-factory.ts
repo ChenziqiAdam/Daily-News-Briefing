@@ -2,6 +2,7 @@ import type { DailyNewsSettings } from '../types';
 import { BaseNewsProvider } from './base-news-provider';
 import { GoogleSearchRetriever } from './retrievers/google-search-retriever';
 import { RSSRetriever } from './retrievers/rss-retriever';
+import { PerplexitySearchRetriever } from './retrievers/perplexity-search-retriever';
 import { GeminiSummarizer } from './summarizers/gemini-summarizer';
 import { GptSummarizer } from './summarizers/gpt-summarizer';
 import { GrokSummarizer } from './summarizers/grok-summarizer';
@@ -48,11 +49,18 @@ export class NewsProviderFactory {
         }
 
         // Modular mode — build retriever + summarizer
-        const retriever = settings.newsSource === 'rss'
-            ? new RSSRetriever(settings)
-            : new GoogleSearchRetriever(settings, saveSettingsCallback);
+        let retriever;
+        if (settings.newsSource === 'rss') {
+            retriever = new RSSRetriever(settings);
+        } else if (settings.newsSource === 'perplexity') {
+            retriever = new PerplexitySearchRetriever(settings);
+        } else {
+            retriever = new GoogleSearchRetriever(settings, saveSettingsCallback);
+        }
 
-        const sourceLabel = settings.newsSource === 'rss' ? 'RSS' : 'Google Search';
+        const sourceLabel = settings.newsSource === 'rss' ? 'RSS'
+            : settings.newsSource === 'perplexity' ? 'Perplexity Search'
+            : 'Google Search';
 
         switch (settings.summarizer) {
             case 'gemini':
@@ -84,9 +92,14 @@ export class NewsProviderFactory {
         }
 
         // Validate news source
-        const sourceValid = settings.newsSource === 'rss'
-            ? !!(settings.rssFeeds && settings.rssFeeds.length > 0)
-            : !!(settings.googleSearchApiKey && settings.googleSearchEngineId);
+        let sourceValid: boolean;
+        if (settings.newsSource === 'rss') {
+            sourceValid = !!(settings.rssFeeds && settings.rssFeeds.length > 0);
+        } else if (settings.newsSource === 'perplexity') {
+            sourceValid = !!settings.perplexityApiKey;
+        } else {
+            sourceValid = !!(settings.googleSearchApiKey && settings.googleSearchEngineId);
+        }
 
         if (!sourceValid) return false;
 
@@ -114,7 +127,9 @@ export class NewsProviderFactory {
             }
         }
 
-        const sourceLabel = settings.newsSource === 'rss' ? 'RSS' : 'Google Search';
+        const sourceLabel = settings.newsSource === 'rss' ? 'RSS'
+            : settings.newsSource === 'perplexity' ? 'Perplexity Search'
+            : 'Google Search';
         switch (settings.summarizer) {
             case 'gemini':      return `${sourceLabel} + Gemini Summarizer`;
             case 'gpt':         return `${sourceLabel} + GPT Summarizer`;

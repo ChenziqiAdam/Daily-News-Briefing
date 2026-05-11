@@ -3,7 +3,7 @@ import { CLAUDE_MODEL_NAME, OPENROUTER_DEFAULT_MODEL } from './constants';
 export interface DailyNewsSettings {
     // Pipeline mode selection (new)
     pipelineMode: 'modular' | 'agentic';
-    newsSource: 'google' | 'rss';          // modular only
+    newsSource: 'google' | 'rss' | 'perplexity'; // modular only
     summarizer: 'gemini' | 'gpt' | 'grok' | 'claude' | 'openrouter'; // modular only
     agenticProvider: 'sonar' | 'gpt' | 'grok' | 'claude' | 'openrouter' | 'gemini'; // agentic only
 
