@@ -28,10 +28,9 @@ export class GptAgenticProvider extends BaseNewsProvider {
     async testConnection(): Promise<{ success: boolean; message: string }> {
         if (!this.settings.openaiApiKey) return { success: false, message: 'OpenAI API key is not set.' };
         try {
-            await this.client.chat.completions.create({
+            await this.client.responses.create({
                 model: GPT_MODEL_NAME,
-                messages: [{ role: 'user', content: 'hi' }],
-                max_tokens: 1,
+                input: 'hi',
             });
             return { success: true, message: `OpenAI (${GPT_MODEL_NAME}) connection successful.` };
         } catch (error: any) {
@@ -89,19 +88,14 @@ Format your summary as bullet points with concrete facts:
                 `What are the latest significant news about "${topic}"? Search for information in English, but translate your final response into the language with ISO 639-1 code "${this.settings.language}".` :
                 `What are the latest significant news about "${topic}"?`;
             
-            const completion = await this.client.chat.completions.create({
+            const completion = await this.client.responses.create({
                 model: GPT_MODEL_NAME,
-                web_search_options: {},
-                messages: [{
-                    "role": "system",
-                    "content": systemMessage
-                }, {
-                    "role": "user",
-                    "content": userContent
-                }],
+                tools: [{ type: 'web_search' }],
+                instructions: systemMessage,
+                input: userContent,
             });
 
-            const content = completion.choices[0].message.content;
+            const content = completion.output_text;
             if (content) {
                 return content;
             } else {
