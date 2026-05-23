@@ -5,8 +5,19 @@ import { LanguageUtils } from '../../utils';
 import { OPENROUTER_API_URL, OPENROUTER_DEFAULT_MODEL } from '../../constants';
 
 export class OpenRouterAgenticProvider extends BaseNewsProvider {
+    private client: OpenAI;
+
     constructor(settings: DailyNewsSettings) {
         super(settings);
+        this.client = new OpenAI({
+            apiKey: this.settings.openrouterApiKey,
+            baseURL: OPENROUTER_API_URL,
+            dangerouslyAllowBrowser: true,
+            defaultHeaders: {
+                'HTTP-Referer': 'https://github.com/chenziqiadam/Daily-News-Briefing',
+                'X-Title': 'Obsidian Daily News Briefing',
+            }
+        });
     }
 
     getProviderName(): string {
@@ -17,35 +28,19 @@ export class OpenRouterAgenticProvider extends BaseNewsProvider {
         return !!this.settings.openrouterApiKey;
     }
 
-    private getClient(): OpenAI {
-        return new OpenAI({
-            baseURL: `${OPENROUTER_API_URL}/chat/completions`.replace('/chat/completions', ''),
-            apiKey: this.settings.openrouterApiKey,
-            dangerouslyAllowBrowser: true, // Required for Obsidian's Electron environment
-            defaultHeaders: {
-                'HTTP-Referer': 'https://obsidian.md', // Attribution header for OpenRouter
-                'X-Title': 'Obsidian Daily News Briefing',
-            },
-        });
-    }
-
-    private getModel(): string {
-        return this.settings.openrouterModel || OPENROUTER_DEFAULT_MODEL;
-    }
-
     async testConnection(): Promise<{ success: boolean; message: string }> {
         if (!this.settings.openrouterApiKey) return { success: false, message: 'OpenRouter API key is not set.' };
-        const model = this.getModel();
         try {
-            const client = this.getClient();
-            await client.chat.completions.create({
+            const model = this.settings.openrouterModel || OPENROUTER_DEFAULT_MODEL;
+            await this.client.chat.completions.create({
                 model,
                 messages: [{ role: 'user', content: 'hi' }],
                 max_tokens: 1,
             });
             return { success: true, message: `OpenRouter (${model}) connection successful.` };
-        } catch (error: any) {
-            return { success: false, message: error?.message || 'Unknown error.' };
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error.';
+            return { success: false, message: message };
         }
     }
 
@@ -55,18 +50,12 @@ export class OpenRouterAgenticProvider extends BaseNewsProvider {
         }
 
         try {
-            const client = this.getClient();
-            const model = this.getModel();
+            const model = this.settings.openrouterModel || OPENROUTER_DEFAULT_MODEL;
+            
+            const languageInstruction = this.settings.language !== 'en' ?
+                `Translate all content into the language with ISO 639-1 code "${this.settings.language}". The source news may be in English but your response should be entirely in the target language.` : '';
 
-            let systemMessage: string;
-
-            if (this.settings.useCustomPrompt && this.settings.customPrompt) {
-                systemMessage = this.settings.customPrompt.replace(/{{TOPIC}}/g, topic);
-            } else {
-                const languageInstruction = this.settings.language !== 'en' ?
-                    `Translate all content into the language with ISO 639-1 code "${this.settings.language}". The source news may be in English but your response should be entirely in the target language.` : '';
-
-                systemMessage = `You are a helpful AI assistant that provides news summaries. ${languageInstruction}
+            let systemMessage = `You are a helpful AI assistant that provides news summaries. ${languageInstruction}
 
 KEY REQUIREMENTS:
 1. Focus on concrete developments, facts, and data
@@ -76,8 +65,8 @@ KEY REQUIREMENTS:
 5. Only return the news - do not include any meta-narratives, explanations, or instructions.
 6. If content lacks substance, state "${LanguageUtils.getTranslation('limitedNews', this.settings.language)} ${topic}"`;
 
-                if (this.settings.outputFormat === 'detailed') {
-                    systemMessage += `
+            if (this.settings.outputFormat === 'detailed') {
+                systemMessage += `
 
 Format your summary with these sections:
 
@@ -85,29 +74,30 @@ Format your summary with these sections:
 - **[Clear headline with key detail]**: Concrete facts with specific details. [Source](URL)
 - **[Clear headline with key detail]**: Concrete facts with specific details. [Source](URL)`;
 
-                    if (this.settings.enableAnalysisContext) {
-                        systemMessage += `
+                if (this.settings.enableAnalysisContext) {
+                    systemMessage += `
 
 ### ${LanguageUtils.getTranslation('analysisContext', this.settings.language)}
 [Provide context, implications, or background for the most significant developments]`;
-                    }
-                } else {
-                    systemMessage += `
+                }
+            } else {
+                systemMessage += `
 
 Format your summary as bullet points with concrete facts:
 
 - **[Clear headline with key detail]**: Concrete facts with specific details. [Source](URL)
 - **[Clear headline with key detail]**: Concrete facts with specific details. [Source](URL)
 - **[Clear headline with key detail]**: Concrete facts with specific details. [Source](URL)`;
-                }
             }
 
             const userContent = this.settings.language !== 'en' ?
                 `What are the latest significant news about "${topic}"? Search for information in English, but translate your final response into the language with ISO 639-1 code "${this.settings.language}".` :
                 `What are the latest significant news about "${topic}"?`;
 
-            const response = await client.chat.completions.create({
-                model: model,
+            // Note: Perplexity models on OpenRouter support 'plugins' or just internal search
+            // Some models like 'perplexity/sonar-reasoning' have search built-in
+            const response = await this.client.chat.completions.create({
+                model,
                 messages: [
                     {
                         role: 'system',
@@ -128,23 +118,20 @@ Format your summary as bullet points with concrete facts:
                 throw new Error('Invalid response format from OpenRouter API');
             }
 
-        } catch (error: any) {
+        } catch (error) {
             console.error('OpenRouter API error:', error);
+            const err = error as { status?: number; code?: number | string; message?: string };
 
             // Provide actionable error messages
-            if (error?.status === 401 || error?.code === 401) {
+            if (err.status === 401 || err.code === 401 || err.code === '401') {
                 return `Error fetching news about ${topic}: Invalid API key. Please check your OpenRouter API key in settings.`;
             }
 
-            if (error?.status === 429 || error?.code === 429) {
-                return `Error fetching news about ${topic}: Rate limit exceeded. Please try again later or check your API usage.`;
+            if (err.status === 429 || err.code === 429 || err.code === '429') {
+                return `Error fetching news about ${topic}: Rate limit exceeded. Please try again later or check your OpenRouter usage.`;
             }
 
-            if (error?.status === 503 || error?.code === 503) {
-                return `Error fetching news about ${topic}: Model unavailable. Please try a different model or try again later.`;
-            }
-
-            return `Error fetching news about ${topic} from OpenRouter API. Please check your API key and settings.\n\nError details: ${error?.message || 'Unknown error'}\n\nCheck the developer console for more information.`;
+            return `Error fetching news about ${topic} from OpenRouter API. Please check your API key and settings.\n\nError details: ${err.message || 'Unknown error'}\n\nCheck the developer console for more information.`;
         }
     }
 }

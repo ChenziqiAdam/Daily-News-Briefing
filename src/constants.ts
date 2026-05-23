@@ -1,3 +1,5 @@
+import type { DailyNewsSettings } from './types';
+
 // API and Model Constants
 export const GEMINI_MODEL_NAME = "gemini-2.5-flash";
 export const GPT_MODEL_NAME = "gpt-5.5";
@@ -89,7 +91,7 @@ export const LANGUAGE_TRANSLATIONS: Record<string, Record<string, string>> = {
 };
 
 // Secret storage field mappings for API keys
-export const SECRET_FIELDS: Array<{ key: string; secretId: string }> = [
+export const SECRET_FIELDS: Array<{ key: keyof DailyNewsSettings; secretId: string }> = [
     { key: 'googleSearchApiKey', secretId: 'daily-news-google-search-api-key' },
     { key: 'geminiApiKey',       secretId: 'daily-news-gemini-api-key' },
     { key: 'perplexityApiKey',   secretId: 'daily-news-perplexity-api-key' },

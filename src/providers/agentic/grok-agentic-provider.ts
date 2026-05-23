@@ -28,8 +28,9 @@ export class GrokAgenticProvider extends BaseNewsProvider {
                 messages: [{ role: 'user', content: 'hi' }],
             });
             return { success: true, message: `Grok (${GROK_MODEL_NAME}) connection successful.` };
-        } catch (error: any) {
-            return { success: false, message: error?.message || 'Unknown error.' };
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error.';
+            return { success: false, message: message };
         }
     }
 
@@ -91,7 +92,7 @@ Format your summary as bullet points with concrete facts:
                 `What are the latest significant news about "${topic}"? Search for information in English, but translate your final response into the language with ISO 639-1 code "${this.settings.language}".` : 
                 `What are the latest significant news about "${topic}"?`;
             
-            const { text, sources } = await generateText({
+            const { text } = await generateText({
                 model: xai.responses(GROK_MODEL_NAME),
                 messages: [{
                     role: 'system',

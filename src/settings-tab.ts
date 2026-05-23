@@ -67,77 +67,9 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             }));
     }
 
-    private addStyles(containerEl: HTMLElement): void {
-        const styleEl = containerEl.createEl('style');
-        styleEl.textContent = `
-            .settings-section {
-                margin-bottom: 2em;
-                padding: 1.5em;
-                border: 1px solid var(--background-modifier-border);
-                border-radius: 8px;
-                background-color: var(--background-secondary);
-            }
-            .settings-section-title {
-                margin-top: 0 !important;
-                margin-bottom: 0.5em !important;
-                color: var(--text-accent);
-                font-size: 1.2em;
-            }
-            .settings-section-description {
-                margin-top: 0 !important;
-                margin-bottom: 1em !important;
-                color: var(--text-muted);
-                font-size: 0.95em;
-            }
-            .collapsible-header {
-                cursor: pointer;
-                user-select: none;
-                display: flex;
-                align-items: center;
-                gap: 0.5em;
-                padding: 0.5em;
-                background-color: var(--background-primary-alt);
-                border-radius: 4px;
-                margin-bottom: 0.5em;
-            }
-            .collapsible-header:hover {
-                background-color: var(--background-modifier-hover);
-            }
-            .collapsible-icon {
-                transition: transform 0.2s;
-            }
-            .collapsible-icon.expanded {
-                transform: rotate(90deg);
-            }
-            .collapsible-content {
-                margin-left: 1.5em;
-                margin-top: 0.5em;
-            }
-            .template-placeholder-info {
-                margin-top: 1em;
-                padding: 1em;
-                background-color: var(--background-primary-alt);
-                border-radius: 4px;
-                font-size: 0.9em;
-            }
-            .placeholder-category {
-                margin-bottom: 1em;
-            }
-            .placeholder-category ul {
-                margin-top: 0.5em;
-            }
-            .setting-item-heading {
-                font-weight: 600;
-                color: var(--text-normal);
-                margin-top: 1em;
-                margin-bottom: 0.5em;
-            }
-        `;
-    }
-
     private createSection(containerEl: HTMLElement, title: string, description?: string): HTMLElement {
         const section = containerEl.createDiv('settings-section');
-        section.createEl('h2', {text: title, cls: 'settings-section-title'});
+        new Setting(section).setName(title).setHeading();
         if (description) {
             section.createEl('p', {text: description, cls: 'settings-section-description'});
         }
@@ -153,12 +85,15 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         header.createSpan({ text: title });
 
         const content = containerEl.createDiv('collapsible-content');
-        content.style.display = isExpanded ? 'block' : 'none';
+        if (!isExpanded) {
+            content.addClass('is-collapsed');
+        }
 
         header.addEventListener('click', () => {
             const newState = !isExpanded;
+            isExpanded = newState;
             icon.toggleClass('expanded', newState);
-            content.style.display = newState ? 'block' : 'none';
+            content.toggleClass('is-collapsed', !newState);
             onToggle(newState);
         });
 
@@ -168,9 +103,6 @@ export class DailyNewsSettingTab extends PluginSettingTab {
     display(): void {
         const {containerEl} = this;
         containerEl.empty();
-
-        // Add custom styles
-        this.addStyles(containerEl);
 
         // =========================
         // Pipeline Configuration
@@ -262,7 +194,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 }));
 
         if (pipelineMode === 'modular' && newsSource === 'google') {
-            apiSection.createEl('div', {text: 'Google Search API', cls: 'setting-item-heading'});
+            apiSection.createDiv({text: 'Google Search API', cls: 'setting-item-heading'});
 
             this.addApiKeySetting(apiSection, 'API key', 'Select the Google Custom Search API key from Obsidian Secret Storage', 'googleSearchApiKey');
 
@@ -279,12 +211,12 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         }
 
         if (pipelineMode === 'modular' && newsSource === 'perplexity') {
-            apiSection.createEl('div', {text: 'Perplexity Search API', cls: 'setting-item-heading'});
+            apiSection.createDiv({text: 'Perplexity Search API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the Perplexity API key from Obsidian Secret Storage', 'perplexityApiKey');
         }
 
         if (pipelineMode === 'modular' && newsSource === 'rss') {
-            apiSection.createEl('div', {text: 'RSS Feeds', cls: 'setting-item-heading'});
+            apiSection.createDiv({text: 'RSS Feeds', cls: 'setting-item-heading'});
 
             apiSection.createEl('p', {
                 text: 'Add RSS feed URLs (one per line). The plugin will fetch news from these feeds and filter by topic.',
@@ -306,37 +238,37 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                             await this.plugin.saveSettings();
                         });
                     text.inputEl.rows = 6;
-                    text.inputEl.style.width = '100%';
+                    text.inputEl.addClass('full-width-input');
                 });
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'gemini') || (pipelineMode === 'agentic' && agenticProvider === 'gemini')) {
-            apiSection.createEl('div', {text: 'Gemini API', cls: 'setting-item-heading'});
+            apiSection.createDiv({text: 'Gemini API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the Google Gemini API key from Obsidian Secret Storage', 'geminiApiKey');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'gpt') || (pipelineMode === 'agentic' && agenticProvider === 'gpt')) {
-            apiSection.createEl('div', {text: 'OpenAI API', cls: 'setting-item-heading'});
+            apiSection.createDiv({text: 'OpenAI API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the OpenAI API key from Obsidian Secret Storage', 'openaiApiKey');
         }
 
         if (pipelineMode === 'agentic' && agenticProvider === 'sonar') {
-            apiSection.createEl('div', {text: 'Perplexity API', cls: 'setting-item-heading'});
+            apiSection.createDiv({text: 'Perplexity API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the Perplexity API key from Obsidian Secret Storage', 'perplexityApiKey');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'grok') || (pipelineMode === 'agentic' && agenticProvider === 'grok')) {
-            apiSection.createEl('div', {text: 'Grok API', cls: 'setting-item-heading'});
+            apiSection.createDiv({text: 'Grok API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the Grok API key from Obsidian Secret Storage', 'grokApiKey');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'claude') || (pipelineMode === 'agentic' && agenticProvider === 'claude')) {
-            apiSection.createEl('div', {text: 'Anthropic API', cls: 'setting-item-heading'});
+            apiSection.createDiv({text: 'Anthropic API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the Anthropic API key from Obsidian Secret Storage', 'anthropicApiKey');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'openrouter') || (pipelineMode === 'agentic' && agenticProvider === 'openrouter')) {
-            apiSection.createEl('div', {text: 'OpenRouter API', cls: 'setting-item-heading'});
+            apiSection.createDiv({text: 'OpenRouter API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the OpenRouter API key from Obsidian Secret Storage', 'openrouterApiKey');
 
             new Setting(apiSection)
@@ -422,7 +354,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 }));
 
         if (pipelineMode === 'modular' && newsSource === 'google') {
-            newsSection.createEl('div', {text: 'Search Settings', cls: 'setting-item-heading'});
+            newsSection.createDiv({text: 'Search Settings', cls: 'setting-item-heading'});
 
             new Setting(newsSection)
                 .setName('News items per topic')
@@ -461,7 +393,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         }
 
         if (pipelineMode === 'modular' && newsSource === 'perplexity') {
-            newsSection.createEl('div', {text: 'Search Settings', cls: 'setting-item-heading'});
+            newsSection.createDiv({text: 'Search Settings', cls: 'setting-item-heading'});
 
             new Setting(newsSection)
                 .setName('News items per topic')
@@ -489,7 +421,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         }
 
         if (pipelineMode === 'modular' && newsSource === 'rss') {
-            newsSection.createEl('div', {text: 'RSS Settings', cls: 'setting-item-heading'});
+            newsSection.createDiv({text: 'RSS Settings', cls: 'setting-item-heading'});
 
             new Setting(newsSection)
                 .setName('News items per topic')
@@ -519,6 +451,16 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         // Scheduling & Storage
         // =========================
         const scheduleSection = this.createSection(containerEl, 'Scheduling & Storage', 'Configure when and where to generate news, and how long to keep notes');
+
+        new Setting(scheduleSection)
+            .setName('Enable auto-generation')
+            .setDesc('Automatically generate news briefing at the scheduled time. Note: This will perform background network calls to your selected AI and news providers.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.autoGenerateEnabled)
+                .onChange(async (value) => {
+                    this.plugin.settings.autoGenerateEnabled = value;
+                    await this.plugin.saveSettings();
+                }));
 
         new Setting(scheduleSection)
             .setName('Schedule time')
@@ -597,7 +539,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 dropdown.addOption('never', 'Never (disabled)');
                 return dropdown
                     .setValue(this.plugin.settings.autoDeleteRetention)
-                    .onChange(async (value: any) => {
+                    .onChange(async (value: DailyNewsSettings['autoDeleteRetention']) => {
                         this.plugin.settings.autoDeleteRetention = value;
                         await this.plugin.saveSettings();
                     });
@@ -772,7 +714,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
 
             const placeholderInfoEl = placeholdersContent.createDiv('template-placeholder-info');
             TemplateEngine.getPlaceholderInfo().forEach(category => {
-                const categoryEl = placeholderInfoEl.createEl('div', {cls: 'placeholder-category'});
+                const categoryEl = placeholderInfoEl.createDiv({cls: 'placeholder-category'});
                 categoryEl.createEl('strong', {text: category.category + ':'});
                 const placeholderList = categoryEl.createEl('ul');
 
@@ -807,19 +749,9 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     }));
 
             // Display the example content consistently
-            const previewEl = templateSection.createEl('div', {
-                cls: 'template-placeholder-info'
+            const previewEl = templateSection.createDiv({
+                cls: 'template-preview'
             });
-            previewEl.style.marginTop = '2em';
-            previewEl.style.whiteSpace = 'pre-wrap';
-            previewEl.style.fontFamily = 'monospace';
-            previewEl.style.fontSize = '0.85em';
-            previewEl.style.maxHeight = '300px';
-            previewEl.style.overflow = 'auto';
-            previewEl.style.backgroundColor = 'var(--background-primary)';
-            previewEl.style.border = '1px solid var(--background-modifier-border)';
-            previewEl.style.borderRadius = '6px';
-            previewEl.style.padding = '1em';
             previewEl.setText(TEMPLATE_FILE_EXAMPLE);
 
             // Insert after the copy button setting
@@ -863,7 +795,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             });
 
             TemplateEngine.getPlaceholderInfo().forEach(category => {
-                const categoryEl = placeholderInfoEl.createEl('div', {cls: 'placeholder-category'});
+                const categoryEl = placeholderInfoEl.createDiv({cls: 'placeholder-category'});
                 categoryEl.createEl('strong', {text: category.category + ':'});
                 const placeholderList = categoryEl.createEl('ul');
 
@@ -892,7 +824,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
 
         if (this.showAdvanced) {
             if (pipelineMode === 'modular' && newsSource === 'google') {
-                advancedSection.createEl('div', {text: 'Search Optimization', cls: 'setting-item-heading'});
+                advancedSection.createDiv({text: 'Search Optimization', cls: 'setting-item-heading'});
 
                 new Setting(advancedSection)
                     .setName('Use AI for search queries')
@@ -942,7 +874,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                             await this.plugin.saveSettings();
                         }));
 
-                advancedSection.createEl('div', {text: 'Cache Management', cls: 'setting-item-heading'});
+                advancedSection.createDiv({text: 'Cache Management', cls: 'setting-item-heading'});
 
                 new Setting(advancedSection)
                     .setName('Clear query cache')
@@ -959,7 +891,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
             }
 
             // Daily topic cache (available for all providers)
-            advancedSection.createEl('div', {text: 'Content Cache', cls: 'setting-item-heading'});
+            advancedSection.createDiv({text: 'Content Cache', cls: 'setting-item-heading'});
 
             new Setting(advancedSection)
                 .setName('Enable content cache')
@@ -993,7 +925,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         this.display();
                     }));
 
-            advancedSection.createEl('div', {text: 'Custom Prompts', cls: 'setting-item-heading'});
+            advancedSection.createDiv({text: 'Custom Prompts', cls: 'setting-item-heading'});
 
             new Setting(advancedSection)
                 .setName('Use custom AI prompt')
@@ -1029,7 +961,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     });
             }
 
-            advancedSection.createEl('div', {text: 'Manual Actions', cls: 'setting-item-heading'});
+            advancedSection.createDiv({text: 'Manual Actions', cls: 'setting-item-heading'});
 
             new Setting(advancedSection)
                 .setName('Generate news now')

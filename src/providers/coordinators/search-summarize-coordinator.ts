@@ -29,12 +29,12 @@ export class SearchSummarizeCoordinator extends BaseNewsProvider {
 
     /** Returns feed URLs that failed during the last fetchAndSummarizeNews call (partial failures only). */
     getLastFailedFeeds(): string[] {
-        return (this.retriever as any)._lastFailedFeeds ?? [];
+        return this.retriever._lastFailedFeeds ?? [];
     }
 
     async fetchAndSummarizeNews(topic: string): Promise<string> {
         // Reset failed feeds tracking before each call
-        (this.retriever as any)._lastFailedFeeds = [];
+        this.retriever._lastFailedFeeds = [];
 
         const newsItems = await this.retriever.fetchNews(topic);
 

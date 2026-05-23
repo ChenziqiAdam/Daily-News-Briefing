@@ -1,12 +1,11 @@
 import type { NewsItem, DailyNewsSettings } from '../../types';
 import type { NewsRetriever } from './base-retriever';
-
-// @ts-ignore
-const Parser = require('rss-parser');
+import Parser from 'rss-parser';
 
 export class RSSRetriever implements NewsRetriever {
     private settings: DailyNewsSettings;
-    private parser: any;
+    private parser: Parser;
+    public _lastFailedFeeds: string[] = [];
 
     constructor(settings: DailyNewsSettings) {
         this.settings = settings;
@@ -58,7 +57,7 @@ export class RSSRetriever implements NewsRetriever {
             } else {
                 console.warn(`Some RSS feeds failed: ${failedFeeds.join(', ')}`);
                 // Store failed feeds so callers can surface them
-                (this as any)._lastFailedFeeds = failedFeeds;
+                this._lastFailedFeeds = failedFeeds;
             }
         }
 
@@ -81,14 +80,14 @@ export class RSSRetriever implements NewsRetriever {
         return limitedResults;
     }
 
-    private filterByTopic(items: any[], topic: string): any[] {
+    private filterByTopic(items: Parser.Item[], topic: string): Parser.Item[] {
         const topicLower = topic.toLowerCase();
         const topicKeywords = topicLower.split(' ').filter(word => word.length > 2);
 
         return items.filter(item => {
             const title = (item.title || '').toLowerCase();
             const content = (item.contentSnippet || item.content || '').toLowerCase();
-            const categories = (item.categories || []).map((cat: any) => cat.toLowerCase());
+            const categories = (item.categories || []).map((cat: string) => cat.toLowerCase());
 
             // Check if topic keywords match in title, content, or categories
             const matchesKeywords = topicKeywords.some(keyword =>
@@ -106,12 +105,12 @@ export class RSSRetriever implements NewsRetriever {
         });
     }
 
-    private convertToNewsItem(item: any, feedSource: string): NewsItem {
+    private convertToNewsItem(item: Parser.Item, feedSource: string): NewsItem {
         // Extract published time
-        const publishedTime = item.pubDate || item.isoDate || item.published || '';
+        const publishedTime = item.pubDate || item.isoDate || '';
 
         // Extract content snippet
-        let snippet = item.contentSnippet || item.summary || item.description || '';
+        let snippet = item.contentSnippet || item.content || '';
 
         // Clean and truncate snippet
         snippet = this.cleanContent(snippet);

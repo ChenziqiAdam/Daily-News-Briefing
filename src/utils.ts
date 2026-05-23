@@ -26,24 +26,22 @@ export class FileUtils {
             
             if (file instanceof TFile) {
                 // Try to open the file using workspace API
-                app.workspace.openLinkText(file.path, '', false)
-                    .then(() => {
-                        new Notice('Opened today\'s news briefing');
-                    })
-                    .catch(error => {
-                        // Fallback: Try to actively focus the leaf after opening
-                        app.workspace.getLeaf(false).openFile(file)
-                            .then(() => {
-                                new Notice('Opened today\'s news briefing (fallback method)');
-                            })
-                            .catch(e => {
-                                new Notice('Unable to open news file. Try opening it manually.');
-                            });
-                    });
+                try {
+                    await app.workspace.openLinkText(file.path, '', false);
+                    new Notice('Opened today\'s news briefing');
+                } catch {
+                    // Fallback: Try to actively focus the leaf after opening
+                    try {
+                        await app.workspace.getLeaf(false).openFile(file);
+                        new Notice('Opened today\'s news briefing (fallback method)');
+                    } catch {
+                        new Notice('Unable to open news file. Try opening it manually.');
+                    }
+                }
             } else {
                 new Notice(`Unable to find news file. Please check path: ${filePath}`);
             }
-        } catch (error) {
+        } catch {
             new Notice('Error opening news file');
         }
     }

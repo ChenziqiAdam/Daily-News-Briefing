@@ -31,8 +31,9 @@ export class OpenRouterSummarizer implements AISummarizer {
                 max_tokens: 1,
             });
             return { success: true, message: `OpenRouter (${model}) connection successful.` };
-        } catch (error: any) {
-            return { success: false, message: error?.message || 'Unknown error.' };
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error.';
+            return { success: false, message: message };
         }
     }
 
@@ -85,19 +86,20 @@ export class OpenRouterSummarizer implements AISummarizer {
             } else {
                 throw new Error('Invalid AI response structure');
             }
-        } catch (error: any) {
+        } catch (error) {
             console.error('OpenRouter Summarizer error:', error);
+            const err = error as { status?: number; code?: number; message?: string };
 
             // Provide actionable error messages
-            if (error?.status === 401 || error?.code === 401) {
+            if (err?.status === 401 || err?.code === 401) {
                 return `Error summarizing news about ${topic}: Invalid API key. Please check your OpenRouter API key in settings.`;
             }
 
-            if (error?.status === 429 || error?.code === 429) {
+            if (err?.status === 429 || err?.code === 429) {
                 return `Error summarizing news about ${topic}: Rate limit exceeded. Please try again later.`;
             }
 
-            return `Error generating summary for ${topic}. ${error?.message || 'Unknown error'}\n\nCheck the developer console for more information.`;
+            return `Error generating summary for ${topic}. ${err?.message || 'Unknown error'}\n\nCheck the developer console for more information.`;
         }
     }
 

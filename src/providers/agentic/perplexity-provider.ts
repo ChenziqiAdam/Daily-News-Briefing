@@ -38,15 +38,16 @@ export class PerplexityNewsProvider extends BaseNewsProvider {
             }
             const err = JSON.parse(response.text);
             return { success: false, message: `Error ${response.status}: ${err?.error?.message || response.text}` };
-        } catch (error: any) {
-            return { success: false, message: error?.message || 'Unknown error.' };
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error.';
+            return { success: false, message: message };
         }
     }
 
     async fetchAndSummarizeNews(topic: string): Promise<string> {
         try {
             // Build system message based on output format
-            let systemMessage = this.getAIPrompt('', topic, this.settings.outputFormat);
+            let systemMessage = this.getAIPrompt(topic, this.settings.outputFormat);
             
             // Prepare request body - Always search in English but translate results to target language
             const requestBody = {
@@ -92,11 +93,12 @@ export class PerplexityNewsProvider extends BaseNewsProvider {
             }
         } catch (error) {
             console.error('Sonar API error:', error);
-            return `Error fetching news about ${topic} from Sonar API. Please check your API key and settings.\n\nError details: ${error.message}\n\nCheck the developer console for more information.`;
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            return `Error fetching news about ${topic} from Sonar API. Please check your API key and settings.\n\nError details: ${message}\n\nCheck the developer console for more information.`;
         }
     }
 
-    private getAIPrompt(newsText: string, topic: string, format: 'detailed' | 'concise'): string {
+    private getAIPrompt(topic: string, format: 'detailed' | 'concise'): string {
         // If user has custom prompt enabled and provided one, use it
         if (this.settings.useCustomPrompt && this.settings.customPrompt) {
             // For Sonar, we don't need to replace {{NEWS_TEXT}} since it handles search internally

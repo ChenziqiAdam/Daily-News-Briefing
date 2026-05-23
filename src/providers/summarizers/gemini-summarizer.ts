@@ -18,8 +18,9 @@ export class GeminiSummarizer implements AISummarizer {
             const model = genAI.getGenerativeModel({ model: GEMINI_MODEL_NAME });
             await model.generateContent({ contents: [{ role: 'user', parts: [{ text: 'hi' }] }], generationConfig: { maxOutputTokens: 1 } });
             return { success: true, message: `Gemini (${GEMINI_MODEL_NAME}) connection successful.` };
-        } catch (error: any) {
-            return { success: false, message: error?.message || 'Unknown error.' };
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error.';
+            return { success: false, message: message };
         }
     }
 
@@ -57,11 +58,11 @@ export class GeminiSummarizer implements AISummarizer {
             });
             
             const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('AI summary timed out')), 120000)
+                activeWindow.setTimeout(() => reject(new Error('AI summary timed out')), 120000)
             );
             
             const resultPromise = model.generateContent(prompt);
-            const result = await Promise.race([resultPromise, timeoutPromise]) as any;
+            const result = await Promise.race([resultPromise, timeoutPromise]) as { response: { text: () => string } };
             
             if (!result || !result.response) {
                 throw new Error('Invalid AI response structure');

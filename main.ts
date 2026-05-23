@@ -1,11 +1,11 @@
-import { App, Plugin, Notice, TFile } from 'obsidian';
+import { Plugin, Notice, TFolder, TFile } from 'obsidian';
 import type { DailyNewsSettings, TopicStatus, TemplateData, TopicContent } from './src/types';
 import { DEFAULT_SETTINGS } from './src/types';
 import { DailyNewsSettingTab } from './src/settings-tab';
 import { NewsProviderFactory } from './src/providers/news-provider-factory';
 import type { BaseNewsProvider } from './src/providers/base-news-provider';
-import { FileUtils, LanguageUtils, ContentUtils, MetadataUtils } from './src/utils';
-import { LANGUAGE_TRANSLATIONS, SECRET_FIELDS } from './src/constants';
+import { FileUtils, ContentUtils, MetadataUtils, LanguageUtils } from './src/utils';
+import { SECRET_FIELDS, LANGUAGE_TRANSLATIONS } from './src/constants';
 import { TemplateEngine } from './src/template/template-engine';
 import { SearchSummarizeCoordinator } from './src/providers/coordinators/search-summarize-coordinator';
 
@@ -43,14 +43,14 @@ export default class DailyNewsPlugin extends Plugin {
         const s = this.app.secretStorage;
         let count = 0;
         for (const { key, secretId } of SECRET_FIELDS) {
-            const value = this.settings[key as keyof DailyNewsSettings] as string;
+            const value = this.settings[key] as string;
             if (!value) continue;
             // Skip if already a known secret ID or resolvable as a secret label
             if (value === secretId || s.getSecret(value) !== null) continue;
             // Skip if value looks like a secret label (lowercase alphanumeric + dashes)
             if (/^[a-z0-9-]+$/.test(value)) continue;
-            s.setSecret(secretId, value);
-            (this.settings as any)[key] = secretId;
+            await s.setSecret(secretId, value);
+            (this.settings[key] as string) = secretId;
             count++;
         }
         if (count > 0) {
@@ -83,7 +83,7 @@ export default class DailyNewsPlugin extends Plugin {
 
         // Schedule daily news generation
         this.registerInterval(
-            window.setInterval(() => this.checkAndGenerateNews(), 60000)
+            window.setInterval(() => { void this.checkAndGenerateNews(); }, 60000)
         );
 
         // Add manual trigger command
@@ -115,18 +115,18 @@ export default class DailyNewsPlugin extends Plugin {
             const agenticProviders = ['sonar', 'gpt', 'grok', 'claude', 'openrouter'];
             if (agenticProviders.includes(old)) {
                 this.settings.pipelineMode = 'agentic';
-                this.settings.agenticProvider = old as any;
+                this.settings.agenticProvider = old as DailyNewsSettings['agenticProvider'];
             } else {
                 this.settings.pipelineMode = 'modular';
                 this.settings.newsSource = old.startsWith('rss') ? 'rss' : 'google';
-                const sumPart = old.split('-').pop() as any;
-                this.settings.summarizer = sumPart || 'gemini';
+                const sumPart = old.split('-').pop();
+                this.settings.summarizer = (sumPart as DailyNewsSettings['summarizer']) || 'gemini';
             }
             await this.saveData(this.settings);
         }
 
         // Migration for very old 'google' value
-        const oldProvider = this.settings.apiProvider as any;
+        const oldProvider = this.settings.apiProvider as string;
         if (oldProvider === 'google') {
             this.settings.apiProvider = 'google-gemini';
             await this.saveData(this.settings);
@@ -134,8 +134,8 @@ export default class DailyNewsPlugin extends Plugin {
 
         // Migration logic for old date/time settings (v1.11.0 -> v1.12.0)
         if (loadedData && ('includeDate' in loadedData || 'includeTime' in loadedData)) {
-            const oldIncludeDate = (loadedData as any).includeDate;
-            const oldIncludeTime = (loadedData as any).includeTime;
+            const oldIncludeDate = (loadedData as Record<string, unknown>).includeDate;
+            const oldIncludeTime = (loadedData as Record<string, unknown>).includeTime;
             // If either was true, enable the new combined setting
             if (oldIncludeDate || oldIncludeTime) {
                 this.settings.includeDatetime = true;
@@ -187,6 +187,8 @@ export default class DailyNewsPlugin extends Plugin {
     }
 
     async checkAndGenerateNews() {
+        if (!this.settings.autoGenerateEnabled) return;
+
         const now = new Date();
         const scheduledTime = this.settings.scheduleTime.split(':');
         const targetHour = parseInt(scheduledTime[0]);
@@ -499,14 +501,14 @@ export default class DailyNewsPlugin extends Plugin {
             const fileExists = await this.app.vault.adapter.exists(filePath);
 
             if (fileExists) {
-                FileUtils.openNewsFile(this.app, filePath);
+                await FileUtils.openNewsFile(this.app, filePath);
             } else {
                 new Notice('Generating today\'s news briefing...');
                 const createdPath = await this.generateDailyNews();
 
                 if (createdPath) {
-                    setTimeout(() => {
-                        FileUtils.openNewsFile(this.app, createdPath);
+                    activeWindow.setTimeout(async () => {
+                        await FileUtils.openNewsFile(this.app, createdPath);
                     }, 1000);
                 } else {
                     new Notice('Failed to generate news briefing. No note was created.', 5000);
@@ -640,10 +642,10 @@ export default class DailyNewsPlugin extends Plugin {
             if (dateMatch[1] < cutoffStr) {
                 try {
                     affectedFolders.add(FileUtils.normalizePath(file.parent?.path ?? ''));
-                    await this.app.vault.trash(file, true);
+                    await this.app.fileManager.trashFile(file);
                     deletedFiles++;
-                } catch (e) {
-                    console.error(`Failed to delete ${file.path}:`, e);
+                } catch {
+                    console.error(`Failed to delete ${file.path}`);
                 }
             }
         }
@@ -653,12 +655,12 @@ export default class DailyNewsPlugin extends Plugin {
         for (const folderPath of affectedFolders) {
             if (!folderPath || folderPath === archiveFolder) continue;
             const folder = this.app.vault.getAbstractFileByPath(folderPath);
-            if (folder && 'children' in folder && (folder as any).children.length === 0) {
+            if (folder instanceof TFolder && folder.children.length === 0) {
                 try {
-                    await this.app.vault.trash(folder as any, true);
+                    await this.app.fileManager.trashFile(folder);
                     deletedFolders++;
-                } catch (e) {
-                    console.error(`Failed to delete empty folder ${folderPath}:`, e);
+                } catch {
+                    console.error(`Failed to delete empty folder ${folderPath}`);
                 }
             }
         }

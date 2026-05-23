@@ -1,4 +1,4 @@
-import type { NewsItem, DailyNewsSettings } from '../types';
+import type { DailyNewsSettings } from '../types';
 
 export abstract class BaseNewsProvider {
     protected settings: DailyNewsSettings;

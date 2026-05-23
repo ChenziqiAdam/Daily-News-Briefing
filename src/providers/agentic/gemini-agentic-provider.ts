@@ -27,8 +27,9 @@ export class GeminiAgenticProvider extends BaseNewsProvider {
                 config: { maxOutputTokens: 1 },
             });
             return { success: true, message: `Gemini (${GEMINI_MODEL_NAME}) connection successful.` };
-        } catch (error: any) {
-            return { success: false, message: error?.message || 'Unknown error.' };
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error.';
+            return { success: false, message: message };
         }
     }
 

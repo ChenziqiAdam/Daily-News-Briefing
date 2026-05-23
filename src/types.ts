@@ -1,4 +1,4 @@
-import { CLAUDE_MODEL_NAME, OPENROUTER_DEFAULT_MODEL } from './constants';
+import { OPENROUTER_DEFAULT_MODEL } from './constants';
 
 export interface DailyNewsSettings {
     // Pipeline mode selection (new)
@@ -36,6 +36,7 @@ export interface DailyNewsSettings {
 
     // Core functionality
     topics: string[];
+    autoGenerateEnabled: boolean; // New: Enable or disable scheduled generation
     scheduleTime: string;
     archiveFolder: string;
     
@@ -123,6 +124,7 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
 
     // Core functionality
     topics: ['Technology', 'World News'],
+    autoGenerateEnabled: false,
     scheduleTime: '08:00',
     archiveFolder: 'News Archive',
     

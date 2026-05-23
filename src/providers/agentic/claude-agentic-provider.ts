@@ -2,7 +2,11 @@ import Anthropic from '@anthropic-ai/sdk';
 import { BaseNewsProvider } from '../base-news-provider';
 import type { DailyNewsSettings } from '../../types';
 import { LanguageUtils } from '../../utils';
-import { CLAUDE_MODEL_NAME, ANTHROPIC_API_URL } from '../../constants';
+import { CLAUDE_MODEL_NAME } from '../../constants';
+
+type ContentBlock = Anthropic.Messages.ContentBlock;
+type WebSearchToolResultBlock = Anthropic.Messages.WebSearchToolResultBlock;
+type TextBlock = Anthropic.Messages.TextBlock;
 
 export class ClaudeAgenticProvider extends BaseNewsProvider {
     constructor(settings: DailyNewsSettings) {
@@ -37,8 +41,9 @@ export class ClaudeAgenticProvider extends BaseNewsProvider {
                 messages: [{ role: 'user', content: 'hi' }],
             });
             return { success: true, message: `Anthropic (${CLAUDE_MODEL_NAME}) connection successful.` };
-        } catch (error: any) {
-            return { success: false, message: error?.message || 'Unknown error.' };
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error.';
+            return { success: false, message: message };
         }
     }
 
@@ -123,26 +128,28 @@ Format your summary as bullet points with concrete facts:
                 stop_reason: response.stop_reason,
                 usage: response.usage,
                 content_blocks: response.content.length,
-                content_types: response.content.map((b: any) => b.type)
+                content_types: response.content.map((b: ContentBlock) => b.type)
             });
 
             // Check for web search errors in the response (only when content is error object, not array of results)
             const webSearchError = response.content.find(
-                (block: any) => block.type === 'web_search_tool_result' &&
-                    !Array.isArray(block.content) &&
-                    block.content?.type === 'web_search_tool_result_error'
-            );
-            if (webSearchError && (webSearchError as any).content?.error_code) {
-                const errorCode = (webSearchError as any).content.error_code;
+                (block: ContentBlock): block is WebSearchToolResultBlock => {
+                    if (block.type !== 'web_search_tool_result') return false;
+                    const wsBlock = block as WebSearchToolResultBlock;
+                    return !Array.isArray(wsBlock.content) && wsBlock.content.type === 'web_search_tool_result_error';
+                }
+            ) as WebSearchToolResultBlock | undefined;
+            if (webSearchError && !Array.isArray(webSearchError.content)) {
+                const errorCode = webSearchError.content.error_code;
                 console.warn('Web search error:', errorCode);
                 // Don't fail completely - Claude might still have provided a text response
             }
 
             // Extract ALL text content from the response (there may be multiple text blocks)
-            const textBlocks = response.content.filter((block: any) => block.type === 'text');
+            const textBlocks = response.content.filter((block: ContentBlock): block is TextBlock => block.type === 'text');
             if (textBlocks.length > 0) {
                 // Combine all text blocks
-                const fullText = textBlocks.map((block: any) => block.text).join('\n');
+                const fullText = textBlocks.map((block) => block.text).join('\n');
 
                 // Check if this is just a "sorry I can't search" response
                 const isSearchUnavailableResponse = fullText.includes('ne peux pas accéder') ||
@@ -166,23 +173,24 @@ Format your summary as bullet points with concrete facts:
                 throw new Error('Invalid response format from Claude API');
             }
 
-        } catch (error: any) {
+        } catch (error) {
             console.error('Claude API error:', error);
+            const err = error as { status?: number; error?: { type?: string; message?: string }; message?: string };
 
             // Provide actionable error messages
-            if (error?.status === 401 || error?.error?.type === 'authentication_error') {
+            if (err.status === 401 || err.error?.type === 'authentication_error') {
                 return `Error fetching news about ${topic}: Invalid API key. Please check your Anthropic API key in settings.`;
             }
 
-            if (error?.status === 429 || error?.error?.type === 'rate_limit_error') {
+            if (err.status === 429 || err.error?.type === 'rate_limit_error') {
                 return `Error fetching news about ${topic}: Rate limit exceeded. Please try again later or check your API usage.`;
             }
 
-            if (error?.status === 400 || error?.error?.type === 'invalid_request_error') {
-                return `Error fetching news about ${topic}: Invalid request. ${error?.error?.message || 'Please check your settings.'}`;
+            if (err.status === 400 || err.error?.type === 'invalid_request_error') {
+                return `Error fetching news about ${topic}: Invalid request. ${err.error?.message || 'Please check your settings.'}`;
             }
 
-            return `Error fetching news about ${topic} from Claude API. Please check your API key and settings.\n\nError details: ${error?.message || 'Unknown error'}\n\nCheck the developer console for more information.`;
+            return `Error fetching news about ${topic} from Claude API. Please check your API key and settings.\n\nError details: ${err.message || 'Unknown error'}\n\nCheck the developer console for more information.`;
         }
     }
 }
