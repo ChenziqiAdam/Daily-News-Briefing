@@ -67,7 +67,15 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## Changelog
 
-### v1.12.1
+### v1.12.2
+- Enhance code security and performance
+- Bump minimum Obsidian version to 1.11.4
+
+### Previous Versions
+<details>
+<summary>Click to view changelog history</summary>
+
+**1.12.1**
 - New Features
     - Add Perpelxity Search as an alternative from unavaiable Google Search
     - Support all avaiable OpenRouter model as a text input
@@ -75,14 +83,10 @@ For detailed setup instructions, API guides, and advanced features:
 - Enhancement
     - Update default models: Claude Sonnet 4.6, Grok 4.3 and GPT 5.5
 
-### v1.11.10
+**1.11.10**
 - Add daily news content caching as a button, enabled by default
 - Improve generation failure check
 - Fix old news notes manual deletion
-
-### Previous Versions
-<details>
-<summary>Click to view changelog history</summary>
 
 **1.11.9**
 - Add old news notes auto deletion function
