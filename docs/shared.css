@@ -90,7 +90,7 @@ body { background-color: #0d0d0d; color: #e5e5e5; }
     transform-origin: center center; transition: transform 0.15s;
     display: inline-block;
 }
-#diagram-modal-svg-wrap svg { max-width: none !important; height: auto; display: block; }
+#diagram-modal-body #diagram-modal-svg-wrap svg { max-width: none; height: auto; display: block; }
 
 details { border: 1px solid #333; border-radius: 0.5rem; padding: 1rem; background: #161616; margin-bottom: 1rem; }
 details[open] { background: #1a1a1a; }

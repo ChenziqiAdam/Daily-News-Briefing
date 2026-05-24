@@ -6,15 +6,15 @@
     border-radius: 8px;
     background-color: var(--background-secondary);
 }
-.settings-section-title {
-    margin-top: 0 !important;
-    margin-bottom: 0.5em !important;
+.settings-section .settings-section-title {
+    margin-top: 0;
+    margin-bottom: 0.5em;
     color: var(--text-accent);
     font-size: 1.2em;
 }
-.settings-section-description {
-    margin-top: 0 !important;
-    margin-bottom: 1em !important;
+.settings-section .settings-section-description {
+    margin-top: 0;
+    margin-bottom: 1em;
     color: var(--text-muted);
     font-size: 0.95em;
 }
