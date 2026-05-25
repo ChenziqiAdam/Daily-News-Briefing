@@ -149,7 +149,7 @@
             <div class="flex items-center gap-4">
                 <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" target="_blank" class="hidden sm:flex items-center gap-2 text-xs font-mono bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded border border-white/10 transition group">
                     <i class="fa-brands fa-github text-gray-400 group-hover:text-white transition"></i>
-                    <span class="text-gray-300">2.8k+ Downloads</span>
+                    <span id="dl-count" class="text-gray-300">Downloads</span>
                 </a>
                 <a href="obsidian://show-plugin?id=daily-news-briefing" class="hidden sm:inline-block px-4 py-2 bg-white text-black text-sm font-semibold rounded hover:bg-gray-100 transition shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]">
                     Get Plugin
@@ -679,6 +679,17 @@
                 });
             });
         }
+
+        // GitHub download count
+        fetch('https://api.github.com/repos/Ghost04718/SANE/releases')
+            .then(r => r.json())
+            .then(releases => {
+                const total = releases.reduce((sum, rel) =>
+                    sum + rel.assets.reduce((s, a) => s + a.download_count, 0), 0);
+                const el = document.getElementById('dl-count');
+                if (el && total > 0) el.textContent = total.toLocaleString() + ' downloads';
+            })
+            .catch(() => {});
 
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
