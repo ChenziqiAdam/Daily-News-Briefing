@@ -3,413 +3,241 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Daily News Briefing — Documentation</title>
+<title>Documentation — Daily News Briefing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --accent: #a855f7;
-    --accent-soft: #7c3aed;
-    --accent-faint: rgba(168, 85, 247, 0.08);
-    --accent-glow: rgba(168, 85, 247, 0.25);
-    --bg: #0d0d0d;
-    --bg-alt: #141414;
-    --bg-card: #181818;
-    --line: #2a2a2a;
-    --ink: #e5e5e5;
-    --ink-soft: #9ca3af;
-    --ink-muted: #525252;
-  }
-
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'Syne', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-  }
-
-  /* NAV */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-    height: 60px;
-    border-bottom: 1px solid var(--line);
-    background: rgba(13,13,13,0.85);
-    backdrop-filter: blur(12px);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 40px;
-  }
-  .nav-brand {
-    display: flex; align-items: center; gap: 10px;
-    text-decoration: none; color: var(--ink);
-  }
-  .nav-brand-icon {
-    width: 30px; height: 30px; border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent), #6366f1);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; color: white;
-    box-shadow: 0 0 16px var(--accent-glow);
-  }
-  .nav-brand-name { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
-  .nav-links { display: flex; align-items: center; gap: 28px; }
-  .nav-links a {
-    font-size: 13px; color: var(--ink-soft); text-decoration: none;
-    transition: color 0.15s;
-  }
-  .nav-links a:hover { color: var(--ink); }
-  .nav-links a.active { color: var(--accent); font-weight: 600; }
-  .nav-links .github-link {
-    display: flex; align-items: center; gap: 6px;
-    padding: 6px 14px; border: 1px solid var(--line); border-radius: 8px;
-    transition: border-color 0.15s, background 0.15s;
-  }
-  .nav-links .github-link:hover { border-color: #444; background: #1a1a1a; color: var(--ink); }
-
-  /* HERO */
-  .hero {
-    padding: 120px 40px 80px;
-    max-width: 1100px; margin: 0 auto;
-    position: relative;
-  }
-  .hero::before {
-    content: '';
-    position: absolute; top: 60px; left: -100px; right: -100px;
-    height: 400px;
-    background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(168,85,247,0.12) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .hero-eyebrow {
+  /* ---- INDEX-ONLY STYLES ---- */
+  .hero { padding: 120px 0 80px; }
+  .hero-tag {
     display: inline-flex; align-items: center; gap: 8px;
-    font-family: 'JetBrains Mono', monospace; font-size: 11px;
-    color: var(--accent); padding: 5px 14px;
-    border: 1px solid rgba(168,85,247,0.3); border-radius: 999px;
-    margin-bottom: 32px; letter-spacing: 0.04em;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--accent); padding: 6px 14px;
+    background: var(--accent-faint); border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 999px; margin-bottom: 28px;
   }
-  .hero-eyebrow i { font-size: 10px; }
+  .hero-tag span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
   h1.hero-title {
-    font-size: clamp(40px, 6vw, 72px); font-weight: 800;
-    line-height: 1.0; letter-spacing: -0.04em;
-    margin-bottom: 24px;
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: clamp(40px, 5.5vw, 68px); line-height: 1.06;
+    letter-spacing: -0.03em; margin-bottom: 24px; max-width: 780px;
   }
-  h1.hero-title .line-accent { color: var(--accent); display: block; }
-  .hero-lede {
-    font-size: 18px; line-height: 1.6; color: var(--ink-soft);
-    max-width: 520px; margin-bottom: 40px;
-    font-family: 'JetBrains Mono', monospace; font-weight: 400;
-    font-size: 14px;
-  }
-  .hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  h1.hero-title em { font-style: italic; font-weight: 300; color: var(--accent); }
+  .hero-lede { font-size: 18px; line-height: 1.6; color: var(--ink-soft); max-width: 520px; margin-bottom: 40px; }
+  .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   .btn-primary {
+    background: var(--accent); color: #fff; padding: 12px 24px;
+    text-decoration: none; font-size: 14px; font-weight: 500;
+    border-radius: 999px; transition: all 0.25s;
     display: inline-flex; align-items: center; gap: 8px;
-    padding: 12px 24px; background: var(--accent); color: white;
-    border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px;
-    transition: all 0.2s;
-    box-shadow: 0 0 24px var(--accent-glow);
+    box-shadow: 0 0 20px var(--accent-glow);
   }
-  .btn-primary:hover { background: #9333ea; box-shadow: 0 0 32px rgba(168,85,247,0.4); transform: translateY(-1px); }
-  .btn-secondary {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 12px 24px; border: 1px solid var(--line); color: var(--ink-soft);
-    border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px;
-    transition: all 0.2s;
+  .btn-primary:hover { background: #9333ea; transform: translateY(-1px); box-shadow: 0 0 28px var(--accent-glow); }
+  .btn-primary svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .btn-ghost {
+    color: var(--ink-soft); text-decoration: none; font-size: 14px;
+    padding: 11px 20px; border-radius: 999px; border: 1px solid var(--line);
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
   }
-  .btn-secondary:hover { border-color: #444; color: var(--ink); background: #181818; }
+  .btn-ghost:hover { color: var(--ink); border-color: #444; }
+  .btn-ghost svg { width: 14px; height: 14px; fill: currentColor; }
 
-  /* STATS BAR */
-  .stats-bar {
-    max-width: 1100px; margin: 0 auto 80px;
-    padding: 0 40px;
-    display: flex; gap: 0; border: 1px solid var(--line);
-    border-radius: 14px; overflow: hidden; background: var(--bg-alt);
+  .stats {
+    display: flex; gap: 40px; flex-wrap: wrap;
+    padding: 40px 0; border-top: 1px solid var(--line-soft); margin-top: 60px;
   }
-  .stat-item {
-    flex: 1; padding: 28px 32px; text-align: center;
-    border-right: 1px solid var(--line);
-  }
-  .stat-item:last-child { border-right: none; }
   .stat-num {
-    font-size: 32px; font-weight: 800; letter-spacing: -0.04em;
-    color: white; margin-bottom: 4px;
+    font-family: 'Fraunces', serif; font-size: 32px; font-weight: 400;
+    letter-spacing: -0.03em; line-height: 1; margin-bottom: 4px;
   }
-  .stat-num span { color: var(--accent); }
-  .stat-label {
-    font-family: 'JetBrains Mono', monospace; font-size: 11px;
-    color: var(--ink-muted); letter-spacing: 0.05em; text-transform: uppercase;
-  }
+  .stat-num em { color: var(--accent); font-style: normal; }
+  .stat-label { font-size: 13px; color: var(--ink-soft); font-family: 'JetBrains Mono', monospace; }
 
-  /* DOC GRID */
-  .docs-section {
-    max-width: 1100px; margin: 0 auto 100px;
-    padding: 0 40px;
-  }
-  .section-header { margin-bottom: 40px; }
-  .section-label {
-    font-family: 'JetBrains Mono', monospace; font-size: 11px;
-    color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase;
-    margin-bottom: 12px; display: block;
+  .cards-section { padding: 0 0 100px; }
+  .section-eyebrow {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--accent); margin-bottom: 16px; letter-spacing: 0.04em;
   }
   .section-heading {
-    font-size: clamp(24px, 3vw, 36px); font-weight: 800;
-    letter-spacing: -0.03em; line-height: 1.1;
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: clamp(28px, 3.5vw, 40px); line-height: 1.15;
+    letter-spacing: -0.025em; margin-bottom: 48px; max-width: 600px;
   }
-  .section-heading em { font-style: normal; color: var(--accent); }
+  .section-heading em { font-style: italic; color: var(--accent); font-weight: 300; }
 
-  .doc-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
+  .doc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
   .doc-card {
-    background: var(--bg-card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 28px 24px;
-    text-decoration: none; color: var(--ink);
-    display: flex; flex-direction: column; gap: 10px;
-    transition: all 0.2s;
-    position: relative; overflow: hidden;
+    background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 28px 26px; text-decoration: none; color: var(--ink);
+    transition: all 0.2s; display: flex; flex-direction: column; gap: 10px;
   }
-  .doc-card::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, var(--accent-faint) 0%, transparent 60%);
-    opacity: 0; transition: opacity 0.2s;
-    border-radius: 14px;
+  .doc-card:hover {
+    border-color: rgba(168,85,247,0.4); background: rgba(168,85,247,0.05);
+    transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.3);
   }
-  .doc-card:hover { border-color: rgba(168,85,247,0.35); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
-  .doc-card:hover::after { opacity: 1; }
   .doc-card-icon {
-    width: 40px; height: 40px;
-    background: var(--accent-faint); border-radius: 10px;
+    width: 38px; height: 38px; background: var(--accent-faint);
+    border: 1px solid rgba(168,85,247,0.2); border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    color: var(--accent); font-size: 16px;
-    margin-bottom: 4px; position: relative; z-index: 1;
+    color: var(--accent); margin-bottom: 4px;
   }
-  .doc-card-title {
-    font-size: 17px; font-weight: 700; letter-spacing: -0.02em;
-    line-height: 1.2; position: relative; z-index: 1;
-  }
-  .doc-card-desc {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; color: var(--ink-soft); line-height: 1.6;
-    flex: 1; position: relative; z-index: 1;
-  }
+  .doc-card-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .doc-card-title { font-weight: 600; font-size: 16px; line-height: 1.3; }
+  .doc-card-desc { font-size: 14px; color: var(--ink-soft); line-height: 1.55; flex: 1; }
   .doc-card-arrow {
-    margin-top: 8px; display: flex; align-items: center; gap: 6px;
+    margin-top: 12px; padding-top: 14px; border-top: 1px solid var(--line-soft);
     font-family: 'JetBrains Mono', monospace; font-size: 11px;
-    color: var(--accent); letter-spacing: 0.02em;
-    position: relative; z-index: 1;
-    transition: gap 0.2s;
+    color: var(--accent); display: flex; align-items: center; gap: 6px;
   }
-  .doc-card:hover .doc-card-arrow { gap: 10px; }
+  .doc-card-arrow svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-  /* FEATURE SPOTLIGHT */
-  .spotlight-section {
-    max-width: 1100px; margin: 0 auto 100px;
-    padding: 0 40px;
-  }
-  .spotlight-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 16px; margin-top: 40px;
-  }
-  .spotlight-item {
-    background: var(--bg-card); border: 1px solid var(--line);
-    border-radius: 14px; padding: 28px 24px;
-    display: flex; gap: 18px; align-items: flex-start;
-  }
-  .spotlight-icon {
-    width: 44px; height: 44px; flex-shrink: 0;
-    background: var(--accent-faint); border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--accent); font-size: 17px;
-  }
-  .spotlight-body { flex: 1; }
-  .spotlight-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; }
-  .spotlight-desc {
-    font-family: 'JetBrains Mono', monospace; font-size: 12px;
-    color: var(--ink-soft); line-height: 1.6;
-  }
-
-  /* FOOTER */
-  footer {
-    border-top: 1px solid var(--line);
-    padding: 40px;
-    text-align: center;
-    color: var(--ink-muted);
-    font-family: 'JetBrains Mono', monospace; font-size: 12px;
-  }
-  footer a { color: var(--accent); text-decoration: none; }
-  footer a:hover { text-decoration: underline; }
+  /* index uses .container instead of .page-wrap */
+  .container { max-width: 1160px; margin: 0 auto; padding: 0 40px; }
 
   @media (max-width: 900px) {
-    nav { padding: 0 20px; }
-    .hero, .stats-bar, .docs-section, .spotlight-section { padding-left: 20px; padding-right: 20px; }
+    .doc-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero { padding: 90px 0 60px; }
+    .stats { gap: 28px; }
+  }
+  @media (max-width: 600px) {
+    .container { padding: 0 24px; }
     .doc-grid { grid-template-columns: 1fr; }
-    .spotlight-grid { grid-template-columns: 1fr; }
-    .stats-bar { flex-direction: column; }
-    .stat-item { border-right: none; border-bottom: 1px solid var(--line); }
-    .stat-item:last-child { border-bottom: none; }
-    h1.hero-title { font-size: 38px; }
-    .nav-links .btn-secondary, .nav-links .github-link { display: none; }
+    h1.hero-title { font-size: 36px; }
   }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <a href="../index.html" class="nav-brand">
-    <div class="nav-brand-icon"><i class="fa-solid fa-newspaper"></i></div>
-    <span class="nav-brand-name">Daily News Briefing</span>
-  </a>
-  <div class="nav-links">
-    <a href="../index.html">Home</a>
-    <a href="index.html" class="active">Docs</a>
-    <a href="getting-started.html">Getting Started</a>
-    <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" target="_blank" rel="noopener" class="github-link">
-      <i class="fa-brands fa-github"></i> GitHub
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="site-logo">
+      <div class="site-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h12M4 18h8"/></svg>
+      </div>
+      Daily News Briefing
     </a>
+    <div class="nav-links">
+      <a href="../index.html">Home</a>
+      <a href="index.html" class="active">Documentation</a>
+      <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" target="_blank" class="nav-github">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+        GitHub
+      </a>
+    </div>
   </div>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
-  <span class="hero-eyebrow"><i class="fa-solid fa-book-open"></i> Documentation</span>
-  <h1 class="hero-title">
-    Everything you need<br>
-    <span class="line-accent">to use the plugin.</span>
-  </h1>
-  <p class="hero-lede">Guides, configuration reference, and architecture details — all in one place.</p>
-  <div class="hero-actions">
-    <a href="getting-started.html" class="btn-primary">
-      <i class="fa-solid fa-rocket"></i> Get Started
-    </a>
-    <a href="configuration.html" class="btn-secondary">
-      <i class="fa-solid fa-sliders"></i> Configuration
-    </a>
+  <div class="container">
+    <div class="hero-tag"><span></span>Documentation</div>
+    <h1 class="hero-title">Everything you need to<br><em>use Daily News Briefing</em>.</h1>
+    <p class="hero-lede">Guides, configuration reference, and examples — all in one place. Set up your first briefing in under five minutes.</p>
+    <div class="hero-actions">
+      <a href="providers.html#pipelines" class="btn-primary">
+        Quick Start
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" target="_blank" class="btn-ghost">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+        View on GitHub
+      </a>
+    </div>
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-num"><em>12</em></div>
+        <div class="stat-label">AI Pipelines</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num"><em>6</em></div>
+        <div class="stat-label">Languages</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num"><em>25+</em></div>
+        <div class="stat-label">Placeholders</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num"><em>5</em></div>
+        <div class="stat-label">Template Types</div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- STATS BAR -->
-<div class="stats-bar">
-  <div class="stat-item">
-    <div class="stat-num">12<span>+</span></div>
-    <div class="stat-label">AI Pipelines</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num">6</div>
-    <div class="stat-label">Languages</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num">25<span>+</span></div>
-    <div class="stat-label">Placeholders</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num">5</div>
-    <div class="stat-label">Template Types</div>
-  </div>
-</div>
-
-<!-- DOC CARDS -->
-<section class="docs-section">
-  <div class="section-header">
-    <span class="section-label">— Browse the docs</span>
+<section class="cards-section">
+  <div class="container">
+    <div class="section-eyebrow">— Browse the docs</div>
     <h2 class="section-heading">Pick a topic to <em>get started</em>.</h2>
-  </div>
+    <div class="doc-grid">
 
-  <div class="doc-grid">
-    <a href="getting-started.html" class="doc-card">
-      <div class="doc-card-icon"><i class="fa-solid fa-rocket"></i></div>
-      <div class="doc-card-title">Getting Started</div>
-      <div class="doc-card-desc">Install the plugin, connect an AI provider, and get your first briefing in under five minutes.</div>
-      <div class="doc-card-arrow">Read guide <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
-    </a>
+      <a href="providers.html" class="doc-card">
+        <div class="doc-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <div class="doc-card-title">Getting Started</div>
+        <div class="doc-card-desc">Install the plugin, pick an AI pipeline, and generate your first news briefing in under five minutes.</div>
+        <div class="doc-card-arrow">Read guide <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </a>
 
-    <a href="providers.html" class="doc-card">
-      <div class="doc-card-icon"><i class="fa-solid fa-microchip"></i></div>
-      <div class="doc-card-title">AI Providers</div>
-      <div class="doc-card-desc">Set up Gemini, OpenAI, Claude, Grok, or a fully local model. Mix providers for search and summarization.</div>
-      <div class="doc-card-arrow">Read guide <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
-    </a>
+      <a href="providers.html" class="doc-card">
+        <div class="doc-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div class="doc-card-title">AI Providers &amp; Pipelines</div>
+        <div class="doc-card-desc">6 agentic providers, 5 modular combinations, plus RSS. Includes a completely free option.</div>
+        <div class="doc-card-arrow">Read guide <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </a>
 
-    <a href="configuration.html" class="doc-card">
-      <div class="doc-card-icon"><i class="fa-solid fa-sliders"></i></div>
-      <div class="doc-card-title">Configuration</div>
-      <div class="doc-card-desc">Full reference for every setting — schedules, search sources, output format, and advanced options.</div>
-      <div class="doc-card-arrow">Read reference <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
-    </a>
+      <a href="configuration.html" class="doc-card">
+        <div class="doc-card-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </div>
+        <div class="doc-card-title">Configuration</div>
+        <div class="doc-card-desc">Full reference for every setting — search settings, RSS feeds, scheduling, output format, and metadata.</div>
+        <div class="doc-card-arrow">Read reference <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </a>
 
-    <a href="customization.html" class="doc-card">
-      <div class="doc-card-icon"><i class="fa-solid fa-paint-brush"></i></div>
-      <div class="doc-card-title">Customization</div>
-      <div class="doc-card-desc">Templates, placeholders, and custom AI prompts. Shape exactly what your daily briefing looks like.</div>
-      <div class="doc-card-arrow">Read guide <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
-    </a>
+      <a href="customization.html" class="doc-card">
+        <div class="doc-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div class="doc-card-title">Customization</div>
+        <div class="doc-card-desc">Templates, 25+ placeholders, and custom AI prompts to make every briefing exactly yours.</div>
+        <div class="doc-card-arrow">Read guide <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </a>
 
-    <a href="usage.html" class="doc-card">
-      <div class="doc-card-icon"><i class="fa-solid fa-terminal"></i></div>
-      <div class="doc-card-title">Usage</div>
-      <div class="doc-card-desc">Generating news, switching languages, and troubleshooting common issues.</div>
-      <div class="doc-card-arrow">Read guide <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
-    </a>
+      <a href="usage.html" class="doc-card">
+        <div class="doc-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+        </div>
+        <div class="doc-card-title">Usage &amp; Languages</div>
+        <div class="doc-card-desc">How to generate briefings, switch languages, automate with a schedule, and troubleshoot common issues.</div>
+        <div class="doc-card-arrow">Read guide <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </a>
 
-    <a href="advanced.html" class="doc-card">
-      <div class="doc-card-icon"><i class="fa-solid fa-gear"></i></div>
-      <div class="doc-card-title">Advanced</div>
-      <div class="doc-card-desc">Search optimization, rate limits, architecture deep-dive, and contributing to the project.</div>
-      <div class="doc-card-arrow">Read guide <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
-    </a>
-  </div>
-</section>
+      <a href="advanced.html" class="doc-card">
+        <div class="doc-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+        </div>
+        <div class="doc-card-title">Advanced</div>
+        <div class="doc-card-desc">Search optimization, rate limits, plugin architecture, and contributing to the project.</div>
+        <div class="doc-card-arrow">Read guide <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </a>
 
-<!-- FEATURE SPOTLIGHT -->
-<section class="spotlight-section">
-  <div class="section-header">
-    <span class="section-label">— Why it works</span>
-    <h2 class="section-heading">Built for <em>Obsidian</em> users.</h2>
-  </div>
-
-  <div class="spotlight-grid">
-    <div class="spotlight-item">
-      <div class="spotlight-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-      <div class="spotlight-body">
-        <div class="spotlight-title">Agentic & Modular Pipelines</div>
-        <div class="spotlight-desc">Choose a single all-in-one provider or mix a search engine with a separate AI summarizer. 12+ pipeline combinations including a completely free option.</div>
-      </div>
-    </div>
-    <div class="spotlight-item">
-      <div class="spotlight-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
-      <div class="spotlight-body">
-        <div class="spotlight-title">Fully Automated Scheduling</div>
-        <div class="spotlight-desc">Set a daily generation time and wake up to fresh news in your vault every morning. No manual steps required.</div>
-      </div>
-    </div>
-    <div class="spotlight-item">
-      <div class="spotlight-icon"><i class="fa-solid fa-language"></i></div>
-      <div class="spotlight-body">
-        <div class="spotlight-title">6 Supported Languages</div>
-        <div class="spotlight-desc">Generate briefings in English, Chinese, Spanish, French, German, or Japanese — each with localized prompts and formatting.</div>
-      </div>
-    </div>
-    <div class="spotlight-item">
-      <div class="spotlight-icon"><i class="fa-solid fa-file-code"></i></div>
-      <div class="spotlight-body">
-        <div class="spotlight-title">25+ Template Placeholders</div>
-        <div class="spotlight-desc">Fine-tune every element of your output note with a rich set of placeholders, custom AI prompts, and 5 template styles.</div>
-      </div>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer>
-  <p>Daily News Briefing for Obsidian — Open Source (MIT License)</p>
-  <p style="margin-top:8px">Built with curiosity by <a href="https://github.com/ChenziqiAdam" target="_blank">@ChenziqiAdam</a></p>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="foot-meta">© 2025 Daily News Briefing — Obsidian Plugin</div>
+    <div class="foot-links">
+      <a href="../index.html">Home</a>
+      <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" target="_blank">GitHub</a>
+      <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing/issues" target="_blank">Issues</a>
+    </div>
+  </div>
 </footer>
 
 </body>
