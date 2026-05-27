@@ -1,199 +1,416 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Getting Started - Daily News Briefing</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-    <link rel="stylesheet" href="shared.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Daily News Briefing — Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        obsidian: {
-                            bg: '#161616',
-                            card: '#1e1e1e',
-                            border: '#2a2a2a',
-                            accent: '#a855f7',
-                            accentGlow: '#a855f740'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+  :root {
+    --accent: #a855f7;
+    --accent-soft: #7c3aed;
+    --accent-faint: rgba(168, 85, 247, 0.08);
+    --accent-glow: rgba(168, 85, 247, 0.25);
+    --bg: #0d0d0d;
+    --bg-alt: #141414;
+    --bg-card: #181818;
+    --line: #2a2a2a;
+    --ink: #e5e5e5;
+    --ink-soft: #9ca3af;
+    --ink-muted: #525252;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Syne', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    height: 60px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(13,13,13,0.85);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px;
+  }
+  .nav-brand {
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none; color: var(--ink);
+  }
+  .nav-brand-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #6366f1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: white;
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+  .nav-brand-name { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
+  .nav-links { display: flex; align-items: center; gap: 28px; }
+  .nav-links a {
+    font-size: 13px; color: var(--ink-soft); text-decoration: none;
+    transition: color 0.15s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-links a.active { color: var(--accent); font-weight: 600; }
+  .nav-links .github-link {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border: 1px solid var(--line); border-radius: 8px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .nav-links .github-link:hover { border-color: #444; background: #1a1a1a; color: var(--ink); }
+
+  /* HERO */
+  .hero {
+    padding: 120px 40px 80px;
+    max-width: 1100px; margin: 0 auto;
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: 60px; left: -100px; right: -100px;
+    height: 400px;
+    background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(168,85,247,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--accent); padding: 5px 14px;
+    border: 1px solid rgba(168,85,247,0.3); border-radius: 999px;
+    margin-bottom: 32px; letter-spacing: 0.04em;
+  }
+  .hero-eyebrow i { font-size: 10px; }
+  h1.hero-title {
+    font-size: clamp(40px, 6vw, 72px); font-weight: 800;
+    line-height: 1.0; letter-spacing: -0.04em;
+    margin-bottom: 24px;
+  }
+  h1.hero-title .line-accent { color: var(--accent); display: block; }
+  .hero-lede {
+    font-size: 18px; line-height: 1.6; color: var(--ink-soft);
+    max-width: 520px; margin-bottom: 40px;
+    font-family: 'JetBrains Mono', monospace; font-weight: 400;
+    font-size: 14px;
+  }
+  .hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; background: var(--accent); color: white;
+    border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px;
+    transition: all 0.2s;
+    box-shadow: 0 0 24px var(--accent-glow);
+  }
+  .btn-primary:hover { background: #9333ea; box-shadow: 0 0 32px rgba(168,85,247,0.4); transform: translateY(-1px); }
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; border: 1px solid var(--line); color: var(--ink-soft);
+    border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: #444; color: var(--ink); background: #181818; }
+
+  /* STATS BAR */
+  .stats-bar {
+    max-width: 1100px; margin: 0 auto 80px;
+    padding: 0 40px;
+    display: flex; gap: 0; border: 1px solid var(--line);
+    border-radius: 14px; overflow: hidden; background: var(--bg-alt);
+  }
+  .stat-item {
+    flex: 1; padding: 28px 32px; text-align: center;
+    border-right: 1px solid var(--line);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-size: 32px; font-weight: 800; letter-spacing: -0.04em;
+    color: white; margin-bottom: 4px;
+  }
+  .stat-num span { color: var(--accent); }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--ink-muted); letter-spacing: 0.05em; text-transform: uppercase;
+  }
+
+  /* DOC GRID */
+  .docs-section {
+    max-width: 1100px; margin: 0 auto 100px;
+    padding: 0 40px;
+  }
+  .section-header { margin-bottom: 40px; }
+  .section-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase;
+    margin-bottom: 12px; display: block;
+  }
+  .section-heading {
+    font-size: clamp(24px, 3vw, 36px); font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1.1;
+  }
+  .section-heading em { font-style: normal; color: var(--accent); }
+
+  .doc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .doc-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px 24px;
+    text-decoration: none; color: var(--ink);
+    display: flex; flex-direction: column; gap: 10px;
+    transition: all 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .doc-card::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--accent-faint) 0%, transparent 60%);
+    opacity: 0; transition: opacity 0.2s;
+    border-radius: 14px;
+  }
+  .doc-card:hover { border-color: rgba(168,85,247,0.35); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  .doc-card:hover::after { opacity: 1; }
+  .doc-card-icon {
+    width: 40px; height: 40px;
+    background: var(--accent-faint); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent); font-size: 16px;
+    margin-bottom: 4px; position: relative; z-index: 1;
+  }
+  .doc-card-title {
+    font-size: 17px; font-weight: 700; letter-spacing: -0.02em;
+    line-height: 1.2; position: relative; z-index: 1;
+  }
+  .doc-card-desc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--ink-soft); line-height: 1.6;
+    flex: 1; position: relative; z-index: 1;
+  }
+  .doc-card-arrow {
+    margin-top: 8px; display: flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--accent); letter-spacing: 0.02em;
+    position: relative; z-index: 1;
+    transition: gap 0.2s;
+  }
+  .doc-card:hover .doc-card-arrow { gap: 10px; }
+
+  /* FEATURE SPOTLIGHT */
+  .spotlight-section {
+    max-width: 1100px; margin: 0 auto 100px;
+    padding: 0 40px;
+  }
+  .spotlight-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-top: 40px;
+  }
+  .spotlight-item {
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 28px 24px;
+    display: flex; gap: 18px; align-items: flex-start;
+  }
+  .spotlight-icon {
+    width: 44px; height: 44px; flex-shrink: 0;
+    background: var(--accent-faint); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent); font-size: 17px;
+  }
+  .spotlight-body { flex: 1; }
+  .spotlight-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; }
+  .spotlight-desc {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--ink-soft); line-height: 1.6;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 40px;
+    text-align: center;
+    color: var(--ink-muted);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 20px; }
+    .hero, .stats-bar, .docs-section, .spotlight-section { padding-left: 20px; padding-right: 20px; }
+    .doc-grid { grid-template-columns: 1fr; }
+    .spotlight-grid { grid-template-columns: 1fr; }
+    .stats-bar { flex-direction: column; }
+    .stat-item { border-right: none; border-bottom: 1px solid var(--line); }
+    .stat-item:last-child { border-bottom: none; }
+    h1.hero-title { font-size: 38px; }
+    .nav-links .btn-secondary, .nav-links .github-link { display: none; }
+  }
+</style>
 </head>
-<body class="relative overflow-x-hidden">
+<body>
 
-    <!-- Navigation -->
-    <nav class="fixed w-full z-40 top-0 border-b border-white/5 bg-[#0d0d0d]/80 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
-                    <i class="fa-solid fa-newspaper text-white text-sm"></i>
-                </div>
-                <span class="font-bold text-lg tracking-tight text-white">Daily News Briefing</span>
-            </div>
-            <div class="flex items-center gap-6">
-                <a href="../index.html" class="text-sm text-gray-400 hover:text-white transition duration-200">Home</a>
-                <a href="index.html" class="text-sm text-purple-400 font-semibold">Documentation</a>
-                <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" target="_blank" class="text-sm text-gray-400 hover:text-white transition">
-                    <i class="fa-brands fa-github"></i> GitHub
-                </a>
-            </div>
-        </div>
-    </nav>
+<!-- NAV -->
+<nav>
+  <a href="../index.html" class="nav-brand">
+    <div class="nav-brand-icon"><i class="fa-solid fa-newspaper"></i></div>
+    <span class="nav-brand-name">Daily News Briefing</span>
+  </a>
+  <div class="nav-links">
+    <a href="../index.html">Home</a>
+    <a href="index.html" class="active">Docs</a>
+    <a href="getting-started.html">Getting Started</a>
+    <a href="https://github.com/ChenziqiAdam/Daily-News-Briefing" target="_blank" rel="noopener" class="github-link">
+      <i class="fa-brands fa-github"></i> GitHub
+    </a>
+  </div>
+</nav>
 
-    <div class="max-w-7xl mx-auto px-6 py-24 flex gap-12">
+<!-- HERO -->
+<section class="hero">
+  <span class="hero-eyebrow"><i class="fa-solid fa-book-open"></i> Documentation</span>
+  <h1 class="hero-title">
+    Everything you need<br>
+    <span class="line-accent">to use the plugin.</span>
+  </h1>
+  <p class="hero-lede">Guides, configuration reference, and architecture details — all in one place.</p>
+  <div class="hero-actions">
+    <a href="getting-started.html" class="btn-primary">
+      <i class="fa-solid fa-rocket"></i> Get Started
+    </a>
+    <a href="configuration.html" class="btn-secondary">
+      <i class="fa-solid fa-sliders"></i> Configuration
+    </a>
+  </div>
+</section>
 
-        <!-- Sidebar Navigation -->
-        <aside class="hidden lg:block w-64 flex-shrink-0">
-            <nav class="sidebar-nav">
-                <span class="nav-label">Getting Started</span>
-                <a href="#overview">Overview</a>
-                <a href="#quick-start">Quick Start</a>
-                <a href="#installation">Installation</a>
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">12<span>+</span></div>
+    <div class="stat-label">AI Pipelines</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">6</div>
+    <div class="stat-label">Languages</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">25<span>+</span></div>
+    <div class="stat-label">Placeholders</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">5</div>
+    <div class="stat-label">Template Types</div>
+  </div>
+</div>
 
-                <span class="nav-label">Providers</span>
-                <a href="providers.html#pipelines">Pipeline Modes</a>
-                <a href="providers.html#agentic-providers">Agentic Providers</a>
-                <a href="providers.html#modular-providers">Modular Mode</a>
-                <a href="providers.html#api-setup">API Setup Guides</a>
+<!-- DOC CARDS -->
+<section class="docs-section">
+  <div class="section-header">
+    <span class="section-label">— Browse the docs</span>
+    <h2 class="section-heading">Pick a topic to <em>get started</em>.</h2>
+  </div>
 
-                <span class="nav-label">Configuration</span>
-                <a href="configuration.html#basic-settings">Basic Settings</a>
-                <a href="configuration.html#search-settings">Search Settings</a>
-                <a href="configuration.html#rss-settings">RSS Settings</a>
-                <a href="configuration.html#output-settings">Output Settings</a>
-                <a href="configuration.html#metadata-settings">Metadata</a>
+  <div class="doc-grid">
+    <a href="getting-started.html" class="doc-card">
+      <div class="doc-card-icon"><i class="fa-solid fa-rocket"></i></div>
+      <div class="doc-card-title">Getting Started</div>
+      <div class="doc-card-desc">Install the plugin, connect an AI provider, and get your first briefing in under five minutes.</div>
+      <div class="doc-card-arrow">Read guide <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
+    </a>
 
-                <span class="nav-label">Customization</span>
-                <a href="customization.html#templates">Templates</a>
-                <a href="customization.html#placeholders">Placeholders</a>
-                <a href="customization.html#custom-prompts">Custom Prompts</a>
+    <a href="providers.html" class="doc-card">
+      <div class="doc-card-icon"><i class="fa-solid fa-microchip"></i></div>
+      <div class="doc-card-title">AI Providers</div>
+      <div class="doc-card-desc">Set up Gemini, OpenAI, Claude, Grok, or a fully local model. Mix providers for search and summarization.</div>
+      <div class="doc-card-arrow">Read guide <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
+    </a>
 
-                <span class="nav-label">Usage</span>
-                <a href="usage.html#usage">Generating News</a>
-                <a href="usage.html#languages">Languages</a>
-                <a href="usage.html#troubleshooting">Troubleshooting</a>
+    <a href="configuration.html" class="doc-card">
+      <div class="doc-card-icon"><i class="fa-solid fa-sliders"></i></div>
+      <div class="doc-card-title">Configuration</div>
+      <div class="doc-card-desc">Full reference for every setting — schedules, search sources, output format, and advanced options.</div>
+      <div class="doc-card-arrow">Read reference <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
+    </a>
 
-                <span class="nav-label">Advanced</span>
-                <a href="advanced.html#search-optimization">Search Optimization</a>
-                <a href="advanced.html#rate-limits">Rate Limits</a>
-                <a href="advanced.html#architecture">Architecture</a>
-                <a href="advanced.html#contributing">Contributing</a>
-            </nav>
-        </aside>
+    <a href="customization.html" class="doc-card">
+      <div class="doc-card-icon"><i class="fa-solid fa-paint-brush"></i></div>
+      <div class="doc-card-title">Customization</div>
+      <div class="doc-card-desc">Templates, placeholders, and custom AI prompts. Shape exactly what your daily briefing looks like.</div>
+      <div class="doc-card-arrow">Read guide <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
+    </a>
 
-        <!-- Main Content -->
-        <main class="flex-1 max-w-4xl docs-content">
+    <a href="usage.html" class="doc-card">
+      <div class="doc-card-icon"><i class="fa-solid fa-terminal"></i></div>
+      <div class="doc-card-title">Usage</div>
+      <div class="doc-card-desc">Generating news, switching languages, and troubleshooting common issues.</div>
+      <div class="doc-card-arrow">Read guide <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
+    </a>
 
-            <section id="overview">
-                <h1 class="text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-400">Documentation</h1>
-                <p class="text-xl text-gray-400 mb-8">Everything you need to set up and use the Daily News Briefing plugin for Obsidian.</p>
+    <a href="advanced.html" class="doc-card">
+      <div class="doc-card-icon"><i class="fa-solid fa-gear"></i></div>
+      <div class="doc-card-title">Advanced</div>
+      <div class="doc-card-desc">Search optimization, rate limits, architecture deep-dive, and contributing to the project.</div>
+      <div class="doc-card-arrow">Read guide <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></div>
+    </a>
+  </div>
+</section>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
-                    <div class="feature-box">
-                        <h5><i class="fa-solid fa-robot mr-2"></i>12 Pipelines</h5>
-                        <p class="text-sm">6 agentic providers, 5 modular combos, plus RSS. Includes a completely free option.</p>
-                    </div>
-                    <div class="feature-box">
-                        <h5><i class="fa-solid fa-calendar mr-2"></i>Fully Automated</h5>
-                        <p class="text-sm">Schedule daily generation and wake up to fresh news every morning.</p>
-                    </div>
-                    <div class="feature-box">
-                        <h5><i class="fa-solid fa-paint-brush mr-2"></i>Highly Customizable</h5>
-                        <p class="text-sm">5 template types, 25+ placeholders, custom AI prompts, and 6 languages.</p>
-                    </div>
-                </div>
-            </section>
+<!-- FEATURE SPOTLIGHT -->
+<section class="spotlight-section">
+  <div class="section-header">
+    <span class="section-label">— Why it works</span>
+    <h2 class="section-heading">Built for <em>Obsidian</em> users.</h2>
+  </div>
 
-            <section id="quick-start">
-                <h2>Quick Start</h2>
-                <p>Get your first daily news briefing in under 5 minutes.</p>
-                <div class="feature-box">
-                    <ol class="list-decimal list-inside space-y-3">
-                        <li><strong>Install:</strong> In Obsidian, go to <strong>Settings > Community Plugins</strong> and search for <strong>"Daily News Briefing"</strong>.</li>
-                        <li><strong>Choose a pipeline:</strong> In plugin settings, pick an AI pipeline. We recommend <strong>Gemini Agentic Search</strong> (free, 1 key only).</li>
-                        <li><strong>Add API keys:</strong> Store your key in <strong>Settings &gt; Secret Storage</strong>, then follow the setup guide to link it in the plugin.</li>
-                        <li><strong>Set topics:</strong> Enter comma-separated topics (e.g., <code>AI, Tesla, Bitcoin</code>).</li>
-                        <li><strong>Generate:</strong> Open the Command Palette (<code>Ctrl/Cmd+P</code>) and run <strong>"Generate news now"</strong>.</li>
-                    </ol>
-                </div>
-                <p>That's it! Your news briefing is now in your vault. Optionally set a daily schedule in settings for automatic generation.</p>
-
-                <h3>How It Works</h3>
-                <div class="mermaid">
-    graph LR
-        A[Your Topics] --> B{Pipeline Mode}
-        B -->|Agentic| C[AI Provider<br/>searches + summarizes]
-        B -->|Modular| D[Google Search<br/>or RSS Feeds]
-        D --> E[AI Summarizer<br/>Gemini/GPT/Claude/Grok]
-        C --> F[Formatted Note]
-        E --> F
-        F --> G[Your Vault]
-
-        style A fill:#a855f7,stroke:#d8b4fe,color:#fff
-        style F fill:#22c55e,stroke:#86efac,color:#fff
-        style G fill:#3b82f6,stroke:#93c5fd,color:#fff
-                </div>
-            </section>
-
-            <section id="installation">
-                <h2>Installation</h2>
-                <div class="feature-box">
-                    <ol>
-                        <li>Open <strong>Obsidian Settings</strong> (gear icon)</li>
-                        <li>Navigate to <strong>Community Plugins</strong> > Turn off <strong>Safe Mode</strong></li>
-                        <li>Click <strong>Browse</strong> > Search for <strong>"Daily News Briefing"</strong></li>
-                        <li>Click <strong>Install</strong> > <strong>Enable</strong></li>
-                    </ol>
-                </div>
-            </section>
-
-        </main>
+  <div class="spotlight-grid">
+    <div class="spotlight-item">
+      <div class="spotlight-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+      <div class="spotlight-body">
+        <div class="spotlight-title">Agentic & Modular Pipelines</div>
+        <div class="spotlight-desc">Choose a single all-in-one provider or mix a search engine with a separate AI summarizer. 12+ pipeline combinations including a completely free option.</div>
+      </div>
     </div>
-
-    <footer class="border-t border-white/5 bg-[#0a0a0a] py-8 px-6 mt-24">
-        <div class="max-w-7xl mx-auto text-center text-gray-500 text-sm">
-            <p>Daily News Briefing for Obsidian — Open Source (MIT License)</p>
-            <p class="mt-2">Built with curiosity by <a href="https://github.com/ChenziqiAdam" class="text-purple-400 hover:text-purple-300">@ChenziqiAdam</a></p>
-        </div>
-    </footer>
-
-    <!-- Back to Top -->
-    <button id="back-to-top" class="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full bg-purple-600/80 text-white flex items-center justify-center shadow-lg hover:bg-purple-500 transition-all duration-300 transform scale-0" aria-label="Back to top">
-        <i class="fa-solid fa-arrow-up"></i>
-    </button>
-
-    <!-- Diagram Viewer Modal -->
-    <div id="diagram-modal" role="dialog" aria-modal="true" aria-label="Diagram viewer">
-        <div id="diagram-modal-box">
-            <div id="diagram-modal-header">
-                <span>Diagram Viewer</span>
-                <div id="diagram-modal-controls">
-                    <button class="dm-btn" id="dm-zoom-in" title="Zoom in"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-                    <button class="dm-btn" id="dm-zoom-out" title="Zoom out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-                    <button class="dm-btn" id="dm-zoom-reset" title="Reset zoom"><i class="fa-solid fa-arrows-rotate"></i></button>
-                    <button class="dm-btn" id="dm-close" title="Close"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-            </div>
-            <div id="diagram-modal-body">
-                <div id="diagram-modal-svg-wrap"></div>
-            </div>
-        </div>
+    <div class="spotlight-item">
+      <div class="spotlight-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+      <div class="spotlight-body">
+        <div class="spotlight-title">Fully Automated Scheduling</div>
+        <div class="spotlight-desc">Set a daily generation time and wake up to fresh news in your vault every morning. No manual steps required.</div>
+      </div>
     </div>
+    <div class="spotlight-item">
+      <div class="spotlight-icon"><i class="fa-solid fa-language"></i></div>
+      <div class="spotlight-body">
+        <div class="spotlight-title">6 Supported Languages</div>
+        <div class="spotlight-desc">Generate briefings in English, Chinese, Spanish, French, German, or Japanese — each with localized prompts and formatting.</div>
+      </div>
+    </div>
+    <div class="spotlight-item">
+      <div class="spotlight-icon"><i class="fa-solid fa-file-code"></i></div>
+      <div class="spotlight-body">
+        <div class="spotlight-title">25+ Template Placeholders</div>
+        <div class="spotlight-desc">Fine-tune every element of your output note with a rich set of placeholders, custom AI prompts, and 5 template styles.</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <script src="shared.js"></script>
+<!-- FOOTER -->
+<footer>
+  <p>Daily News Briefing for Obsidian — Open Source (MIT License)</p>
+  <p style="margin-top:8px">Built with curiosity by <a href="https://github.com/ChenziqiAdam" target="_blank">@ChenziqiAdam</a></p>
+</footer>
 
 </body>
 </html>
