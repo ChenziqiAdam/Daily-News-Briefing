@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { BaseNewsProvider } from '../base-news-provider';
 import type { DailyNewsSettings } from '../../types';
-import { LanguageUtils } from '../../utils';
+import { LanguageUtils, PresetUtils } from '../../utils';
 import { GEMINI_MODEL_NAME } from '../../constants';
 
 export class GeminiAgenticProvider extends BaseNewsProvider {
@@ -58,6 +58,7 @@ KEY REQUIREMENTS:
 4. Prioritize news with specific details (numbers, names, quotes)
 5. Only return the news - do not include any meta-narratives, explanations, or instructions.
 6. If content lacks substance, state "${LanguageUtils.getTranslation('limitedNews', this.settings.language)} ${topic}"`;
+                systemInstruction += PresetUtils.getPromptGuidance(this.settings);
 
                 if (this.settings.outputFormat === 'detailed') {
                     systemInstruction += `

@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { NewsItem, DailyNewsSettings } from '../../types';
-import { LanguageUtils } from '../../utils';
+import { LanguageUtils, PresetUtils } from '../../utils';
 import type { AISummarizer } from './base-summarizer';
 import { CLAUDE_MODEL_NAME } from '../../constants';
 
@@ -55,6 +55,7 @@ KEY REQUIREMENTS:
 3. Use specific dates rather than relative time references
 4. Prioritize news with specific details (numbers, names, quotes)
 5. Only return the news - do not include any meta-narratives, explanations, or instructions.`;
+                systemPrompt += PresetUtils.getPromptGuidance(this.settings);
 
                 if (this.settings.outputFormat === 'detailed') {
                     systemPrompt += `

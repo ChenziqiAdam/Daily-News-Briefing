@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import type { NewsItem, DailyNewsSettings } from '../../types';
-import { LanguageUtils } from '../../utils';
+import { LanguageUtils, PresetUtils } from '../../utils';
 import { OPENROUTER_API_URL, OPENROUTER_DEFAULT_MODEL } from '../../constants';
 import type { AISummarizer } from './base-summarizer';
 
@@ -112,6 +112,7 @@ export class OpenRouterSummarizer implements AISummarizer {
             ` Translate all content into the language with ISO 639-1 code "${this.settings.language}". The source news may be in English but your response should be entirely in the target language.` : '';
 
         let basePrompt = `Analyze these news articles about ${topic} and provide a substantive summary.${languageInstruction}\n\n${newsText}\n\nKEY REQUIREMENTS:\n1. Focus on concrete developments, facts, and data\n2. For each news item include the SOURCE in markdown format: [Source](URL)\n3. Use specific dates rather than relative time references\n4. Prioritize news with specific details (numbers, names, quotes)\n5. If content lacks substance, state "${LanguageUtils.getTranslation('limitedNews', this.settings.language)} ${topic}"`;
+        basePrompt += PresetUtils.getPromptGuidance(this.settings);
 
         if (format === 'detailed') {
             let formattedPrompt = basePrompt + `\n\nFormat your summary with these sections:\n\n### ${LanguageUtils.getTranslation('keyDevelopments', this.settings.language)}\n- **[Clear headline with key detail]**: Concrete facts with specific details. [Source](URL)\n- **[Clear headline with key detail]**: Concrete facts with specific details. [Source](URL)\n`;

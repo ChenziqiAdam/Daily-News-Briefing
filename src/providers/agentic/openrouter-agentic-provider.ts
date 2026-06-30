@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import { BaseNewsProvider } from '../base-news-provider';
 import type { DailyNewsSettings } from '../../types';
-import { LanguageUtils } from '../../utils';
+import { LanguageUtils, PresetUtils } from '../../utils';
 import { OPENROUTER_API_URL, OPENROUTER_DEFAULT_MODEL } from '../../constants';
 
 export class OpenRouterAgenticProvider extends BaseNewsProvider {
@@ -55,7 +55,12 @@ export class OpenRouterAgenticProvider extends BaseNewsProvider {
             const languageInstruction = this.settings.language !== 'en' ?
                 `Translate all content into the language with ISO 639-1 code "${this.settings.language}". The source news may be in English but your response should be entirely in the target language.` : '';
 
-            let systemMessage = `You are a helpful AI assistant that provides news summaries. ${languageInstruction}
+            let systemMessage: string;
+
+            if (this.settings.useCustomPrompt && this.settings.customPrompt) {
+                systemMessage = this.settings.customPrompt.replace(/{{TOPIC}}/g, topic);
+            } else {
+                systemMessage = `You are a helpful AI assistant that provides news summaries. ${languageInstruction}
 
 KEY REQUIREMENTS:
 1. Focus on concrete developments, facts, and data
@@ -64,9 +69,10 @@ KEY REQUIREMENTS:
 4. Prioritize news with specific details (numbers, names, quotes)
 5. Only return the news - do not include any meta-narratives, explanations, or instructions.
 6. If content lacks substance, state "${LanguageUtils.getTranslation('limitedNews', this.settings.language)} ${topic}"`;
+                systemMessage += PresetUtils.getPromptGuidance(this.settings);
 
-            if (this.settings.outputFormat === 'detailed') {
-                systemMessage += `
+                if (this.settings.outputFormat === 'detailed') {
+                    systemMessage += `
 
 Format your summary with these sections:
 
@@ -74,20 +80,21 @@ Format your summary with these sections:
 - **[Clear headline with key detail]**: Concrete facts with specific details. [Source](URL)
 - **[Clear headline with key detail]**: Concrete facts with specific details. [Source](URL)`;
 
-                if (this.settings.enableAnalysisContext) {
-                    systemMessage += `
+                    if (this.settings.enableAnalysisContext) {
+                        systemMessage += `
 
 ### ${LanguageUtils.getTranslation('analysisContext', this.settings.language)}
 [Provide context, implications, or background for the most significant developments]`;
-                }
-            } else {
-                systemMessage += `
+                    }
+                } else {
+                    systemMessage += `
 
 Format your summary as bullet points with concrete facts:
 
 - **[Clear headline with key detail]**: Concrete facts with specific details. [Source](URL)
 - **[Clear headline with key detail]**: Concrete facts with specific details. [Source](URL)
 - **[Clear headline with key detail]**: Concrete facts with specific details. [Source](URL)`;
+                }
             }
 
             const userContent = this.settings.language !== 'en' ?

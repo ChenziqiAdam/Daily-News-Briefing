@@ -1,6 +1,6 @@
 import { App, TFile, Notice } from 'obsidian';
 import type { DailyNewsSettings, TopicStatus, NewsMetadata} from './types';
-import { LANGUAGE_TRANSLATIONS } from './constants';
+import { BRIEFING_PRESETS, LANGUAGE_TRANSLATIONS } from './constants';
 import { NewsProviderFactory } from './providers/news-provider-factory';
 
 export class FileUtils {
@@ -59,6 +59,25 @@ export class LanguageUtils {
         
         // Return the translation for the key or the key itself if no translation exists
         return translations[key] || LANGUAGE_TRANSLATIONS['en'][key] || key;
+    }
+}
+
+export class PresetUtils {
+    static getPromptGuidance(settings: DailyNewsSettings): string {
+        if (!settings.briefingPreset || settings.briefingPreset === 'none') {
+            return '';
+        }
+
+        const preset = BRIEFING_PRESETS[settings.briefingPreset];
+        if (!preset) {
+            return '';
+        }
+
+        const formatGuidance = settings.outputFormat === 'detailed'
+            ? preset.detailedOutputGuidance
+            : preset.conciseOutputGuidance;
+
+        return `\n\nPRESET GUIDANCE (${preset.name}):\n${preset.promptGuidance}\n${formatGuidance}`;
     }
 }
 

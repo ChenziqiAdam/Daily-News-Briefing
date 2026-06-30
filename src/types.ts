@@ -1,5 +1,7 @@
 import { OPENROUTER_DEFAULT_MODEL } from './constants';
 
+export type BriefingPresetId = 'none' | 'morning' | 'market' | 'ai-tech' | 'research' | 'company' | 'rss';
+
 export interface DailyNewsSettings {
     // Pipeline mode selection (new)
     pipelineMode: 'modular' | 'agentic';
@@ -35,6 +37,7 @@ export interface DailyNewsSettings {
     rssFeeds: string[];
 
     // Core functionality
+    briefingPreset: BriefingPresetId;
     topics: string[];
     autoGenerateEnabled: boolean; // New: Enable or disable scheduled generation
     scheduleTime: string;
@@ -123,6 +126,7 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
     rssFeeds: [],
 
     // Core functionality
+    briefingPreset: 'none',
     topics: ['Technology', 'World News'],
     autoGenerateEnabled: false,
     scheduleTime: '08:00',

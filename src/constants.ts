@@ -1,4 +1,4 @@
-import type { DailyNewsSettings } from './types';
+import type { BriefingPresetId, DailyNewsSettings } from './types';
 
 // API and Model Constants
 export const GEMINI_MODEL_NAME = "gemini-2.5-flash";
@@ -15,6 +15,94 @@ export const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 // OpenRouter Constants
 export const OPENROUTER_API_URL = "https://openrouter.ai/api/v1";
 export const OPENROUTER_DEFAULT_MODEL = "anthropic/claude-sonnet-4.6";
+
+export interface BriefingPresetDefinition {
+    id: Exclude<BriefingPresetId, 'none'>;
+    name: string;
+    description: string;
+    topics: string[];
+    outputFormat: DailyNewsSettings['outputFormat'];
+    enableAnalysisContext: boolean;
+    templateType: DailyNewsSettings['templateType'];
+    promptGuidance: string;
+    detailedOutputGuidance: string;
+    conciseOutputGuidance: string;
+}
+
+export const BRIEFING_PRESETS: Record<Exclude<BriefingPresetId, 'none'>, BriefingPresetDefinition> = {
+    morning: {
+        id: 'morning',
+        name: 'Morning Brief',
+        description: 'A balanced daily briefing across major global, business, technology, and science developments.',
+        topics: ['World News', 'Technology', 'Business', 'Science'],
+        outputFormat: 'detailed',
+        enableAnalysisContext: true,
+        templateType: 'default',
+        promptGuidance: 'Shape the briefing for a morning reader: prioritize the most consequential developments, explain why they matter, and keep the summary easy to scan.',
+        detailedOutputGuidance: 'Include brief "Why it matters" context for major items and a short "What to watch next" note when there is a clear upcoming event, deadline, decision, or risk.',
+        conciseOutputGuidance: 'Keep bullets scannable for a morning read. Add a short impact phrase only when it clarifies why the item matters.'
+    },
+    market: {
+        id: 'market',
+        name: 'Market Watch',
+        description: 'Track markets, policy, technology stocks, and crypto with impact-focused analysis.',
+        topics: ['Stock Market', 'Federal Reserve', 'Technology Stocks', 'Cryptocurrency'],
+        outputFormat: 'detailed',
+        enableAnalysisContext: true,
+        templateType: 'detailed',
+        promptGuidance: 'Focus on market impact, catalysts, risks, and watchlist changes. Highlight concrete price, policy, earnings, funding, or macro details when available.',
+        detailedOutputGuidance: 'For each major item, identify the likely market impact, catalyst, and risk/watchlist angle. Include "What changed" when the news updates a prior trend or expectation.',
+        conciseOutputGuidance: 'Keep each bullet focused on the catalyst and market implication. Include numbers, tickers, yields, prices, or policy details when available.'
+    },
+    'ai-tech': {
+        id: 'ai-tech',
+        name: 'AI/Tech Tracker',
+        description: 'Follow AI, startups, big tech, and semiconductors.',
+        topics: ['Artificial Intelligence', 'Startups', 'Big Tech', 'Semiconductors'],
+        outputFormat: 'detailed',
+        enableAnalysisContext: true,
+        templateType: 'detailed',
+        promptGuidance: 'Prioritize product launches, model releases, regulation, funding, infrastructure, chips, and competitive moves. Explain practical implications for builders and operators.',
+        detailedOutputGuidance: 'Add practical implications for builders, operators, or technology buyers. Call out competitive moves, ecosystem shifts, and follow-up questions worth tracking.',
+        conciseOutputGuidance: 'Keep bullets focused on what launched, who is affected, and the practical implication.'
+    },
+    research: {
+        id: 'research',
+        name: 'Research Digest',
+        description: 'Summarize research and science news with implications.',
+        topics: ['AI Research', 'Science', 'Healthcare Innovation', 'Climate Research'],
+        outputFormat: 'detailed',
+        enableAnalysisContext: true,
+        templateType: 'detailed',
+        promptGuidance: 'Focus on new findings, methods, evidence quality, limitations, and practical implications. Distinguish peer-reviewed research, preprints, announcements, and commentary when possible.',
+        detailedOutputGuidance: 'For research items, include the finding, method or evidence base, limitations, and practical implication. Avoid overstating preliminary results.',
+        conciseOutputGuidance: 'Keep bullets focused on the finding, evidence type, and why it matters. Mark preliminary or limited evidence when relevant.'
+    },
+    company: {
+        id: 'company',
+        name: 'Company Monitor',
+        description: 'Monitor companies, products, partnerships, leadership, and risks.',
+        topics: ['Apple', 'Microsoft', 'Google', 'OpenAI'],
+        outputFormat: 'detailed',
+        enableAnalysisContext: true,
+        templateType: 'detailed',
+        promptGuidance: 'Focus on company actions, product releases, partnerships, financial signals, legal or regulatory risks, and competitive positioning. Prefer concrete developments over broad commentary.',
+        detailedOutputGuidance: 'For each company item, explain the business impact, competitive positioning, and risks. Add follow-up questions when the next decision, release, filing, or regulatory step is unclear.',
+        conciseOutputGuidance: 'Keep bullets focused on company action, business impact, and one risk or open question when useful.'
+    },
+    rss: {
+        id: 'rss',
+        name: 'RSS Digest',
+        description: 'A compact digest optimized for user-provided RSS feeds.',
+        topics: ['Technology', 'World News'],
+        outputFormat: 'concise',
+        enableAnalysisContext: false,
+        templateType: 'minimal',
+        promptGuidance: 'Create a compact digest of the most useful feed items. Avoid repetition, group related items when sensible, and keep each bullet factual and source-backed.',
+        detailedOutputGuidance: 'Even in detailed mode, keep RSS output compact. Do not add long analysis sections unless the source item clearly supports them.',
+        conciseOutputGuidance: 'Return concise source-backed bullets only. Avoid separate "Why it matters", "Risks", or "Follow-up questions" sections.'
+    }
+};
 
 // Language translations for different UI elements
 export const LANGUAGE_TRANSLATIONS: Record<string, Record<string, string>> = {

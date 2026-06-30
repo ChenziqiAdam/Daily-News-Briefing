@@ -1,8 +1,8 @@
 import { App, PluginSettingTab, Setting, Notice, SecretComponent } from 'obsidian';
-import type { DailyNewsSettings } from './types';
+import type { BriefingPresetId, DailyNewsSettings } from './types';
 import type DailyNewsPlugin from '../main';
 import { NewsProviderFactory } from './providers/news-provider-factory';
-import { LANGUAGE_NAMES } from './constants';
+import { BRIEFING_PRESETS, LANGUAGE_NAMES } from './constants';
 import { TemplateEngine } from './template/template-engine';
 import { TEMPLATE_DESCRIPTIONS, TEMPLATE_EXAMPLE, TEMPLATE_FILE_EXAMPLE } from './template/template-presets';
 import { GeminiSummarizer } from './providers/summarizers/gemini-summarizer';
@@ -76,6 +76,30 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         return section;
     }
 
+    private async applyBriefingPreset(presetId: BriefingPresetId): Promise<void> {
+        if (presetId === 'none') {
+            this.plugin.settings.briefingPreset = 'none';
+            await this.plugin.saveSettings();
+            return;
+        }
+
+        const preset = BRIEFING_PRESETS[presetId];
+        if (!preset) {
+            new Notice('Unknown briefing preset.');
+            return;
+        }
+
+        this.plugin.settings.briefingPreset = preset.id;
+        this.plugin.settings.topics = [...preset.topics];
+        this.plugin.settings.outputFormat = preset.outputFormat;
+        this.plugin.settings.enableAnalysisContext = preset.enableAnalysisContext;
+        this.plugin.settings.templateType = preset.templateType;
+
+        await this.plugin.saveSettings();
+        new Notice(`Applied ${preset.name}. You can edit topics and settings anytime.`, 4000);
+        this.display();
+    }
+
     private createCollapsible(containerEl: HTMLElement, title: string, isExpanded: boolean, onToggle: (expanded: boolean) => void): { header: HTMLElement; content: HTMLElement } {
         const header = containerEl.createDiv('collapsible-header');
         const icon = header.createSpan({ text: '▶', cls: 'collapsible-icon' });
@@ -103,6 +127,47 @@ export class DailyNewsSettingTab extends PluginSettingTab {
     display(): void {
         const {containerEl} = this;
         containerEl.empty();
+
+        // =========================
+        // Briefing Presets
+        // =========================
+        const presetSection = this.createSection(containerEl, 'Briefing Presets', 'Start from a user goal, then edit topics and settings as needed');
+
+        const currentPreset = this.plugin.settings.briefingPreset || 'none';
+        const currentPresetDesc = currentPreset !== 'none' && BRIEFING_PRESETS[currentPreset]
+            ? BRIEFING_PRESETS[currentPreset].description
+            : 'No preset selected. Existing custom settings stay active.';
+
+        new Setting(presetSection)
+            .setName('Preset')
+            .setDesc(currentPresetDesc)
+            .addDropdown(dropdown => {
+                dropdown.addOption('none', 'None / Custom');
+                Object.values(BRIEFING_PRESETS).forEach(preset => {
+                    dropdown.addOption(preset.id, preset.name);
+                });
+                return dropdown
+                    .setValue(currentPreset)
+                    .onChange(async (value: BriefingPresetId) => {
+                        this.plugin.settings.briefingPreset = value;
+                        await this.plugin.saveSettings();
+                        this.display();
+                    });
+            })
+            .addButton(button => button
+                .setButtonText('Apply preset')
+                .setCta()
+                .onClick(async () => {
+                    await this.applyBriefingPreset(this.plugin.settings.briefingPreset || 'none');
+                }));
+
+        if (currentPreset !== 'none' && BRIEFING_PRESETS[currentPreset]) {
+            const preset = BRIEFING_PRESETS[currentPreset];
+            presetSection.createEl('p', {
+                text: `Applies topics: ${preset.topics.join(', ')}. Preserves API keys, providers, schedule, archive folder, language, RSS feeds, retention, and cache.`,
+                cls: 'settings-section-description'
+            });
+        }
 
         // =========================
         // Pipeline Configuration

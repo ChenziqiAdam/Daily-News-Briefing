@@ -7,6 +7,8 @@
 ## Features
 
 - **11 AI Pipelines + RSS**: Google, Anthropic, OpenAI, Grok, Perplexity, OpenRouter, RSS Retriever
+- **6 Briefing Presets**: Morning Brief, Market Watch, AI/Tech Tracker, Research Digest, Company Monitor, RSS Digest
+- **Preset-Aware Output**: Adds use-case-specific context like why it matters, risks, watchlists, methods, and follow-up questions
 - **Auto-Scheduled**: Wake up to fresh news every day
 - **Custom Topics**: Track exactly what matters to you
 - **6 Languages**: English, French, German, Spanish, Italian, Chinese
@@ -19,7 +21,7 @@
 1. **Install** from Obsidian Community Plugins
 2. **Choose AI Provider** (we recommend Gemini Agentic - it's free!)
 3. **Add API Key(s)** in settings
-4. **Set Topics** (e.g., "AI, Tesla, Bitcoin")
+4. **Apply a Briefing Preset** or set custom topics (e.g., "AI, Tesla, Bitcoin")
 5. **Schedule Time** (e.g., "08:00")
 
 Done! News will generate automatically at your scheduled time.
@@ -50,6 +52,8 @@ For detailed setup instructions, API guides, and advanced features:
 **Manual**:
 - Command Palette: `Ctrl/Cmd + P` → "Generate news now"
 - Sidebar: Click 📰 icon (opens today's news or creates it)
+
+**Presets**: Start from Morning Brief, Market Watch, AI/Tech Tracker, Research Digest, Company Monitor, or RSS Digest. Presets update topics, output style, and briefing focus while preserving API keys, provider choice, schedule, language, and archive settings.
 
 ## Troubleshooting
 
