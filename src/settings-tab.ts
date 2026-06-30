@@ -164,7 +164,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         if (currentPreset !== 'none' && BRIEFING_PRESETS[currentPreset]) {
             const preset = BRIEFING_PRESETS[currentPreset];
             presetSection.createEl('p', {
-                text: `Applies topics: ${preset.topics.join(', ')}. Preserves API keys, providers, schedule, archive folder, language, RSS feeds, retention, and cache.`,
+                text: `Apply preset changes: topics (${preset.topics.join(', ')}), output style (${preset.outputFormat}), analysis (${preset.enableAnalysisContext ? 'on' : 'off'}), template (${preset.templateType}), and briefing focus. Preserves API keys, providers, schedule, archive folder, language, RSS feeds, retention, metadata, and cache.`,
                 cls: 'settings-section-description'
             });
         }
