@@ -71,12 +71,15 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## Changelog
 
-### v1.13.0
-- Add preset configuration
+### v1.13.1
+- Update models
 
 ### Previous Versions
 <details>
 <summary>Click to view changelog history</summary>
+
+**1.13.0**
+- Add preset configuration
 
 **1.12.2**
 - Enhance code security and performance

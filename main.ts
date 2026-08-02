@@ -5,7 +5,7 @@ import { DailyNewsSettingTab } from './src/settings-tab';
 import { NewsProviderFactory } from './src/providers/news-provider-factory';
 import type { BaseNewsProvider } from './src/providers/base-news-provider';
 import { FileUtils, ContentUtils, MetadataUtils, LanguageUtils } from './src/utils';
-import { SECRET_FIELDS, LANGUAGE_TRANSLATIONS } from './src/constants';
+import { SECRET_FIELDS, LANGUAGE_TRANSLATIONS, OPENROUTER_DEFAULT_MODEL } from './src/constants';
 import { TemplateEngine } from './src/template/template-engine';
 import { SearchSummarizeCoordinator } from './src/providers/coordinators/search-summarize-coordinator';
 
@@ -129,6 +129,12 @@ export default class DailyNewsPlugin extends Plugin {
         const oldProvider = this.settings.apiProvider as string;
         if (oldProvider === 'google') {
             this.settings.apiProvider = 'google-gemini';
+            await this.saveData(this.settings);
+        }
+
+        // Migration: keep users on the current OpenRouter default model.
+        if (loadedData?.openrouterModel === 'anthropic/claude-sonnet-4.6') {
+            this.settings.openrouterModel = OPENROUTER_DEFAULT_MODEL;
             await this.saveData(this.settings);
         }
 

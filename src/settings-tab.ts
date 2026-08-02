@@ -338,10 +338,10 @@ export class DailyNewsSettingTab extends PluginSettingTab {
 
             new Setting(apiSection)
                 .setName('Model')
-                .setDesc('Enter the OpenRouter model ID to use (e.g. anthropic/claude-sonnet-4-5)')
+                .setDesc('Enter the OpenRouter model ID to use (e.g. anthropic/claude-sonnet-5)')
                 .addText(text => {
                     return text
-                        .setPlaceholder('anthropic/claude-sonnet-4-5')
+                        .setPlaceholder('anthropic/claude-sonnet-5')
                         .setValue(this.plugin.settings.openrouterModel)
                         .onChange(async (value) => {
                             this.plugin.settings.openrouterModel = value.trim();

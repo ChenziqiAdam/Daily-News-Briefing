@@ -49,12 +49,7 @@ export class GeminiSummarizer implements AISummarizer {
             
             const genAI = new GoogleGenerativeAI(this.settings.geminiApiKey);
             const model = genAI.getGenerativeModel({
-                model: GEMINI_MODEL_NAME,
-                generationConfig: {
-                    temperature: 0.2,
-                    topP: 0.95,
-                    topK: 40,
-                }
+                model: GEMINI_MODEL_NAME
             });
             
             const timeoutPromise = new Promise((_, reject) => 

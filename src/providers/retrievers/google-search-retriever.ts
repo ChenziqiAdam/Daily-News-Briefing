@@ -111,8 +111,6 @@ export class GoogleSearchRetriever implements NewsRetriever {
             const model = genAI.getGenerativeModel({
                 model: GEMINI_MODEL_NAME,
                 generationConfig: {
-                    temperature: 0.3,
-                    topK: 40,
                     maxOutputTokens: 100
                 }
             });
@@ -158,11 +156,7 @@ Only return the search query string itself, without any explanations or addition
         try {
             const genAI = new GoogleGenerativeAI(this.settings.geminiApiKey);
             const model = genAI.getGenerativeModel({
-                model: GEMINI_MODEL_NAME,
-                generationConfig: {
-                    temperature: 0.1,
-                    topK: 40,
-                }
+                model: GEMINI_MODEL_NAME
             });
 
             const judgePrompt = this.getAIJudgePrompt(newsItems, topic);
