@@ -1,7 +1,7 @@
 import type { BriefingPresetId, DailyNewsSettings } from './types';
 
 // API and Model Constants
-export const GEMINI_MODEL_NAME = "gemini-3.5-flash";
+export const GEMINI_MODEL_NAME = "gemini-2.5-flash";
 export const GPT_MODEL_NAME = "gpt-5.6-sol";
 export const PERPLEXITY_MODEL_NAME = "sonar";
 export const GROK_MODEL_NAME = "grok-4.5";

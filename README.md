@@ -71,7 +71,7 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## Changelog
 
-### v1.13.1
+### v1.13.2 && v1.13.1
 - Update models
 
 ### Previous Versions
