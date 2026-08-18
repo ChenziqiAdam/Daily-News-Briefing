@@ -1,3 +1,5 @@
+
+
 # Daily News Briefing for Obsidian
 
 > [Official Website](https://chenziqiadam.github.io/Daily-News-Briefing/) | [Full Documentation](https://chenziqiadam.github.io/Daily-News-Briefing/docs/index.html)
@@ -18,7 +20,7 @@
 
 ## Quick Start
 
-1. **Install** from Obsidian Community Plugins
+1. **Install** from Obsidian Community Plugins (requires Obsidian 1.11.4+)
 2. **Choose AI Provider** (we recommend Gemini Agentic - it's free!)
 3. **Add API Key(s)** in settings
 4. **Apply a Briefing Preset** or set custom topics (e.g., "AI, Tesla, Bitcoin")
