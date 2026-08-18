@@ -17,8 +17,13 @@ export class PerplexityNewsProvider extends BaseNewsProvider {
         return !!this.settings.perplexityApiKey;
     }
 
+    private getModel(): string {
+        return this.settings.perplexityModel || PERPLEXITY_MODEL_NAME;
+    }
+
     async testConnection(): Promise<{ success: boolean; message: string }> {
         if (!this.settings.perplexityApiKey) return { success: false, message: 'Perplexity API key is not set.' };
+        const model = this.getModel();
         try {
             const response = await requestUrl({
                 url: PERPLEXITY_API_URL,
@@ -28,13 +33,13 @@ export class PerplexityNewsProvider extends BaseNewsProvider {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    model: PERPLEXITY_MODEL_NAME,
+                    model,
                     messages: [{ role: 'user', content: 'hi' }],
                     max_tokens: 1,
                 }),
             });
             if (response.status >= 200 && response.status < 300) {
-                return { success: true, message: `Perplexity (${PERPLEXITY_MODEL_NAME}) connection successful.` };
+                return { success: true, message: `Perplexity (${model}) connection successful.` };
             }
             const err = JSON.parse(response.text);
             return { success: false, message: `Error ${response.status}: ${err?.error?.message || response.text}` };
@@ -51,7 +56,7 @@ export class PerplexityNewsProvider extends BaseNewsProvider {
             
             // Prepare request body - Always search in English but translate results to target language
             const requestBody = {
-                model: PERPLEXITY_MODEL_NAME,
+                model: this.getModel(),
                 messages: [
                     {
                         role: "system",

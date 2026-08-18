@@ -19,15 +19,20 @@ export class GrokAgenticProvider extends BaseNewsProvider {
     }
 
 
+    private getModel(): string {
+        return this.settings.grokModel || GROK_MODEL_NAME;
+    }
+
     async testConnection(): Promise<{ success: boolean; message: string }> {
         if (!this.settings.grokApiKey) return { success: false, message: 'Grok API key is not set.' };
+        const model = this.getModel();
         try {
             const xai = createXai({ apiKey: this.settings.grokApiKey });
             await generateText({
-                model: xai.responses(GROK_MODEL_NAME),
+                model: xai.responses(model),
                 messages: [{ role: 'user', content: 'hi' }],
             });
-            return { success: true, message: `Grok (${GROK_MODEL_NAME}) connection successful.` };
+            return { success: true, message: `Grok (${model}) connection successful.` };
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Unknown error.';
             return { success: false, message: message };
@@ -94,7 +99,7 @@ Format your summary as bullet points with concrete facts:
                 `What are the latest significant news about "${topic}"?`;
             
             const { text } = await generateText({
-                model: xai.responses(GROK_MODEL_NAME),
+                model: xai.responses(this.getModel()),
                 messages: [{
                     role: 'system',
                     content: systemMessage,

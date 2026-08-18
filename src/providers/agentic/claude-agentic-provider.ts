@@ -31,16 +31,21 @@ export class ClaudeAgenticProvider extends BaseNewsProvider {
         });
     }
 
+    private getModel(): string {
+        return this.settings.claudeModel || CLAUDE_MODEL_NAME;
+    }
+
     async testConnection(): Promise<{ success: boolean; message: string }> {
         if (!this.settings.anthropicApiKey) return { success: false, message: 'Anthropic API key is not set.' };
+        const model = this.getModel();
         try {
             const client = this.getClient();
             await client.messages.create({
-                model: CLAUDE_MODEL_NAME,
+                model,
                 max_tokens: 1,
                 messages: [{ role: 'user', content: 'hi' }],
             });
-            return { success: true, message: `Anthropic (${CLAUDE_MODEL_NAME}) connection successful.` };
+            return { success: true, message: `Anthropic (${model}) connection successful.` };
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Unknown error.';
             return { success: false, message: message };
@@ -105,7 +110,7 @@ Format your summary as bullet points with concrete facts:
                 `What are the latest significant news about "${topic}"?`;
 
             const response = await client.messages.create({
-                model: CLAUDE_MODEL_NAME,
+                model: this.getModel(),
                 max_tokens: 8192,
                 system: systemMessage,
                 tools: [

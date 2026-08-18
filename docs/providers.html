@@ -103,7 +103,7 @@
       <p>Each provider handles web search + summarization in one call:</p>
       <table>
         <thead>
-          <tr><th>Provider</th><th>Model</th><th>Best For</th></tr>
+          <tr><th>Provider</th><th>Default Model</th><th>Best For</th></tr>
         </thead>
         <tbody>
           <tr>
@@ -138,6 +138,7 @@
           </tr>
         </tbody>
       </table>
+      <p>Every provider's model field is editable in plugin settings — enter any model ID your API key supports. Leave it blank to use the default shown above.</p>
     </section>
 
     <section id="modular-providers">
@@ -181,7 +182,7 @@ graph LR
 
       <table>
         <thead>
-          <tr><th>Summarizer</th><th>Model</th><th>Cost</th><th>Get API Key</th></tr>
+          <tr><th>Summarizer</th><th>Default Model</th><th>Cost</th><th>Get API Key</th></tr>
         </thead>
         <tbody>
           <tr>
@@ -266,6 +267,7 @@ graph LR
           </tr>
         </tbody>
       </table>
+      <p>Each provider (Gemini, Perplexity, GPT, Claude, Grok) also has an optional <strong>Model</strong> field in settings — enter any model ID your API key supports, or leave it blank to use the default.</p>
 
       <h3>Google Search + Summarizer <span style="font-size:13px;font-weight:400;color:var(--ink-faint)">(modular)</span></h3>
       <p>All modular Google pipelines share the same two Google keys. Then add the summarizer key.</p>

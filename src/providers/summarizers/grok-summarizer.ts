@@ -12,15 +12,20 @@ export class GrokSummarizer implements AISummarizer {
         this.settings = settings;
     }
 
+    private getModel(): string {
+        return this.settings.grokModel || GROK_MODEL_NAME;
+    }
+
     async testConnection(): Promise<{ success: boolean; message: string }> {
         if (!this.settings.grokApiKey) return { success: false, message: 'Grok API key is not set.' };
+        const model = this.getModel();
         try {
             const xai = createXai({ apiKey: this.settings.grokApiKey });
             await generateText({
-                model: xai.responses(GROK_MODEL_NAME),
+                model: xai.responses(model),
                 messages: [{ role: 'user', content: 'hi' }],
             });
-            return { success: true, message: `Grok (${GROK_MODEL_NAME}) connection successful.` };
+            return { success: true, message: `Grok (${model}) connection successful.` };
         } catch (error: any) {
             return { success: false, message: error?.message || 'Unknown error.' };
         }
@@ -54,7 +59,7 @@ export class GrokSummarizer implements AISummarizer {
 
         try {
             const { text } = await generateText({
-                model: xai.responses(GROK_MODEL_NAME),
+                model: xai.responses(this.getModel()),
                 messages: [{
                     role: 'system',
                     content: systemMessage,

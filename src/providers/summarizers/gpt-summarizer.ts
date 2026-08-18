@@ -17,15 +17,20 @@ export class GptSummarizer implements AISummarizer {
         });
     }
 
+    private getModel(): string {
+        return this.settings.gptModel || GPT_MODEL_NAME;
+    }
+
     async testConnection(): Promise<{ success: boolean; message: string }> {
         if (!this.settings.openaiApiKey) return { success: false, message: 'OpenAI API key is not set.' };
+        const model = this.getModel();
         try {
             await this.client.chat.completions.create({
-                model: GPT_MODEL_NAME,
+                model,
                 messages: [{ role: 'user', content: 'hi' }],
                 max_tokens: 1,
             });
-            return { success: true, message: `OpenAI (${GPT_MODEL_NAME}) connection successful.` };
+            return { success: true, message: `OpenAI (${model}) connection successful.` };
         } catch (error: any) {
             return { success: false, message: error?.message || 'Unknown error.' };
         }
@@ -51,7 +56,7 @@ export class GptSummarizer implements AISummarizer {
 
         try {
             const completion = await this.client.chat.completions.create({
-                model: GPT_MODEL_NAME,
+                model: this.getModel(),
                 // NO web_search_options here, as this is purely for summarization
                 messages: [{
                     "role": "system",

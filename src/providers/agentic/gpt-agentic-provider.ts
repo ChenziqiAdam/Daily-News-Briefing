@@ -25,14 +25,19 @@ export class GptAgenticProvider extends BaseNewsProvider {
     }
 
 
+    private getModel(): string {
+        return this.settings.gptModel || GPT_MODEL_NAME;
+    }
+
     async testConnection(): Promise<{ success: boolean; message: string }> {
         if (!this.settings.openaiApiKey) return { success: false, message: 'OpenAI API key is not set.' };
+        const model = this.getModel();
         try {
             await this.client.responses.create({
-                model: GPT_MODEL_NAME,
+                model,
                 input: 'hi',
             });
-            return { success: true, message: `OpenAI (${GPT_MODEL_NAME}) connection successful.` };
+            return { success: true, message: `OpenAI (${model}) connection successful.` };
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Unknown error.';
             return { success: false, message: message };
@@ -91,7 +96,7 @@ Format your summary as bullet points with concrete facts:
                 `What are the latest significant news about "${topic}"?`;
             
             const completion = await this.client.responses.create({
-                model: GPT_MODEL_NAME,
+                model: this.getModel(),
                 tools: [{ type: 'web_search' }],
                 instructions: systemMessage,
                 input: userContent,

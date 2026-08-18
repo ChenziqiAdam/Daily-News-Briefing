@@ -1,4 +1,11 @@
-import { OPENROUTER_DEFAULT_MODEL } from './constants';
+import {
+    OPENROUTER_DEFAULT_MODEL,
+    GEMINI_MODEL_NAME,
+    GPT_MODEL_NAME,
+    PERPLEXITY_MODEL_NAME,
+    GROK_MODEL_NAME,
+    CLAUDE_MODEL_NAME
+} from './constants';
 
 export type BriefingPresetId = 'none' | 'morning' | 'market' | 'ai-tech' | 'research' | 'company' | 'rss';
 
@@ -16,18 +23,23 @@ export interface DailyNewsSettings {
     googleSearchApiKey: string;
     googleSearchEngineId: string;
     geminiApiKey: string;
+    geminiModel: string;
 
     // Perplexity API settings
     perplexityApiKey: string;
+    perplexityModel: string;
 
     // OpenAI API settings
     openaiApiKey: string;
+    gptModel: string;
 
     // Grok API settings
     grokApiKey: string;
+    grokModel: string;
 
     // Anthropic API settings
     anthropicApiKey: string;
+    claudeModel: string;
 
     // OpenRouter API settings
     openrouterApiKey: string;
@@ -105,18 +117,23 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
     googleSearchApiKey: '',
     googleSearchEngineId: '',
     geminiApiKey: '',
+    geminiModel: GEMINI_MODEL_NAME,
 
     // Perplexity API settings
     perplexityApiKey: '',
+    perplexityModel: PERPLEXITY_MODEL_NAME,
 
     // OpenAI API settings
     openaiApiKey: '',
+    gptModel: GPT_MODEL_NAME,
 
     // Grok API settings
     grokApiKey: '',
+    grokModel: GROK_MODEL_NAME,
 
     // Anthropic API settings
     anthropicApiKey: '',
+    claudeModel: CLAUDE_MODEL_NAME,
 
     // OpenRouter API settings
     openrouterApiKey: '',

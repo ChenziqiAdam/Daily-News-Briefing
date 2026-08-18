@@ -17,16 +17,21 @@ export class GeminiAgenticProvider extends BaseNewsProvider {
         return !!this.settings.geminiApiKey;
     }
 
+    private getModel(): string {
+        return this.settings.geminiModel || GEMINI_MODEL_NAME;
+    }
+
     async testConnection(): Promise<{ success: boolean; message: string }> {
         if (!this.settings.geminiApiKey) return { success: false, message: 'Gemini API key is not set.' };
+        const model = this.getModel();
         try {
             const ai = new GoogleGenAI({ apiKey: this.settings.geminiApiKey });
             await ai.models.generateContent({
-                model: GEMINI_MODEL_NAME,
+                model,
                 contents: 'hi',
                 config: { maxOutputTokens: 1 },
             });
-            return { success: true, message: `Gemini (${GEMINI_MODEL_NAME}) connection successful.` };
+            return { success: true, message: `Gemini (${model}) connection successful.` };
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Unknown error.';
             return { success: false, message: message };
@@ -91,7 +96,7 @@ Format your summary as bullet points with concrete facts:
                 `What are the latest significant news about "${topic}"?`;
 
             const response = await ai.models.generateContent({
-                model: GEMINI_MODEL_NAME,
+                model: this.getModel(),
                 contents: `${systemInstruction}\n\n${userContent}`,
                 config: {
                     tools: [{ googleSearch: {} }],

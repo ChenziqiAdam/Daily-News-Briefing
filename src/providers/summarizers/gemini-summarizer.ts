@@ -11,13 +11,18 @@ export class GeminiSummarizer implements AISummarizer {
         this.settings = settings;
     }
 
+    private getModel(): string {
+        return this.settings.geminiModel || GEMINI_MODEL_NAME;
+    }
+
     async testConnection(): Promise<{ success: boolean; message: string }> {
         if (!this.settings.geminiApiKey) return { success: false, message: 'Gemini API key is not set.' };
+        const modelName = this.getModel();
         try {
             const genAI = new GoogleGenerativeAI(this.settings.geminiApiKey);
-            const model = genAI.getGenerativeModel({ model: GEMINI_MODEL_NAME });
+            const model = genAI.getGenerativeModel({ model: modelName });
             await model.generateContent({ contents: [{ role: 'user', parts: [{ text: 'hi' }] }], generationConfig: { maxOutputTokens: 1 } });
-            return { success: true, message: `Gemini (${GEMINI_MODEL_NAME}) connection successful.` };
+            return { success: true, message: `Gemini (${modelName}) connection successful.` };
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Unknown error.';
             return { success: false, message: message };
@@ -49,7 +54,7 @@ export class GeminiSummarizer implements AISummarizer {
             
             const genAI = new GoogleGenerativeAI(this.settings.geminiApiKey);
             const model = genAI.getGenerativeModel({
-                model: GEMINI_MODEL_NAME
+                model: this.getModel()
             });
             
             const timeoutPromise = new Promise((_, reject) => 

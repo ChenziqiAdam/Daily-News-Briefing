@@ -2,7 +2,15 @@ import { App, PluginSettingTab, Setting, Notice, SecretComponent } from 'obsidia
 import type { BriefingPresetId, DailyNewsSettings } from './types';
 import type DailyNewsPlugin from '../main';
 import { NewsProviderFactory } from './providers/news-provider-factory';
-import { BRIEFING_PRESETS, LANGUAGE_NAMES } from './constants';
+import {
+    BRIEFING_PRESETS,
+    LANGUAGE_NAMES,
+    GEMINI_MODEL_NAME,
+    GPT_MODEL_NAME,
+    PERPLEXITY_MODEL_NAME,
+    GROK_MODEL_NAME,
+    CLAUDE_MODEL_NAME
+} from './constants';
 import { TemplateEngine } from './template/template-engine';
 import { TEMPLATE_DESCRIPTIONS, TEMPLATE_EXAMPLE, TEMPLATE_FILE_EXAMPLE } from './template/template-presets';
 import { GeminiSummarizer } from './providers/summarizers/gemini-summarizer';
@@ -65,6 +73,19 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 (this.plugin.settings as any)[settingKey] = value;
                 await this.plugin.saveSettings();
             }));
+    }
+
+    private addModelSetting(containerEl: HTMLElement, settingKey: keyof DailyNewsSettings, defaultModel: string, placeholder: string): void {
+        new Setting(containerEl)
+            .setName('Model')
+            .setDesc(`Enter the model ID to use. Leave blank to use the default (${defaultModel}).`)
+            .addText(text => text
+                .setPlaceholder(placeholder)
+                .setValue((this.plugin.settings[settingKey] as string) || '')
+                .onChange(async (value) => {
+                    (this.plugin.settings as any)[settingKey] = value.trim();
+                    await this.plugin.saveSettings();
+                }));
     }
 
     private createSection(containerEl: HTMLElement, title: string, description?: string): HTMLElement {
@@ -310,26 +331,31 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         if ((pipelineMode === 'modular' && summarizer === 'gemini') || (pipelineMode === 'agentic' && agenticProvider === 'gemini')) {
             apiSection.createDiv({text: 'Gemini API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the Google Gemini API key from Obsidian Secret Storage', 'geminiApiKey');
+            this.addModelSetting(apiSection, 'geminiModel', GEMINI_MODEL_NAME, 'e.g. gemini-2.5-flash');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'gpt') || (pipelineMode === 'agentic' && agenticProvider === 'gpt')) {
             apiSection.createDiv({text: 'OpenAI API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the OpenAI API key from Obsidian Secret Storage', 'openaiApiKey');
+            this.addModelSetting(apiSection, 'gptModel', GPT_MODEL_NAME, 'e.g. gpt-5.6-sol');
         }
 
         if (pipelineMode === 'agentic' && agenticProvider === 'sonar') {
             apiSection.createDiv({text: 'Perplexity API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the Perplexity API key from Obsidian Secret Storage', 'perplexityApiKey');
+            this.addModelSetting(apiSection, 'perplexityModel', PERPLEXITY_MODEL_NAME, 'e.g. sonar');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'grok') || (pipelineMode === 'agentic' && agenticProvider === 'grok')) {
             apiSection.createDiv({text: 'Grok API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the Grok API key from Obsidian Secret Storage', 'grokApiKey');
+            this.addModelSetting(apiSection, 'grokModel', GROK_MODEL_NAME, 'e.g. grok-4.5');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'claude') || (pipelineMode === 'agentic' && agenticProvider === 'claude')) {
             apiSection.createDiv({text: 'Anthropic API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the Anthropic API key from Obsidian Secret Storage', 'anthropicApiKey');
+            this.addModelSetting(apiSection, 'claudeModel', CLAUDE_MODEL_NAME, 'e.g. claude-sonnet-5');
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'openrouter') || (pipelineMode === 'agentic' && agenticProvider === 'openrouter')) {
