@@ -1,4 +1,12 @@
 import type { DailyNewsSettings } from '../types';
+import {
+    GEMINI_MODEL_NAME,
+    GPT_MODEL_NAME,
+    PERPLEXITY_MODEL_NAME,
+    GROK_MODEL_NAME,
+    CLAUDE_MODEL_NAME,
+    OPENROUTER_DEFAULT_MODEL
+} from '../constants';
 import { BaseNewsProvider } from './base-news-provider';
 import { GoogleSearchRetriever } from './retrievers/google-search-retriever';
 import { RSSRetriever } from './retrievers/rss-retriever';
@@ -114,29 +122,47 @@ export class NewsProviderFactory {
         }
     }
 
+    static getModelName(settings: DailyNewsSettings): string | null {
+        const provider = settings.pipelineMode === 'agentic' ? settings.agenticProvider : settings.summarizer;
+        switch (provider) {
+            case 'gemini':     return settings.geminiModel || GEMINI_MODEL_NAME;
+            case 'gpt':        return settings.gptModel || GPT_MODEL_NAME;
+            case 'sonar':      return settings.perplexityModel || PERPLEXITY_MODEL_NAME;
+            case 'grok':       return settings.grokModel || GROK_MODEL_NAME;
+            case 'claude':     return settings.claudeModel || CLAUDE_MODEL_NAME;
+            case 'openrouter': return settings.openrouterModel || OPENROUTER_DEFAULT_MODEL;
+            default:           return null;
+        }
+    }
+
     static getProviderName(settings: DailyNewsSettings): string {
+        let name: string;
+
         if (settings.pipelineMode === 'agentic') {
             switch (settings.agenticProvider) {
-                case 'sonar':      return 'Sonar by Perplexity';
-                case 'gpt':        return 'GPT (Agentic Search)';
-                case 'grok':       return 'Grok (Agentic Search)';
-                case 'claude':     return 'Claude (Agentic Search)';
-                case 'openrouter': return 'OpenRouter (Agentic Search)';
-                case 'gemini':     return 'Gemini (Agentic Search)';
+                case 'sonar':      name = 'Sonar by Perplexity'; break;
+                case 'gpt':        name = 'GPT (Agentic Search)'; break;
+                case 'grok':       name = 'Grok (Agentic Search)'; break;
+                case 'claude':     name = 'Claude (Agentic Search)'; break;
+                case 'openrouter': name = 'OpenRouter (Agentic Search)'; break;
+                case 'gemini':     name = 'Gemini (Agentic Search)'; break;
                 default:           return 'Unknown Agentic Provider';
+            }
+        } else {
+            const sourceLabel = settings.newsSource === 'rss' ? 'RSS'
+                : settings.newsSource === 'perplexity' ? 'Perplexity Search'
+                : 'Google Search';
+            switch (settings.summarizer) {
+                case 'gemini':      name = `${sourceLabel} + Gemini Summarizer`; break;
+                case 'gpt':         name = `${sourceLabel} + GPT Summarizer`; break;
+                case 'grok':        name = `${sourceLabel} + Grok Summarizer`; break;
+                case 'claude':      name = `${sourceLabel} + Claude Summarizer`; break;
+                case 'openrouter':  name = `${sourceLabel} + OpenRouter Summarizer`; break;
+                default:            return 'Unknown Provider';
             }
         }
 
-        const sourceLabel = settings.newsSource === 'rss' ? 'RSS'
-            : settings.newsSource === 'perplexity' ? 'Perplexity Search'
-            : 'Google Search';
-        switch (settings.summarizer) {
-            case 'gemini':      return `${sourceLabel} + Gemini Summarizer`;
-            case 'gpt':         return `${sourceLabel} + GPT Summarizer`;
-            case 'grok':        return `${sourceLabel} + Grok Summarizer`;
-            case 'claude':      return `${sourceLabel} + Claude Summarizer`;
-            case 'openrouter':  return `${sourceLabel} + OpenRouter Summarizer`;
-            default:            return 'Unknown Provider';
-        }
+        const modelName = this.getModelName(settings);
+        return modelName ? `${name} · ${modelName}` : name;
     }
 }
