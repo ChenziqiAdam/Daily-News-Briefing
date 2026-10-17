@@ -1,6 +1,8 @@
 import type { NewsItem, DailyNewsSettings } from '../../types';
 import type { NewsRetriever } from './base-retriever';
 import Parser from 'rss-parser';
+import { retryRequest } from '../request-policy';
+import { filterRecentNews } from '../../briefing';
 
 export class RSSRetriever implements NewsRetriever {
     private settings: DailyNewsSettings;
@@ -10,7 +12,7 @@ export class RSSRetriever implements NewsRetriever {
     constructor(settings: DailyNewsSettings) {
         this.settings = settings;
         this.parser = new Parser({
-            timeout: 10000,
+            timeout: Math.max(10, Math.min(300, settings.requestTimeoutSeconds)) * 1000,
             headers: {
                 'User-Agent': 'Obsidian Daily News Plugin'
             }
@@ -30,7 +32,7 @@ export class RSSRetriever implements NewsRetriever {
         // Fetch from all configured RSS feeds
         await Promise.all(this.settings.rssFeeds.map(async (feedUrl) => {
             try {
-                const feed = await this.parser.parseURL(feedUrl);
+                const feed = await retryRequest(() => this.parser.parseURL(feedUrl), this.settings.requestRetries);
 
                 // Filter items by topic relevance
                 const relevantItems = this.filterByTopic(feed.items || [], topic);
@@ -139,29 +141,6 @@ export class RSSRetriever implements NewsRetriever {
     }
 
     private filterByDateRange(items: NewsItem[]): NewsItem[] {
-        // Parse date range setting (e.g., 'd3' = 3 days, 'w1' = 1 week)
-        const dateRangeMatch = this.settings.dateRange.match(/^([dw])(\d+)$/);
-        if (!dateRangeMatch) {
-            return items; // No filtering if format is invalid
-        }
-
-        const unit = dateRangeMatch[1];
-        const amount = parseInt(dateRangeMatch[2]);
-
-        const now = new Date();
-        const cutoffDate = new Date();
-
-        if (unit === 'd') {
-            cutoffDate.setDate(now.getDate() - amount);
-        } else if (unit === 'w') {
-            cutoffDate.setDate(now.getDate() - (amount * 7));
-        }
-
-        return items.filter(item => {
-            if (!item.publishedTime) return true; // Keep items without date
-
-            const itemDate = new Date(item.publishedTime);
-            return itemDate >= cutoffDate;
-        });
+        return filterRecentNews(items, this.settings);
     }
 }

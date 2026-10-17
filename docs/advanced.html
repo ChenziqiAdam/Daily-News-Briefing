@@ -59,6 +59,7 @@
       <a href="usage.html#troubleshooting">Troubleshooting</a>
 
       <span class="nav-label">Advanced</span>
+      <a href="#quality">Quality &amp; Reliability</a>
       <a href="#search-optimization">Search Optimization</a>
       <a href="#rate-limits">Rate Limits</a>
       <a href="#architecture">Architecture</a>
@@ -67,6 +68,20 @@
   </aside>
 
   <main class="docs-main">
+
+    <section id="quality">
+      <h2>Quality &amp; Reliability</h2>
+      <p>Every pipeline now returns validated structured news: title, factual summary, optional AI analysis, publication date and source IDs. Native citation/retrieval metadata supplies the clickable source links. Unknown source IDs, unsafe links, malformed JSON and truncated responses cannot become successful news items.</p>
+      <h3>Publication dates</h3>
+      <p>The News time window applies to all providers. New installs default to <code>d1</code> (last 24 hours); existing date ranges are preserved. Unknown dates are excluded by default. Enable “Include news without publication dates” to retain them with a warning. Dates taken from source metadata and dates reported by the model have separate labels. A date without a time is treated as a calendar-day interval and cannot prove exact 24-hour freshness. These checks verify source membership and dates, not the truth of every claim.</p>
+      <h3>Calls, retries and limits</h3>
+      <p>Native search normally uses two model calls per topic: research with native sources, followed by structured formatting without tools. Sonar can search again during formatting. RSS + Gemini needs one non-search model call per topic. Configure output-token limits, timeouts, up to two retries for explicit throttling/server errors, and search-call limits where supported. Google grounding and Grok may not enforce a hard search-count cap. Retries may be billable; Obsidian HTTP timeouts stop waiting but cannot cancel remote work.</p>
+      <p>Optional API usage in notes shows reported generation metadata, including cached generation metadata when reused. Unreported counts, retriever/query/judge calls and failed/retried calls can be missing. It is not a currency budget or bill estimate. No automatic model/provider fallback is used.</p>
+      <h3>Failures and caches</h3>
+      <p>Empty results and API errors are distinct. Failed, empty and partial-feed results are not cached. Successful caches include content settings and are checked against the moving time window before reuse. Run <strong>Retry news generation (save a new note)</strong> to preserve the original note while retrying. Custom prompts can guide editorial choices; the JSON/source/time contract and renderer still control output. Custom note templates are supported.</p>
+      <h3>Validation</h3>
+      <p><code>npm test</code> runs offline fixtures for all six providers, malformed citations/dates, freshness, cache invalidation, retries and note preservation. CI runs tests and a TypeScript production build on pull requests, branch pushes and releases. Real API availability and account quotas require an account-level connection test.</p>
+    </section>
 
     <section id="search-optimization">
       <h2>Advanced</h2>
@@ -97,7 +112,7 @@
         <thead><tr><th>Goal</th><th>Recommendation</th></tr></thead>
         <tbody>
           <tr><td><strong>Speed</strong></td><td>Agentic providers, fewer results per topic, concise format</td></tr>
-          <tr><td><strong>Cost</strong></td><td>Gemini Agentic Search, lower max search results</td></tr>
+          <tr><td><strong>Cost</strong></td><td>RSS + Gemini summaries, lower output limits, and fewer results</td></tr>
           <tr><td><strong>Quality</strong></td><td>Enable AI queries + AI judge, increase results per topic, use custom prompts</td></tr>
           <tr><td><strong>Coverage</strong></td><td>Results per topic 10–15, max search 40–50, broader date range</td></tr>
         </tbody>
@@ -110,14 +125,14 @@
         <thead><tr><th>Provider</th><th>Free Tier</th><th>Paid</th></tr></thead>
         <tbody>
           <tr><td><strong>Google Custom Search</strong></td><td>100 queries/day</td><td>$5 per 1,000</td></tr>
-          <tr><td><strong>Gemini</strong></td><td>1,500 req/day</td><td>Pay-as-you-go</td></tr>
+          <tr><td><strong>Gemini</strong></td><td>Project-specific model and tool quotas</td><td>Pay-as-you-go</td></tr>
           <tr><td><strong>OpenAI / Anthropic / Grok</strong></td><td>No free tier</td><td>Pay-per-use</td></tr>
           <tr><td><strong>Perplexity</strong></td><td>No free tier</td><td>Subscription</td></tr>
           <tr><td><strong>OpenRouter</strong></td><td>No free tier</td><td>Varies by model</td></tr>
         </tbody>
       </table>
       <div class="alert alert-info">
-        For 3 topics with Gemini Agentic Search, expect ~3–6 Gemini calls per day — well within free limits (1,500 req/day).
+        Each topic may trigger model calls and search queries. Gemini 3.8 Flash supports free API text summaries, but Search grounding requires billing. Legacy Gemini 2.5 Flash free Search is restricted to eligible existing users and project quotas. Check your actual limits in Google AI Studio.
       </div>
     </section>
 
@@ -176,7 +191,7 @@ graph TD
     news-provider-factory.ts  # Factory
     agentic/                  # Perplexity, GPT, Claude, Grok, OpenRouter, Gemini
     coordinators/             # Search-Summarize coordinator
-    retrievers/               # Google Search, RSS
+    retrievers/               # Google Search, RSS, Perplexity Search
     summarizers/              # Gemini, GPT, Claude, Grok, OpenRouter
   template/
     template-engine.ts        # Rendering engine
@@ -195,7 +210,7 @@ npm run build  # Production build</code></pre>
 
       <h4>Testing</h4>
       <ol>
-        <li>Run <code>npm run build</code></li>
+        <li>Run <code>npm test</code> and <code>npm run build</code></li>
         <li>Copy <code>main.js</code>, <code>manifest.json</code>, <code>styles.css</code> to your vault's <code>.obsidian/plugins/daily-news-briefing/</code></li>
         <li>Reload Obsidian (<code>Ctrl/Cmd+R</code>)</li>
       </ol>
@@ -206,7 +221,7 @@ npm run build  # Production build</code></pre>
         <div>
           <ol>
             <li>Create <code>src/providers/agentic/your-provider.ts</code></li>
-            <li>Extend <code>BaseNewsProvider</code>, implement <code>generateNews(topics, language)</code></li>
+            <li>Extend <code>BaseNewsProvider</code>, implement <code>fetchAndSummarizeNews(topic): Promise&lt;BriefingResult&gt;</code></li>
             <li>Register in <code>NewsProviderFactory</code></li>
             <li>Add settings UI and types</li>
           </ol>

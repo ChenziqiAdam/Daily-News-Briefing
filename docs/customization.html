@@ -58,6 +58,7 @@
       <a href="usage.html#troubleshooting">Troubleshooting</a>
 
       <span class="nav-label">Advanced</span>
+      <a href="advanced.html#quality">Quality &amp; Reliability</a>
       <a href="advanced.html#search-optimization">Search Optimization</a>
       <a href="advanced.html#rate-limits">Rate Limits</a>
       <a href="advanced.html#architecture">Architecture</a>
@@ -176,10 +177,10 @@
 
     <section id="custom-prompts">
       <h2>Custom Prompts</h2>
-      <p>Override the default AI prompts to customize summarization behavior.</p>
+      <p>Customize editorial priorities, detail and focus. The plugin still requires validated JSON, source IDs and publication-date rules. The renderer controls news-item layout; use note templates for the surrounding document.</p>
 
       <h3>Summarization Prompt</h3>
-      <p>Use <code>{{NEWS_TEXT}}</code> as a placeholder for the news content:</p>
+      <p>Use <code>{{NEWS_TEXT}}</code> for source data and <code>{{TOPIC}}</code> for the topic. These preferences apply during structured summarization:</p>
 
       <div class="feature-box">
         <h5>Example: Breaking News Focus</h5>
@@ -189,7 +190,7 @@ Ignore opinion pieces and minor updates.
 News content:
 {{NEWS_TEXT}}
 
-Format as bullet points with bold headline, 2-3 sentence summary, and source link.</code></pre>
+Keep each factual summary to 2–3 sentences. Put interpretation in the analysis field and cite only the supplied source IDs. Preserve the required JSON structure.</code></pre>
       </div>
 
       <div class="feature-box">
@@ -198,7 +199,7 @@ Format as bullet points with bold headline, 2-3 sentence summary, and source lin
 
 {{NEWS_TEXT}}
 
-For each item provide: market impact, key financial metrics, and risk factors.</code></pre>
+Include source-supported financial metrics in the factual summary. Put possible market impact and risk interpretation in the analysis field. Preserve the required JSON structure.</code></pre>
       </div>
 
       <h3>AI Judge Prompt <span style="font-size:13px;font-weight:400;color:var(--ink-faint)">(Google providers only)</span></h3>
@@ -216,7 +217,7 @@ News list:
       <h3>Tips</h3>
       <ul>
         <li>Be specific about what to include and exclude</li>
-        <li>Request a specific format (bullet points, tables, etc.)</li>
+        <li>Specify emphasis and detail; preserve the JSON schema and source/time rules. Use templates for note layout.</li>
         <li>Set clear priorities for the AI</li>
         <li>Test iteratively — start simple and refine</li>
       </ul>

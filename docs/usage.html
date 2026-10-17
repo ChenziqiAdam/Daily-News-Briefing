@@ -58,6 +58,7 @@
       <a href="#troubleshooting">Troubleshooting</a>
 
       <span class="nav-label">Advanced</span>
+      <a href="advanced.html#quality">Quality &amp; Reliability</a>
       <a href="advanced.html#search-optimization">Search Optimization</a>
       <a href="advanced.html#rate-limits">Rate Limits</a>
       <a href="advanced.html#architecture">Architecture</a>
@@ -142,16 +143,20 @@
       <p><strong>Command Palette:</strong> <code>Ctrl/Cmd+P</code> &gt; "Generate news now"</p>
       <p><strong>Sidebar button:</strong> Click the newspaper icon. Opens today's note if it exists, or creates a new one.</p>
 
+      <h3>Retrying and understanding results</h3>
+      <p>Run <strong>Retry news generation (save a new note)</strong> to retry without overwriting an existing briefing or your annotations. Successful topic caches are reused only while still within the selected time window; failed, empty and partial-feed outcomes are not cached.</p>
+      <p>“No source-backed news” is an empty result, not an API failure. Quality notes explain excluded references or uncertain dates. Source metadata dates, model-reported dates and unknown dates have distinct labels. AI analysis is separate from factual summaries.</p>
+
       <h3>File Organization</h3>
       <pre><code>Your Vault/
   News Archive/
     2026-02/
-      2026-02-25.md
-      2026-02-26.md
+      Daily News - 2026-02-25.md
+      Daily News - 2026-02-26.md
     2026-01/
-      2026-01-31.md
+      Daily News - 2026-01-31.md
       ...</code></pre>
-      <p>Notes are named <code>YYYY-MM-DD.md</code> and auto-organized into monthly subfolders. Use the "Reorganize existing notes" button in settings to migrate old notes.</p>
+      <p>Notes are named <code>Daily News - YYYY-MM-DD.md</code>; retries append <code> - Retry TIMESTAMP</code> and auto-organized into monthly subfolders. Use the "Reorganize existing notes" button in settings to migrate old notes.</p>
     </section>
 
     <section id="languages">
@@ -177,7 +182,7 @@
       <h3>No News Generated / Empty Content</h3>
       <div class="feature-box">
         <ul>
-          <li><strong>Test Connection:</strong> Use the <strong>Test Connection</strong> button in <em>Settings &gt; API Configuration</em> to verify your API key and model are working.</li>
+          <li><strong>Test Connection:</strong> Use the <strong>Test Connection</strong> button in <em>Settings &gt; API Configuration</em> to verify your API key and model. Agentic tests perform a real search and may incur API/search usage.</li>
           <li><strong>API keys:</strong> Ensure secrets are saved in <strong>Settings &gt; Secret Storage</strong> and linked in plugin settings. Check for expired keys or missing secrets (Google providers need all 3).</li>
           <li><strong>Topics:</strong> Must be comma-separated. Use specific topics for better results.</li>
           <li><strong>Network:</strong> Verify internet connection and API endpoint access</li>
@@ -192,7 +197,7 @@
           <tr><td><strong>Invalid API Key</strong></td><td>Use <strong>Test Connection</strong> to confirm, then regenerate key and check for extra whitespace</td></tr>
           <tr><td><strong>Insufficient Credits</strong></td><td>Check billing in provider dashboard</td></tr>
           <tr><td><strong>Rate Limiting</strong></td><td>Wait 5–10 minutes, reduce search results count</td></tr>
-          <tr><td><strong>Quota Exceeded</strong></td><td>Google free tier: 100 queries/day. Wait for reset or reduce settings.</td></tr>
+          <tr><td><strong>Quota Exceeded</strong></td><td>Check your project-specific model and search quotas. RSS + Gemini offers free-tier summaries; newer Gemini Search grounding requires billing. Legacy Google Custom Search is closed to new customers and ends January 1, 2027.</td></tr>
           <tr><td><strong>Timeout</strong></td><td>Check connection, try a different provider, reduce topics</td></tr>
         </tbody>
       </table>

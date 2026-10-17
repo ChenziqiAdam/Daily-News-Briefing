@@ -3,18 +3,31 @@ name: Release
 on:
   push:
     tags:
-      - '*'
+      - '[0-9]*.[0-9]*.[0-9]*'
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
-  contents: write
-  id-token: write
-  attestations: write
+  contents: read
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    env:
+      RELEASE_TAG: ${{ github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -22,28 +35,63 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
+      - name: Validate versions and prepare release notes
+        run: node scripts/validate-release.mjs "$RELEASE_TAG" "$RUNNER_TEMP/release-notes.md"
+
+      - name: Refuse to overwrite an existing release
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Authentication and network errors must fail, not mean "no release".
+          gh api --paginate "repos/$GH_REPO/releases?per_page=100" \
+            --jq '.[].tag_name' > "$RUNNER_TEMP/release-tags.txt"
+          if grep -Fxq -- "$RELEASE_TAG" "$RUNNER_TEMP/release-tags.txt"; then
+            echo "::error::Release $RELEASE_TAG already exists. Use a new version."
+            exit 1
+          fi
+
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Test
+        run: npm test
 
       - name: Build
         run: npm run build
 
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            main.js
-            manifest.json
-            styles.css
-          generate_release_notes: true
+      - name: Stage release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets
+          for file in main.js manifest.json styles.css; do
+            test -s "$file"
+            cp "$file" release-assets/
+          done
+          (cd release-assets && sha256sum main.js manifest.json styles.css > SHA256SUMS.txt)
 
-      - name: Attest main.js
+      - name: Keep build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-news-briefing-${{ github.ref_name }}
+          path: release-assets/
+          if-no-files-found: error
+
+      - name: Attest release assets
         uses: actions/attest-build-provenance@v2
         with:
-          subject-path: 'main.js'
+          subject-path: |
+            release-assets/main.js
+            release-assets/manifest.json
+            release-assets/styles.css
 
-      - name: Attest styles.css
-        uses: actions/attest-build-provenance@v2
-        with:
-          subject-path: 'styles.css'
+      - name: Create draft and upload assets
+        run: |
+          gh release create "$RELEASE_TAG" \
+            release-assets/main.js release-assets/manifest.json \
+            release-assets/styles.css release-assets/SHA256SUMS.txt \
+            --verify-tag --draft --title "v$RELEASE_TAG" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"
+
+      - name: Publish release
+        run: gh release edit "$RELEASE_TAG" --draft=false --latest

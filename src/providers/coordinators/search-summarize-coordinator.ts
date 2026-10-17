@@ -1,7 +1,8 @@
 import { BaseNewsProvider } from '../base-news-provider';
 import type { NewsRetriever } from '../retrievers/base-retriever';
 import type { AISummarizer } from '../summarizers/base-summarizer';
-import { LanguageUtils } from '../../utils';
+import { filterRecentNews, emptyUsage, failure } from '../../briefing';
+import type { BriefingResult } from '../../briefing';
 import type { DailyNewsSettings } from '../../types';
 
 export class SearchSummarizeCoordinator extends BaseNewsProvider {
@@ -32,16 +33,14 @@ export class SearchSummarizeCoordinator extends BaseNewsProvider {
         return this.retriever._lastFailedFeeds ?? [];
     }
 
-    async fetchAndSummarizeNews(topic: string): Promise<string> {
-        // Reset failed feeds tracking before each call
+    async fetchAndSummarizeNews(topic: string): Promise<BriefingResult> {
         this.retriever._lastFailedFeeds = [];
-
-        const newsItems = await this.retriever.fetchNews(topic);
-
-        if (newsItems.length === 0) {
-            return `${LanguageUtils.getTranslation('noRecentNews', this.settings.language)} ${topic}.`;
-        }
-
-        return await this.summarizer.summarize(newsItems, topic);
+        try {
+            const newsItems = filterRecentNews(await this.retriever.fetchNews(topic), this.settings);
+            const result = newsItems.length ? await this.summarizer.summarize(newsItems, topic)
+                : { status: 'empty' as const, items: [], sources: [], warnings: [], usage: emptyUsage() };
+            if (this.retriever._lastFailedFeeds?.length) result.warnings.push('partial_feeds');
+            return result;
+        } catch (error) { return failure(error); }
     }
 }

@@ -1,6 +1,7 @@
 import type { DailyNewsSettings } from '../types';
 import {
     GEMINI_MODEL_NAME,
+    GEMINI_SUMMARY_MODEL_NAME,
     GPT_MODEL_NAME,
     PERPLEXITY_MODEL_NAME,
     GROK_MODEL_NAME,
@@ -125,7 +126,7 @@ export class NewsProviderFactory {
     static getModelName(settings: DailyNewsSettings): string | null {
         const provider = settings.pipelineMode === 'agentic' ? settings.agenticProvider : settings.summarizer;
         switch (provider) {
-            case 'gemini':     return settings.geminiModel || GEMINI_MODEL_NAME;
+            case 'gemini':     return settings.geminiModel || (settings.pipelineMode === 'agentic' ? GEMINI_MODEL_NAME : GEMINI_SUMMARY_MODEL_NAME);
             case 'gpt':        return settings.gptModel || GPT_MODEL_NAME;
             case 'sonar':      return settings.perplexityModel || PERPLEXITY_MODEL_NAME;
             case 'grok':       return settings.grokModel || GROK_MODEL_NAME;

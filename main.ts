@@ -5,13 +5,18 @@ import { DailyNewsSettingTab } from './src/settings-tab';
 import { NewsProviderFactory } from './src/providers/news-provider-factory';
 import type { BaseNewsProvider } from './src/providers/base-news-provider';
 import { FileUtils, ContentUtils, MetadataUtils, LanguageUtils } from './src/utils';
-import { SECRET_FIELDS, LANGUAGE_TRANSLATIONS, OPENROUTER_DEFAULT_MODEL } from './src/constants';
+import { SECRET_FIELDS, LANGUAGE_TRANSLATIONS } from './src/constants';
 import { TemplateEngine } from './src/template/template-engine';
 import { SearchSummarizeCoordinator } from './src/providers/coordinators/search-summarize-coordinator';
+import { renderBriefing, parseBriefing, failure } from './src/briefing';
+import type { BriefingResult } from './src/briefing';
+import { localDate, scheduleIsDue, topicCacheKey, migrateModelDefaults } from './src/runtime-utils';
 
 export default class DailyNewsPlugin extends Plugin {
     settings: DailyNewsSettings;
     private newsProvider: BaseNewsProvider;
+    private generationPromise: Promise<string | null> | null = null;
+    private lastScheduledAttemptDate = '';
 
     /** Returns a copy of settings with secret IDs resolved to actual key values. */
     resolveSecrets(): DailyNewsSettings {
@@ -19,8 +24,9 @@ export default class DailyNewsPlugin extends Plugin {
         const resolve = (val: string) => {
             if (!val) return '';
             const secret = s.getSecret(val);
-            // If val is a secret ID, return its value; otherwise treat val as a raw key.
-            return secret !== null ? secret : val;
+            if (secret !== null) return secret;
+            // A missing registered secret is not a raw API key.
+            return SECRET_FIELDS.some(field => field.secretId === val) ? '' : val;
         };
         return {
             ...this.settings,
@@ -85,6 +91,7 @@ export default class DailyNewsPlugin extends Plugin {
         this.registerInterval(
             window.setInterval(() => { void this.checkAndGenerateNews(); }, 60000)
         );
+        this.app.workspace.onLayoutReady(() => { void this.checkAndGenerateNews(); });
 
         // Add manual trigger command
         this.addCommand({
@@ -94,6 +101,12 @@ export default class DailyNewsPlugin extends Plugin {
                 new Notice('Generating news...');
                 await this.generateDailyNews();
             }
+        });
+
+        this.addCommand({
+            id: 'retry-news-generation',
+            name: 'Retry news generation (save a new note)',
+            callback: async () => { await this.generateDailyNews(true); }
         });
 
         this.addCommand({
@@ -107,7 +120,7 @@ export default class DailyNewsPlugin extends Plugin {
 
     async loadSettings() {
         const loadedData = await this.loadData();
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData);
+        this.settings = Object.assign(structuredClone(DEFAULT_SETTINGS), loadedData);
 
         // Migration: old single-field apiProvider -> new pipelineMode/newsSource/summarizer/agenticProvider
         if (loadedData && loadedData.apiProvider && !loadedData.pipelineMode) {
@@ -132,9 +145,7 @@ export default class DailyNewsPlugin extends Plugin {
             await this.saveData(this.settings);
         }
 
-        // Migration: keep users on the current OpenRouter default model.
-        if (loadedData?.openrouterModel === 'anthropic/claude-sonnet-4.6') {
-            this.settings.openrouterModel = OPENROUTER_DEFAULT_MODEL;
+        if (loadedData && migrateModelDefaults(this.settings, loadedData.modelDefaultsVersion)) {
             await this.saveData(this.settings);
         }
 
@@ -164,7 +175,7 @@ export default class DailyNewsPlugin extends Plugin {
     }
 
     private async cleanupOldCache() {
-        const today = new Date().toISOString().split('T')[0];
+        const today = localDate();
         const cacheKeys = Object.keys(this.settings.dailyTopicCache);
         let cleaned = 0;
 
@@ -194,18 +205,24 @@ export default class DailyNewsPlugin extends Plugin {
 
     async checkAndGenerateNews() {
         if (!this.settings.autoGenerateEnabled) return;
-
         const now = new Date();
-        const scheduledTime = this.settings.scheduleTime.split(':');
-        const targetHour = parseInt(scheduledTime[0]);
-        const targetMinute = parseInt(scheduledTime[1]);
+        const today = localDate(now);
+        if (!scheduleIsDue(this.settings.scheduleTime, now) || this.lastScheduledAttemptDate === today) return;
+        this.lastScheduledAttemptDate = today;
+        await this.generateDailyNews();
+    }
 
-        if (now.getHours() === targetHour && now.getMinutes() === targetMinute) {
-            await this.generateDailyNews();
+    async generateDailyNews(retry = false) {
+        if (this.generationPromise) return this.generationPromise;
+        this.generationPromise = this.generateDailyNewsInternal(retry);
+        try {
+            return await this.generationPromise;
+        } finally {
+            this.generationPromise = null;
         }
     }
 
-    async generateDailyNews() {
+    private async generateDailyNewsInternal(retry = false): Promise<string | null> {
         // Validate API configuration first
         const resolvedSettings = this.resolveSecrets();
         if (!NewsProviderFactory.validateProviderConfig(resolvedSettings)) {
@@ -231,7 +248,7 @@ export default class DailyNewsPlugin extends Plugin {
             new Notice('AI search queries are enabled but no Gemini API key is set — feature will be skipped. Add your key in Settings.', 6000);
         }
 
-        const date = new Date().toISOString().split('T')[0];
+        const date = localDate();
         const processingStartTime = Date.now();
 
         try {
@@ -243,7 +260,7 @@ export default class DailyNewsPlugin extends Plugin {
             // Extract year and month from date (YYYY-MM-DD format)
             const yearMonth = date.substring(0, 7); // Get YYYY-MM
             const monthlyFolder = `${archiveFolder}/${yearMonth}`;
-            const fileName = `${monthlyFolder}/Daily News - ${date}.md`;
+            const fileName = `${monthlyFolder}/Daily News - ${date}${retry ? ` - Retry ${Date.now()}` : ''}.md`;
 
             // Check if the file already exists
             if (await this.app.vault.adapter.exists(fileName)) {
@@ -257,15 +274,27 @@ export default class DailyNewsPlugin extends Plugin {
             // Process each topic
             for (const topic of this.settings.topics) {
                 // Create per-topic cache key
-                const topicCacheKey = `${date}_${NewsProviderFactory.getProviderKey(this.settings)}_${topic}`;
+                const cacheKey = topicCacheKey(date, NewsProviderFactory.getProviderKey(this.settings), topic, this.settings);
 
-                // Check if this topic is already cached
-                if (this.settings.dailyTopicCacheEnabled && this.settings.dailyTopicCache[topicCacheKey]) {
-                    new Notice(`Using cached content for ${topic}...`);
-                    const cachedTopicContent = this.settings.dailyTopicCache[topicCacheKey];
-                    topicStatuses.push(cachedTopicContent.status);
-                    topicContents.push(cachedTopicContent);
-                    continue;
+                // Revalidate cached dates against the moving window before reusing content.
+                if (this.settings.dailyTopicCacheEnabled) {
+                    const cached = this.settings.dailyTopicCache[cacheKey];
+                    if (cached?.result?.status === 'success') {
+                        try {
+                            const refreshed = parseBriefing(JSON.stringify({ items: cached.result.items }), cached.result.sources, this.settings, cached.result.usage);
+                            if (refreshed.status === 'success' && refreshed.items.length === cached.result.items.length) {
+                                cached.result = refreshed;
+                                cached.content = renderBriefing(refreshed, this.settings);
+                                new Notice(`Using cached content for ${topic}...`);
+                                topicStatuses.push(cached.status);
+                                topicContents.push(cached);
+                                continue;
+                            }
+                        } catch {
+                            // An invalid persisted cache should trigger a fresh fetch, not fail the day.
+                        }
+                        delete this.settings.dailyTopicCache[cacheKey];
+                    }
                 }
 
                 const topicStatus: TopicStatus = {
@@ -276,28 +305,22 @@ export default class DailyNewsPlugin extends Plugin {
                 };
 
                 let topicContent = '';
+                let briefingResult: BriefingResult | undefined;
 
                 try {
                     new Notice(`Fetching news for ${topic}...`);
 
                     try {
                         // Use the news provider to fetch and summarize news
-                        const summary = await this.newsProvider.fetchAndSummarizeNews(topic);
-
-                        const noNewsPhrase = LanguageUtils.getTranslation('noRecentNews', this.settings.language);
-                        if (summary.includes(noNewsPhrase) || summary.includes('No recent news found')) {
-                            topicStatus.error = `No news found for topic "${topic}"`;
-                            topicContent = `${summary}\n\n`;
-                        } else if (summary.startsWith('Error')) {
-                            // Provider returned an error string (e.g. API unavailable, rate limit, bad key)
-                            topicStatus.error = summary;
-                            topicContent = `${summary}\n\n`;
+                        briefingResult = await this.newsProvider.fetchAndSummarizeNews(topic);
+                        topicContent = renderBriefing(briefingResult, this.settings);
+                        topicStatus.outcome = briefingResult.status;
+                        if (briefingResult.status === 'error') {
+                            topicStatus.error = briefingResult.error.message;
                         } else {
-                            // Success case
                             topicStatus.retrievalSuccess = true;
                             topicStatus.summarizationSuccess = true;
-                            topicStatus.newsCount = 1;
-                            topicContent = summary + '\n';
+                            topicStatus.newsCount = briefingResult.items.length;
                         }
 
                         // Warn user about any RSS feeds that partially failed
@@ -309,8 +332,10 @@ export default class DailyNewsPlugin extends Plugin {
                         }
                     } catch (providerError) {
                         console.error(`${this.newsProvider.getProviderName()} error for ${topic}:`, providerError);
-                        topicStatus.error = `Provider error: ${providerError.message}`;
-                        topicContent = `**${LanguageUtils.getTranslation('errorRetrieving', this.settings.language)} ${topic} using ${this.newsProvider.getProviderName()}.**\n\nError details: ${providerError.message}\n\n`;
+                        briefingResult = failure(providerError);
+                        topicStatus.outcome = 'error';
+                        topicStatus.error = briefingResult.status === 'error' ? briefingResult.error.message : 'Provider failed';
+                        topicContent = renderBriefing(briefingResult, this.settings);
                     }
 
                 } catch (topicError) {
@@ -322,15 +347,16 @@ export default class DailyNewsPlugin extends Plugin {
                 const topicContentObj: TopicContent = {
                     topic: topic,
                     content: topicContent,
-                    status: topicStatus
+                    status: topicStatus,
+                    result: briefingResult
                 };
 
                 topicStatuses.push(topicStatus);
                 topicContents.push(topicContentObj);
 
                 // Cache this topic's content only if successful (no errors) and content is non-empty
-                if (this.settings.dailyTopicCacheEnabled && topicStatus.retrievalSuccess && topicStatus.summarizationSuccess && topicContent.length > 0) {
-                    this.settings.dailyTopicCache[topicCacheKey] = topicContentObj;
+                if (this.settings.dailyTopicCacheEnabled && briefingResult?.status === 'success' && !briefingResult.warnings.includes('partial_feeds')) {
+                    this.settings.dailyTopicCache[cacheKey] = topicContentObj;
                 }
             }
 
@@ -449,10 +475,13 @@ export default class DailyNewsPlugin extends Plugin {
                 await this.saveSettings();
 
                 if (this.settings.enableNotifications) {
-                    const successCount = topicStatuses.filter(s => s.retrievalSuccess).length;
+                    const successCount = topicStatuses.filter(s => s.outcome === 'success').length;
+                    const emptyCount = topicStatuses.filter(s => s.outcome === 'empty').length;
                     const totalCount = topicStatuses.length;
                     if (analysis.allTopicsFailed || !analysis.atLeastOneSuccessfulTopic) {
                         new Notice(`Daily news: all ${totalCount} topics failed. Check the note for details.`, 6000);
+                    } else if (emptyCount === totalCount) {
+                        new Notice('No source-backed news found in the selected time window.', 5000);
                     } else if (successCount < totalCount) {
                         new Notice(`Daily news generated: ${successCount}/${totalCount} topics succeeded.`, 5000);
                     } else {
@@ -475,7 +504,7 @@ export default class DailyNewsPlugin extends Plugin {
                 const archiveFolder = FileUtils.normalizePath(this.settings.archiveFolder);
                 const yearMonth = date.substring(0, 7); // Get YYYY-MM
                 const monthlyFolder = `${archiveFolder}/${yearMonth}`;
-                const fileName = `${monthlyFolder}/Daily News - ${date}.md`;
+                const fileName = `${monthlyFolder}/Daily News - ${date}${retry ? ` - Retry ${Date.now()}` : ''}.md`;
                 const errorContent = `# Daily News - ${date}\n\n**Error generating news**\n\nAn unexpected error occurred:\n\n\`\`\`\n${error.message}\n\`\`\`\n\nPlease check the console for more details.`;
 
                 // Ensure monthly folder exists
@@ -498,7 +527,7 @@ export default class DailyNewsPlugin extends Plugin {
     }
 
     async openOrCreateDailyNews() {
-        const date = new Date().toISOString().split('T')[0];
+        const date = localDate();
         const yearMonth = date.substring(0, 7); // Get YYYY-MM
         const filePath = FileUtils.normalizePath(`${this.settings.archiveFolder}/${yearMonth}/Daily News - ${date}.md`);
 

@@ -43,6 +43,7 @@
       <span class="nav-label">Configuration</span>
       <a href="#basic-settings">Basic Settings</a>
       <a href="#search-settings">Search Settings</a>
+      <a href="#quality-settings">Quality &amp; Limits</a>
       <a href="#rss-settings">RSS Settings</a>
       <a href="#output-settings">Output Settings</a>
       <a href="#metadata-settings">Metadata</a>
@@ -58,6 +59,7 @@
       <a href="usage.html#troubleshooting">Troubleshooting</a>
 
       <span class="nav-label">Advanced</span>
+      <a href="advanced.html#quality">Quality &amp; Reliability</a>
       <a href="advanced.html#search-optimization">Search Optimization</a>
       <a href="advanced.html#rate-limits">Rate Limits</a>
       <a href="advanced.html#architecture">Architecture</a>
@@ -117,7 +119,7 @@
     </section>
 
     <section id="search-settings">
-      <h3>Search Settings <span style="font-size:13px;font-weight:400;color:var(--ink-faint)">(Google providers only)</span></h3>
+      <h3>Search Settings <span style="font-size:13px;font-weight:400;color:var(--ink-faint)">(retrieval and shared quality settings)</span></h3>
       <table>
         <thead>
           <tr><th style="width:30%">Setting</th><th style="width:45%">Description</th><th style="width:25%">Default</th></tr>
@@ -126,7 +128,7 @@
           <tr>
             <td><strong>Results per Topic</strong></td>
             <td>News items in final summary per topic</td>
-            <td>5 (range: 3–15)</td>
+            <td>8 (range: 3–15)</td>
           </tr>
           <tr>
             <td><strong>Max Search Results</strong></td>
@@ -135,12 +137,12 @@
           </tr>
           <tr>
             <td><strong>Date Range</strong></td>
-            <td>Recency filter: <code>d1</code> yesterday, <code>d3</code> 3 days, <code>w1</code> week, <code>m1</code> month</td>
+            <td>Applies to every pipeline: <code>d1</code> last 24 hours, <code>d3</code> 3 days, <code>w1</code> 1 week. Existing saved windows are preserved. Months are not supported.</td>
             <td><code>d1</code></td>
           </tr>
           <tr>
             <td><strong>Use AI for Queries</strong></td>
-            <td>Gemini generates optimized search queries using 5 parallel strategies</td>
+            <td>Google retrieval only: Gemini generates an optimized query; the search-call limit bounds the number of query strategies</td>
             <td>Enabled</td>
           </tr>
           <tr>
@@ -155,6 +157,23 @@
           </tr>
         </tbody>
       </table>
+    </section>
+
+    <section id="quality-settings">
+      <h3>Quality, Request Limits &amp; Usage</h3>
+      <p>These settings apply across providers. Source links are rendered from API/retrieval metadata. Factual summaries and AI analysis are displayed separately. <a href="advanced.html#quality">Read the quality rules and limitations</a>.</p>
+      <table>
+        <thead><tr><th>Setting</th><th>Behavior</th><th>Default</th></tr></thead>
+        <tbody>
+          <tr><td>Include news without publication dates</td><td>Retain undated news with an explicit freshness warning. Source dates and model-reported dates have separate labels.</td><td>Off</td></tr>
+          <tr><td>Maximum output tokens</td><td>Output limit per model request</td><td>8,192</td></tr>
+          <tr><td>Maximum search calls</td><td>Per-request limit where supported; Google grounding and Grok may not enforce it</td><td>3</td></tr>
+          <tr><td>Request timeout</td><td>Maximum waiting time. Obsidian HTTP requests cannot be cancelled remotely.</td><td>120 seconds</td></tr>
+          <tr><td>Retries</td><td>Bounded retries for explicit throttling/server errors; retries may be billable</td><td>1</td></tr>
+          <tr><td>Show reported API usage</td><td>Generation metadata, including cached usage when reused; excludes unreported/retried/retriever calls. Not a bill estimate.</td><td>Off</td></tr>
+        </tbody>
+      </table>
+      <p>Native search normally uses a research call plus a structured formatting call per topic. Sonar may search again while formatting. RSS + Gemini uses one non-search summary call. No automatic model/provider fallback is used.</p>
     </section>
 
     <section id="rss-settings">
@@ -172,12 +191,12 @@
           <tr>
             <td><strong>Results per Topic</strong></td>
             <td>Max items per topic after filtering</td>
-            <td>5 (range: 3–15)</td>
+            <td>8 (range: 3–15)</td>
           </tr>
           <tr>
             <td><strong>Date Range</strong></td>
-            <td>Filter by publish date</td>
-            <td><code>d3</code></td>
+            <td>Shared News time window; unknown dates are excluded unless explicitly enabled</td>
+            <td><code>d1</code> for new installs</td>
           </tr>
         </tbody>
       </table>

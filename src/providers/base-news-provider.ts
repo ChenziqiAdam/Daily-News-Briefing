@@ -1,3 +1,4 @@
+import type { BriefingResult } from '../briefing';
 import type { DailyNewsSettings } from '../types';
 
 export abstract class BaseNewsProvider {
@@ -10,7 +11,7 @@ export abstract class BaseNewsProvider {
     /**
      * Fetch and summarize news for a given topic
      */
-    abstract fetchAndSummarizeNews(topic: string): Promise<string>;
+    abstract fetchAndSummarizeNews(topic: string): Promise<BriefingResult>;
 
     /**
      * Validate that the provider has the necessary configuration

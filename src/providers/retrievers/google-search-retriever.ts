@@ -1,7 +1,8 @@
-import { requestUrl } from 'obsidian';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { requestJson, retryRequest } from '../request-policy';
+import { filterRecentNews } from '../../briefing';
+import { GoogleGenAI } from "@google/genai";
 import type { NewsItem, SearchResponse, DailyNewsSettings } from '../../types';
-import { GEMINI_MODEL_NAME, GOOGLE_API_URL } from '../../constants';
+import { GEMINI_SUMMARY_MODEL_NAME, GOOGLE_API_URL } from '../../constants';
 import type { NewsRetriever } from './base-retriever';
 
 export class GoogleSearchRetriever implements NewsRetriever {
@@ -43,12 +44,13 @@ export class GoogleSearchRetriever implements NewsRetriever {
             simple: `${topic} news`
         };
         
-        const maxResultsPerQuery = Math.min(10, this.settings.maxSearchResults / Object.keys(queries).length);
+        const selectedQueries = Object.entries(queries).slice(0, Math.max(1, Math.min(10, this.settings.maxSearchCalls)));
+        const maxResultsPerQuery = Math.min(10, this.settings.maxSearchResults / selectedQueries.length);
         
         let successfulQueries = 0;
         let failedQueries = 0;
         
-        await Promise.all(Object.entries(queries).map(async ([queryType, queryString]) => {
+        await Promise.all(selectedQueries.map(async ([queryType, queryString]) => {
             if (allNews.length >= this.settings.maxSearchResults) {
                 return;
             }
@@ -75,31 +77,33 @@ export class GoogleSearchRetriever implements NewsRetriever {
             }
         }));
         
-        if (failedQueries === Object.keys(queries).length || (allNews.length === 0 && successfulQueries === 0)) {
+        if (failedQueries === selectedQueries.length) {
             throw new Error(`Failed to fetch news for ${topic}. All queries failed.`);
         }
         
-        let judgedNews = allNews;
+        const recentNews = filterRecentNews(allNews, this.settings);
+        let judgedNews = recentNews;
         try {
-            if (allNews.length > 0) {
-                judgedNews = await this.judgeNewsWithAI(allNews, topic);
+            if (recentNews.length > 0) {
+                judgedNews = await this.judgeNewsWithAI(recentNews, topic);
             }
         } catch (error) {
             console.error(`Error while judging news with AI: ${error.message}`);
-            judgedNews = allNews.slice(0, this.settings.resultsPerTopic);
+            judgedNews = recentNews.slice(0, this.settings.resultsPerTopic);
         }
         
         const elapsedTime = (Date.now() - startTime) / 1000;
         console.log(`Google Search: Fetched ${allNews.length} total items, AI selected ${judgedNews.length} items for ${topic} in ${elapsedTime}s`);
         
-        return judgedNews;
+        return judgedNews.slice(0, this.settings.resultsPerTopic);
     }
 
     private async generateAISearchQuery(topic: string): Promise<string | null> {
         // Check persistent cache first
-        if (this.settings.queryCache[topic]) {
+        const cacheKey = JSON.stringify([this.settings.geminiModel || GEMINI_SUMMARY_MODEL_NAME, topic]);
+        if (this.settings.queryCache[cacheKey]) {
             console.log(`Using cached query for topic: ${topic}`);
-            return this.settings.queryCache[topic];
+            return this.settings.queryCache[cacheKey];
         }
 
         try {
@@ -107,13 +111,7 @@ export class GoogleSearchRetriever implements NewsRetriever {
                 return null;
             }
 
-            const genAI = new GoogleGenerativeAI(this.settings.geminiApiKey);
-            const model = genAI.getGenerativeModel({
-                model: GEMINI_MODEL_NAME,
-                generationConfig: {
-                    maxOutputTokens: 100
-                }
-            });
+            const ai = new GoogleGenAI({ apiKey: this.settings.geminiApiKey });
 
             const prompt = `You are a search optimization expert. Create a Google search query for the topic "${topic}" that will find recent news articles.
 The generated query should:
@@ -126,12 +124,16 @@ The generated query should:
 
 Only return the search query string itself, without any explanations or additional text.`;
 
-            const result = await model.generateContent(prompt);
-            const query = result.response.text().trim();
+            const result = await retryRequest(() => ai.models.generateContent({
+                model: this.settings.geminiModel || GEMINI_SUMMARY_MODEL_NAME,
+                contents: prompt,
+                config: { maxOutputTokens: Math.min(512, this.settings.maxOutputTokens), httpOptions: { timeout: this.settings.requestTimeoutSeconds * 1000 } },
+            }), this.settings.requestRetries);
+            const query = result.text?.trim() || '';
 
             if (query && query.length > 0 && query.length < 200) {
                 // Store in persistent cache (will be saved with settings)
-                this.settings.queryCache[topic] = query;
+                this.settings.queryCache[cacheKey] = query;
                 console.log(`Generated and cached new query for topic: ${topic}`);
 
                 // Save settings to persist cache
@@ -154,15 +156,14 @@ Only return the search query string itself, without any explanations or addition
         }
 
         try {
-            const genAI = new GoogleGenerativeAI(this.settings.geminiApiKey);
-            const model = genAI.getGenerativeModel({
-                model: GEMINI_MODEL_NAME
-            });
+            const ai = new GoogleGenAI({ apiKey: this.settings.geminiApiKey });
+            const result = await retryRequest(() => ai.models.generateContent({
+                model: this.settings.geminiModel || GEMINI_SUMMARY_MODEL_NAME,
+                contents: this.getAIJudgePrompt(newsItems, topic),
+                config: { maxOutputTokens: this.settings.maxOutputTokens, httpOptions: { timeout: this.settings.requestTimeoutSeconds * 1000 } },
+            }), this.settings.requestRetries);
+            const response = result.text || '';
 
-            const judgePrompt = this.getAIJudgePrompt(newsItems, topic);
-            const result = await model.generateContent(judgePrompt);
-            const response = result.response.text();
-            
             return this.parseAIJudgeResponse(response, newsItems);
             
         } catch (error) {
@@ -309,17 +310,17 @@ Only return the search query string itself, without any explanations or addition
                 q: query,
                 num: '10',
                 dateRestrict: dateRestrict,
-                fields: 'items(title,link,snippet,pagemap/metatags/publishedTime,pagemap/metatags/og_site_name)',
+                fields: 'items(title,link,snippet,pagemap/metatags)',
                 sort: i === 0 ? 'date' : 'relevance',
                 start: startIndex.toString()
             });
             
             try {
-                const response = await requestUrl({
+                const response = await requestJson({
                     url: `${GOOGLE_API_URL}?${params.toString()}`
-                });
+                }, this.settings);
                 
-                const data: SearchResponse = JSON.parse(response.text);
+                const data = response as SearchResponse;
                 
                 if (data.error) {
                     console.error(`Google Search API error: ${data.error.message} (${data.error.status})`);
@@ -340,7 +341,7 @@ Only return the search query string itself, without any explanations or addition
                         title: item.title,
                         link: item.link,
                         snippet: this.cleanNewsContent(item.snippet),
-                        publishedTime: item.pagemap?.metatags?.[0]?.publishedTime,
+                        publishedTime: item.pagemap?.metatags?.[0]?.['article:published_time'] || item.pagemap?.metatags?.[0]?.publishedTime || item.pagemap?.metatags?.[0]?.date,
                         source: source
                     };
                 });

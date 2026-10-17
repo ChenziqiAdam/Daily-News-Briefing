@@ -1,4 +1,5 @@
-import { requestUrl } from 'obsidian';
+import { requestJson } from '../request-policy';
+import { filterRecentNews, timeWindow } from '../../briefing';
 import type { NewsItem, DailyNewsSettings } from '../../types';
 import { PERPLEXITY_SEARCH_API_URL } from '../../constants';
 import type { NewsRetriever } from './base-retriever';
@@ -12,7 +13,9 @@ export class PerplexitySearchRetriever implements NewsRetriever {
 
     async fetchNews(topic: string): Promise<NewsItem[]> {
         try {
-            const response = await requestUrl({
+            const { start, end } = timeWindow(this.settings.dateRange);
+            const formatDate = (value: Date) => `${value.getUTCMonth() + 1}/${value.getUTCDate()}/${value.getUTCFullYear()}`;
+            const response = await requestJson({
                 url: PERPLEXITY_SEARCH_API_URL,
                 method: 'POST',
                 headers: {
@@ -21,11 +24,13 @@ export class PerplexitySearchRetriever implements NewsRetriever {
                 },
                 body: JSON.stringify({
                     query: `${topic} news`,
-                    max_results: this.settings.maxSearchResults,
+                    max_results: Math.max(1, Math.min(20, this.settings.maxSearchResults)),
+                    search_after_date_filter: formatDate(start),
+                    search_before_date_filter: formatDate(new Date(end.getTime() + 86400000)),
                 }),
-            });
+            }, this.settings);
 
-            const data = response.json as { results?: Array<{ title: string; url: string; snippet: string; date?: string }> };
+            const data = response as { results?: Array<{ title: string; url: string; snippet: string; date?: string }> };
 
             if (!data.results || !Array.isArray(data.results)) {
                 throw new Error('Unexpected response format from Perplexity Search API');
@@ -53,10 +58,9 @@ export class PerplexitySearchRetriever implements NewsRetriever {
                     source,
                 });
 
-                if (items.length >= this.settings.resultsPerTopic) break;
             }
 
-            return items;
+            return filterRecentNews(items, this.settings).slice(0, this.settings.resultsPerTopic);
         } catch (error) {
             throw new Error(`Perplexity Search failed for "${topic}": ${error.message}`);
         }

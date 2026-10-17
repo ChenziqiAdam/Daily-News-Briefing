@@ -6,6 +6,7 @@
 
 ## Features
 
+- **Source-backed news**: Native citations, validated structured output, publication-date filtering, and separate AI analysis
 - **11 AI Pipelines + RSS**: Google, Anthropic, OpenAI, Grok, Perplexity, OpenRouter, RSS Retriever
 - **6 Briefing Presets**: Morning Brief, Market Watch, AI/Tech Tracker, Research Digest, Company Monitor, RSS Digest
 - **Preset-Aware Output**: Adds use-case-specific context like why it matters, risks, watchlists, methods, and follow-up questions
@@ -19,7 +20,7 @@
 ## Quick Start
 
 1. **Install** from Obsidian Community Plugins
-2. **Choose AI Provider** (we recommend Gemini Agentic - it's free!)
+2. **Choose AI Provider** (for free summaries, choose RSS + Gemini; see model access below)
 3. **Add API Key(s)** in settings
 4. **Apply a Briefing Preset** or set custom topics (e.g., "AI, Tesla, Bitcoin")
 5. **Schedule Time** (e.g., "08:00")
@@ -34,9 +35,19 @@ For detailed setup instructions, API guides, and advanced features:
 
 ## Quick API Setup
 
-### Free Option (Recommended)
-**Gemini** - 1 free API key:
-- [Gemini API Key](https://aistudio.google.com/apikey)
+### Gemini model access (checked October 17, 2026)
+- **Free summaries:** RSS + Gemini, with the Model field blank, defaults to `gemini-3.8-flash`.
+- **Google Search:** The agentic default stays `gemini-2.5-flash`. Its free grounding is restricted to eligible existing users and project quotas. It is not a universal free option for new API projects.
+- **Newer models:** `gemini-3.8-flash` has free text generation, but Search grounding requires the paid API tier. `gemini-4-argon` requires paid access. AI Studio chat access and API tool access are different.
+- Check [Google API pricing](https://ai.google.dev/gemini-api/docs/pricing) and [model access](https://ai.google.dev/gemini-api/docs/models) for your project. The plugin does not automatically switch to a paid model on failure.
+- [Create a Gemini API key](https://aistudio.google.com/apikey).
+
+### Google Custom Search migration
+This legacy API is closed to new customers and ends on **January 1, 2027**. Existing configurations are preserved. Switch to Perplexity Search, RSS, or an agentic provider in settings. See [Google's notice](https://developers.google.com/custom-search/v1/overview).
+
+### Updated model defaults
+OpenAI: `gpt-6.1-sol`; Claude: `claude-sonnet-5-5`; Grok: `grok-4.7`; OpenRouter: `anthropic/claude-sonnet-5.5`; Perplexity: `sonar`.
+Known previous defaults migrate once; other custom IDs are preserved. Leave Gemini's Model field blank to use the mode-specific default. Agentic connection tests for OpenAI, Gemini and OpenRouter perform real searches and may incur API/search charges.
 
 ### Paid Options (1 API Key)
 - **Perplexity**: [perplexity.ai](https://perplexity.ai/)
@@ -52,6 +63,14 @@ For detailed setup instructions, API guides, and advanced features:
 **Manual**:
 - Command Palette: `Ctrl/Cmd + P` → "Generate news now"
 - Sidebar: Click 📰 icon (opens today's news or creates it)
+
+**Retry after failure**: Run “Retry news generation (save a new note)” from the command palette. It preserves existing notes and reuses only successful, still-current topic caches.
+
+**Quality and limits**: All modes apply the News time window (new installs: `d1`, last 24 hours; existing windows are preserved). Unknown dates are excluded by default. Source metadata dates, model-reported dates and unknown dates are labeled separately. Date-only sources cannot prove exact 24-hour freshness. Native search normally uses two model calls per topic: research with native citations, then a non-search JSON formatting call. Sonar can search again on the second call. RSS + Gemini uses one non-search model call per topic.
+
+Output links are generated from native citation/retrieval metadata, never arbitrary model-authored URLs. Schema and source checks do not independently fact-check every claim. Custom prompts remain editorial preferences; JSON, source and time rules take precedence. The structured renderer controls item formatting; custom note templates still work.
+
+Request limits cover output tokens, timeout, bounded retries, and search counts where the provider supports them. Optional usage shows reported successful generation metadata, excluding unreported, failed/retried and retriever calls. It is not a currency budget or billing estimate. Obsidian transport timeouts cannot cancel server-side work. See [quality and reliability details](docs/advanced.html#quality).
 
 **Presets**: Start from Morning Brief, Market Watch, AI/Tech Tracker, Research Digest, Company Monitor, or RSS Digest. Presets update topics, output style, and briefing focus while preserving API keys, provider choice, schedule, language, and archive settings.
 
@@ -69,7 +88,28 @@ For detailed setup instructions, API guides, and advanced features:
 - Verify account has credits/quota
 - Check [full documentation](https://chenziqiadam.github.io/Daily-News-Briefing/docs/usage.html#troubleshooting)
 
+## Publishing
+
+Push a version tag such as `1.13.4` to run the automated tests, build and GitHub Release workflow.
+See [release instructions](docs/releasing.md) for preparation and failure recovery.
+
 ## Changelog
+
+### v1.13.4
+- Refresh model defaults with a one-time migration; retain custom model IDs.
+- Separate Gemini defaults for legacy free Search and current free-tier summaries.
+- Enable OpenRouter server search and check retrieval evidence for OpenAI, Gemini and OpenRouter.
+- Migrate all Gemini calls to the maintained GenAI SDK.
+- Add Google Custom Search retirement guidance.
+- Fix local-calendar dates, configuration-aware caches, missed schedules and overlapping generation.
+- Parse native sources for all six agentic providers and validate structured news before rendering.
+- Apply time filtering across all pipelines, distinguish source/reported/unknown dates, and separate factual summaries from AI analysis.
+- Return typed success/empty/error outcomes; count actual items and reject truncated output.
+- Revalidate cached freshness and add retry-to-new-note without overwriting existing notes.
+- Add request limits, bounded retries, optional reported usage, and CI checks.
+- Accept `null` for omitted optional AI analysis, and treat missing registered secrets as missing credentials instead of sending secret labels to APIs.
+- Add offline regression and packaged HTTP transport tests (`npm test`), plus an optional real RSS smoke test (`npm run test:live-rss`, no model calls or vault writes).
+- Automate tested release builds, version validation, checksums and build provenance through GitHub Actions.
 
 ### v1.13.3 && v1.13.2 && v1.13.1
 - Support customized model name

@@ -1,6 +1,5 @@
 import {
     OPENROUTER_DEFAULT_MODEL,
-    GEMINI_MODEL_NAME,
     GPT_MODEL_NAME,
     PERPLEXITY_MODEL_NAME,
     GROK_MODEL_NAME,
@@ -10,6 +9,13 @@ import {
 export type BriefingPresetId = 'none' | 'morning' | 'market' | 'ai-tech' | 'research' | 'company' | 'rss';
 
 export interface DailyNewsSettings {
+    modelDefaultsVersion: number;
+    includeUndatedNews: boolean;
+    maxOutputTokens: number;
+    maxSearchCalls: number;
+    requestTimeoutSeconds: number;
+    requestRetries: number;
+    showUsage: boolean;
     // Pipeline mode selection (new)
     pipelineMode: 'modular' | 'agentic';
     newsSource: 'google' | 'rss' | 'perplexity'; // modular only
@@ -100,10 +106,17 @@ export interface DailyNewsSettings {
     // Cache settings
     dailyTopicCacheEnabled: boolean; // Whether to cache daily topic content (avoids redundant API calls)
     queryCache: { [topic: string]: string }; // AI-generated query cache: topic -> query
-    dailyTopicCache: { [cacheKey: string]: TopicContent }; // Per-topic cache: "date_provider_topic" -> TopicContent
+    dailyTopicCache: { [cacheKey: string]: TopicContent }; // Per-topic cache: date/provider + versioned content configuration -> TopicContent
 }
 
 export const DEFAULT_SETTINGS: DailyNewsSettings = {
+    modelDefaultsVersion: 1,
+    includeUndatedNews: false,
+    maxOutputTokens: 8192,
+    maxSearchCalls: 3,
+    requestTimeoutSeconds: 120,
+    requestRetries: 1,
+    showUsage: false,
     // Pipeline mode (new)
     pipelineMode: 'agentic',
     newsSource: 'google',
@@ -117,7 +130,7 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
     googleSearchApiKey: '',
     googleSearchEngineId: '',
     geminiApiKey: '',
-    geminiModel: GEMINI_MODEL_NAME,
+    geminiModel: '', // Automatic: legacy free Search in agentic mode, current Flash for summaries
 
     // Perplexity API settings
     perplexityApiKey: '',
@@ -172,7 +185,7 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
     includeOutputFormat: false,
     
     // Advanced settings
-    dateRange: 'd3', // Changed from d2 to d3 for broader date range
+    dateRange: 'd1', // New configurations default to the last 24 hours
     minContentLength: 80,
     useCustomPrompt: false,
     customPrompt: '',
@@ -211,6 +224,7 @@ export interface SearchItem {
     snippet: string;
     pagemap?: {
         metatags?: Array<{
+            [key: string]: string | undefined;
             publishedTime?: string;
             og_site_name?: string;
         }>;
@@ -226,6 +240,7 @@ export interface SearchResponse {
 }
 
 export type TopicStatus = {
+    outcome?: 'success' | 'empty' | 'error';
     topic: string;
     retrievalSuccess: boolean;
     summarizationSuccess: boolean;
@@ -247,6 +262,7 @@ export interface TopicContent {
     topic: string;
     content: string;
     status: TopicStatus;
+    result?: import('./briefing').BriefingResult;
 }
 
 export interface TemplateData {

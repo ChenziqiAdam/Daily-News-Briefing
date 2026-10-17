@@ -1,3 +1,4 @@
+import { localDate } from './runtime-utils';
 import { App, TFile, Notice } from 'obsidian';
 import type { DailyNewsSettings, TopicStatus, NewsMetadata} from './types';
 import { BRIEFING_PRESETS, LANGUAGE_TRANSLATIONS } from './constants';
@@ -92,7 +93,7 @@ export class MetadataUtils {
 
         if (settings.includeDatetime) {
             const now = new Date();
-            metadata.datetime = `${now.toISOString().split('T')[0]} ${now.toLocaleTimeString()}`;
+            metadata.datetime = `${localDate(now)} ${now.toLocaleTimeString()}`;
         }
 
         if (settings.includeTopics) {

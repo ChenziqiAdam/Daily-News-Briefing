@@ -152,7 +152,7 @@
 
     <div class="fixed inset-0 bg-noise pointer-events-none z-50 mix-blend-overlay"></div>
     <div class="fixed inset-0 bg-grid-pattern bg-[length:40px_40px] opacity-20 pointer-events-none"></div>
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/20 blur-[120px] rounded-full pointer-events-none"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[min(800px,100vw)] h-[400px] bg-purple-600/20 blur-[120px] rounded-full pointer-events-none"></div>
 
     <nav class="fixed w-full z-40 top-0 border-b border-white/5 bg-[#0d0d0d]/80 backdrop-blur-md">
         <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -205,7 +205,7 @@
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
-                <span class="text-gray-300">New in v1.13.0: <span class="text-white font-medium">Add preset configuration.</span></span>
+                <span class="text-gray-300">New in this update: <span class="text-white font-medium">Source-backed briefings, freshness checks, and safer retries.</span></span>
             </div>
 
             <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 md:mb-8 leading-[1.1] px-4">
@@ -416,7 +416,7 @@
                 <p class="text-sm md:text-base text-gray-400">Filters out the noise. Delivers the signal.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-6 md:grid-rows-2 gap-4 md:gap-6 h-auto md:h-[600px]">
+            <div class="grid grid-cols-1 md:grid-cols-6 md:grid-rows-2 gap-4 md:gap-6 h-auto md:min-h-[600px]">
 
                 <div class="glass-card md:col-span-4 md:row-span-2 rounded-2xl p-6 md:p-8 relative overflow-hidden group">
                     <div class="relative z-10 h-full flex flex-col justify-between">
@@ -424,9 +424,9 @@
                             <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-purple-500/10 flex items-center justify-center mb-4 md:mb-6 border border-purple-500/20">
                                 <i class="fa-solid fa-server text-purple-400 text-lg md:text-xl"></i>
                             </div>
-                            <h3 class="text-xl md:text-2xl font-bold mb-2 text-white">16 AI Pipelines + RSS</h3>
+                            <h3 class="text-xl md:text-2xl font-bold mb-2 text-white">6 Search Providers + Modular Pipelines</h3>
                             <p class="text-sm md:text-base text-gray-400 max-w-sm leading-relaxed">
-                                5 agentic providers, 10 modular combos (Google or Perplexity Search + any AI), and RSS feeds. Includes a completely free option with Gemini Agentic Search.
+                                6 agentic providers and modular retrieval with Google, Perplexity Search or RSS, paired with 5 summarizers. Free summaries are available with RSS + Gemini; Search grounding depends on API tier and model access.
                             </p>
                         </div>
                         
@@ -436,7 +436,7 @@
                                     <i class="fa-brands fa-google text-white text-sm md:text-base"></i>
                                     <span class="font-bold text-xs md:text-sm">Gemini Agentic</span>
                                 </div>
-                                <p class="text-[10px] md:text-xs text-gray-500">Recommended (Free)</p>
+                                <p class="text-[10px] md:text-xs text-gray-500">Legacy free Search eligibility applies</p>
                             </div>
                             <div class="p-3 md:p-4 rounded-lg bg-black/40 border border-white/5 group-hover:border-purple-500/30 transition">
                                 <div class="flex items-center gap-2 mb-1 md:mb-2">
@@ -501,7 +501,7 @@
                         <i class="fa-solid fa-file-lines text-yellow-400 text-sm md:text-base"></i>
                     </div>
                     <h3 class="text-lg md:text-xl font-bold mb-2">Custom Templates</h3>
-                    <p class="text-xs md:text-sm text-gray-400">5 preset templates or create your own with 25+ placeholders. Full control over your news format.</p>
+                    <p class="text-xs md:text-sm text-gray-400">5 preset templates or create your own with 25+ placeholders. Customize note layout around validated news items.</p>
                 </div>
 
                 <div class="glass-card rounded-2xl p-6 md:p-8 group">
@@ -519,7 +519,7 @@
         <div class="max-w-5xl mx-auto">
             <div class="text-center mb-12 md:mb-16 px-4">
                 <h2 class="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Choose Your Engine</h2>
-                <p class="text-sm md:text-base text-gray-400">We support both free research and premium agentic AI.</p>
+                <p class="text-sm md:text-base text-gray-400">Free RSS summaries and native web research, with source and freshness checks.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
@@ -531,11 +531,11 @@
                         <div class="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-0 mb-4 md:mb-6">
                             <div>
                                 <h3 class="text-lg md:text-xl font-bold text-white">Gemini Agentic Search</h3>
-                                <p class="text-purple-400 text-xs md:text-sm mt-1">The Simple, Powerful, Free Option</p>
+                                <p class="text-purple-400 text-xs md:text-sm mt-1">Search access depends on your API tier</p>
                             </div>
                             <div class="text-left sm:text-right">
-                                <span class="text-xl md:text-2xl font-bold text-white">Free</span>
-                                <p class="text-[10px] md:text-xs text-gray-500">Using Free Tier Key</p>
+                                <span class="text-xl md:text-2xl font-bold text-white">API tier</span>
+                                <p class="text-[10px] md:text-xs text-gray-500">Free only for eligible legacy Search users</p>
                             </div>
                         </div>
 
@@ -555,7 +555,7 @@
                         </div>
 
                         <div class="p-3 md:p-4 bg-white/5 rounded border border-white/5 text-[10px] md:text-xs text-gray-400">
-                            <strong>Requirement:</strong> 1 API Key (Gemini). Get it free at Google AI Studio. Setup takes ~2 mins.
+                            <strong>Requirement:</strong> Gemini 2.5 Flash Search is limited to eligible existing API users. Newer models require billing for Search. For free summaries, choose RSS + Gemini 3.8 Flash.
                         </div>
                     </div>
                 </div>
@@ -576,7 +576,7 @@
                         <div class="space-y-3 md:space-y-4 mb-6 md:mb-8 flex-1">
                             <div class="flex gap-2 md:gap-3 text-xs md:text-sm text-gray-300">
                                 <i class="fa-solid fa-check text-blue-500 mt-1 text-xs md:text-sm"></i>
-                                <span>16 pipelines to choose from</span>
+                                <span>21 pipelines to choose from</span>
                             </div>
                             <div class="flex gap-2 md:gap-3 text-xs md:text-sm text-gray-300">
                                 <i class="fa-solid fa-check text-blue-500 mt-1 text-xs md:text-sm"></i>
@@ -623,7 +623,7 @@
                     <div class="relative flex flex-col md:flex-row-reverse gap-6 md:gap-8 md:items-center group">
                         <div class="flex-1 md:text-left">
                             <h3 class="text-lg md:text-xl font-bold text-white mb-2">Choose Provider</h3>
-                            <p class="text-gray-400 text-xs md:text-sm">16 pipelines: agentic (Perplexity, GPT, Claude, Grok, OpenRouter), modular (Google or Perplexity Search + any AI), or RSS.</p>
+                            <p class="text-gray-400 text-xs md:text-sm">21 pipelines: 6 agentic providers (Gemini, Perplexity, GPT, Claude, Grok, OpenRouter), or 3 retrievers (Google, Perplexity Search, RSS) paired with 5 summarizers.</p>
                         </div>
                         <div class="absolute left-8 -translate-x-1/2 md:relative md:left-auto md:translate-x-0 w-3 h-3 md:w-4 md:h-4 rounded-full bg-black border-2 border-purple-500 z-10 shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
                         <div class="flex-1 pl-10 md:pl-0 md:text-right">
@@ -652,7 +652,7 @@
                  <a href="obsidian://show-plugin?id=daily-news-briefing" class="inline-flex items-center gap-2 px-8 md:px-10 py-3 md:py-4 bg-white text-black text-sm md:text-base font-bold rounded-lg hover:bg-purple-50 transition transform hover:scale-105 shadow-[0_0_30px_-5px_rgba(255,255,255,0.4)]">
                     <i class="fa-solid fa-download"></i> Open in Obsidian
                 </a>
-                <p class="mt-3 md:mt-4 text-[10px] md:text-xs text-gray-500">Requires Obsidian v1.0.0+</p>
+                <p class="mt-3 md:mt-4 text-[10px] md:text-xs text-gray-500">Requires Obsidian v1.11.4+</p>
             </div>
         </div>
     </section>

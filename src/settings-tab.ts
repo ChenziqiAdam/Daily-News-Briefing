@@ -6,6 +6,7 @@ import {
     BRIEFING_PRESETS,
     LANGUAGE_NAMES,
     GEMINI_MODEL_NAME,
+    GEMINI_SUMMARY_MODEL_NAME,
     GPT_MODEL_NAME,
     PERPLEXITY_MODEL_NAME,
     GROK_MODEL_NAME,
@@ -213,7 +214,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 .setName('News source')
                 .setDesc('Where to retrieve news articles from')
                 .addDropdown(dropdown => dropdown
-                    .addOption('google', 'Google Search')
+                    .addOption('google', 'Google Search (legacy; ends 2027-01-01)')
                     .addOption('rss', 'RSS Feeds')
                     .addOption('perplexity', 'Perplexity Search')
                     .setValue(this.plugin.settings.newsSource)
@@ -280,7 +281,8 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 }));
 
         if (pipelineMode === 'modular' && newsSource === 'google') {
-            apiSection.createDiv({text: 'Google Search API', cls: 'setting-item-heading'});
+            apiSection.createDiv({text: 'Google Search API (legacy)', cls: 'setting-item-heading'});
+            apiSection.createEl('p', { text: 'Closed to new customers; service ends January 1, 2027. Switch News source to Perplexity Search or RSS, or use an agentic provider. Your existing configuration is preserved.' });
 
             this.addApiKeySetting(apiSection, 'API key', 'Select the Google Custom Search API key from Obsidian Secret Storage', 'googleSearchApiKey');
 
@@ -331,13 +333,14 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         if ((pipelineMode === 'modular' && summarizer === 'gemini') || (pipelineMode === 'agentic' && agenticProvider === 'gemini')) {
             apiSection.createDiv({text: 'Gemini API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the Google Gemini API key from Obsidian Secret Storage', 'geminiApiKey');
-            this.addModelSetting(apiSection, 'geminiModel', GEMINI_MODEL_NAME, 'e.g. gemini-2.5-flash');
+            this.addModelSetting(apiSection, 'geminiModel', pipelineMode === 'agentic' ? GEMINI_MODEL_NAME : GEMINI_SUMMARY_MODEL_NAME, 'Leave blank for the mode-specific default');
+            apiSection.createEl('p', { text: 'Free API tier: Gemini 3.8 Flash supports text summaries, but Google Search grounding requires billing. The agentic default remains Gemini 2.5 Flash: free Search is limited to eligible existing users and project quotas. New free users: choose RSS + Gemini with the Model field blank. You can enter a newer model for agentic search if billing is enabled. AI Studio chat access does not guarantee API tool access.' });
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'gpt') || (pipelineMode === 'agentic' && agenticProvider === 'gpt')) {
             apiSection.createDiv({text: 'OpenAI API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the OpenAI API key from Obsidian Secret Storage', 'openaiApiKey');
-            this.addModelSetting(apiSection, 'gptModel', GPT_MODEL_NAME, 'e.g. gpt-5.6-sol');
+            this.addModelSetting(apiSection, 'gptModel', GPT_MODEL_NAME, `e.g. ${GPT_MODEL_NAME}`);
         }
 
         if (pipelineMode === 'agentic' && agenticProvider === 'sonar') {
@@ -349,13 +352,13 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         if ((pipelineMode === 'modular' && summarizer === 'grok') || (pipelineMode === 'agentic' && agenticProvider === 'grok')) {
             apiSection.createDiv({text: 'Grok API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the Grok API key from Obsidian Secret Storage', 'grokApiKey');
-            this.addModelSetting(apiSection, 'grokModel', GROK_MODEL_NAME, 'e.g. grok-4.5');
+            this.addModelSetting(apiSection, 'grokModel', GROK_MODEL_NAME, `e.g. ${GROK_MODEL_NAME}`);
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'claude') || (pipelineMode === 'agentic' && agenticProvider === 'claude')) {
             apiSection.createDiv({text: 'Anthropic API', cls: 'setting-item-heading'});
             this.addApiKeySetting(apiSection, 'API key', 'Select the Anthropic API key from Obsidian Secret Storage', 'anthropicApiKey');
-            this.addModelSetting(apiSection, 'claudeModel', CLAUDE_MODEL_NAME, 'e.g. claude-sonnet-5');
+            this.addModelSetting(apiSection, 'claudeModel', CLAUDE_MODEL_NAME, `e.g. ${CLAUDE_MODEL_NAME}`);
         }
 
         if ((pipelineMode === 'modular' && summarizer === 'openrouter') || (pipelineMode === 'agentic' && agenticProvider === 'openrouter')) {
@@ -364,10 +367,10 @@ export class DailyNewsSettingTab extends PluginSettingTab {
 
             new Setting(apiSection)
                 .setName('Model')
-                .setDesc('Enter the OpenRouter model ID to use (e.g. anthropic/claude-sonnet-5)')
+                .setDesc('Enter the OpenRouter model ID to use (e.g. anthropic/claude-sonnet-5.5)')
                 .addText(text => {
                     return text
-                        .setPlaceholder('anthropic/claude-sonnet-5')
+                        .setPlaceholder('anthropic/claude-sonnet-5.5')
                         .setValue(this.plugin.settings.openrouterModel)
                         .onChange(async (value) => {
                             this.plugin.settings.openrouterModel = value.trim();
@@ -378,7 +381,7 @@ export class DailyNewsSettingTab extends PluginSettingTab {
 
         new Setting(apiSection)
             .setName('Test connection')
-            .setDesc('Send a minimal request to verify your API key and model are working.')
+            .setDesc('Verify your key and model. In agentic mode, every provider sends a search request; standard API/search charges and quotas apply.')
             .addButton(btn => btn
                 .setButtonText('Test')
                 .onClick(async () => {
@@ -526,17 +529,45 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     }));
 
-            new Setting(newsSection)
-                .setName('Date range filter')
-                .setDesc('Filter RSS items by publish date (d1 = 1 day, d3 = 3 days, w1 = 1 week, w2 = 2 weeks)')
-                .addText(text => text
-                    .setPlaceholder('d3')
-                    .setValue(this.plugin.settings.dateRange)
-                    .onChange(async (value) => {
-                        this.plugin.settings.dateRange = value;
-                        await this.plugin.saveSettings();
-                    }));
+
         }
+
+        new Setting(newsSection)
+            .setName('News time window')
+            .setDesc('Applies to every pipeline. d1 = last 24 hours, d3 = 3 days, w1 = 1 week. Existing settings are preserved.')
+            .addText(text => text.setPlaceholder('d1').setValue(this.plugin.settings.dateRange)
+                .onChange(async value => {
+                    if (!/^([dw])([1-9]\d{0,2})$/.test(value)) return;
+                    this.plugin.settings.dateRange = value;
+                    await this.plugin.saveSettings();
+                }));
+        new Setting(newsSection)
+            .setName('Include news without publication dates')
+            .setDesc('Off by default. Undated items, when enabled, are explicitly marked and freshness cannot be confirmed.')
+            .addToggle(toggle => toggle.setValue(this.plugin.settings.includeUndatedNews).onChange(async value => {
+                this.plugin.settings.includeUndatedNews = value;
+                await this.plugin.saveSettings();
+            }));
+        const limits = this.createSection(containerEl, 'Request limits & usage', 'Native search is followed by a structured summary call. Limits apply per request; provider billing remains authoritative.');
+        for (const [key, label, min, max, step] of [
+            ['maxOutputTokens', 'Maximum output tokens', 1024, 16384, 1024],
+            ['maxSearchCalls', 'Maximum search calls (where supported)', 1, 10, 1],
+            ['requestTimeoutSeconds', 'Request timeout (seconds)', 30, 300, 30],
+            ['requestRetries', 'Retries for throttling/server errors', 0, 2, 1],
+        ] as const) {
+            new Setting(limits).setName(label).addSlider(slider => slider.setLimits(min, max, step)
+                .setValue(this.plugin.settings[key]).setDynamicTooltip().onChange(async value => {
+                    this.plugin.settings[key] = value;
+                    await this.plugin.saveSettings();
+                }));
+        }
+        limits.createEl('p', { text: 'Google grounding and Grok may not honor a hard search-count limit. Retries can incur additional usage. HTTP timeouts stop waiting but cannot cancel Obsidian transport requests. No automatic provider/model fallback is used.' });
+        new Setting(limits).setName('Show reported API usage in notes')
+            .setDesc('Shows returned token/search counts for generation calls. Missing provider counts, retriever calls and failed/retried calls may not be included; this is not a bill estimate.')
+            .addToggle(toggle => toggle.setValue(this.plugin.settings.showUsage).onChange(async value => {
+                this.plugin.settings.showUsage = value;
+                await this.plugin.saveSettings();
+            }));
 
         // =========================
         // Scheduling & Storage
@@ -954,16 +985,6 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                             }));
                 }
 
-                new Setting(advancedSection)
-                    .setName('Search date range')
-                    .setDesc('How far back to search (d1 = 1 day, d2 = 2 days, w1 = 1 week)')
-                    .addText(text => text
-                        .setPlaceholder('d2')
-                        .setValue(this.plugin.settings.dateRange)
-                        .onChange(async (value) => {
-                            this.plugin.settings.dateRange = value;
-                            await this.plugin.saveSettings();
-                        }));
 
                 advancedSection.createDiv({text: 'Cache Management', cls: 'setting-item-heading'});
 

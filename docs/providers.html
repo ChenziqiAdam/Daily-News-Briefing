@@ -59,6 +59,7 @@
       <a href="usage.html#troubleshooting">Troubleshooting</a>
 
       <span class="nav-label">Advanced</span>
+      <a href="advanced.html#quality">Quality &amp; Reliability</a>
       <a href="advanced.html#search-optimization">Search Optimization</a>
       <a href="advanced.html#rate-limits">Rate Limits</a>
       <a href="advanced.html#architecture">Architecture</a>
@@ -92,7 +93,7 @@
           <tr><td><strong>API Keys</strong></td><td>1 key</td><td>2–3 keys</td></tr>
           <tr><td><strong>Setup</strong></td><td>Simple</td><td>More involved</td></tr>
           <tr><td><strong>Search Control</strong></td><td>AI decides</td><td>5 parallel strategies, AI judge, quality filtering</td></tr>
-          <tr><td><strong>Cost</strong></td><td>Paid per request</td><td>Free option available (Gemini Agentic Search)</td></tr>
+          <tr><td><strong>Cost</strong></td><td>Paid per request</td><td>RSS + Gemini summaries have a free API tier</td></tr>
           <tr><td><strong>Best For</strong></td><td>Quick setup, good quality</td><td>Power users, cost-conscious, maximum control</td></tr>
         </tbody>
       </table>
@@ -100,16 +101,16 @@
 
     <section id="agentic-providers">
       <h3>Agentic Providers</h3>
-      <p>Each provider handles web search + summarization in one call:</p>
+      <p>Each provider performs native web research, followed by a structured formatting call:</p>
       <table>
         <thead>
           <tr><th>Provider</th><th>Default Model</th><th>Best For</th></tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>Gemini</strong> <span class="badge badge-free">FREE</span></td>
-            <td><code>gemini-3.5-flash</code></td>
-            <td>Google Search grounding, free tier available</td>
+            <td><strong>Gemini</strong> <span class="badge">Conditional free tier</span></td>
+            <td><code>gemini-2.5-flash</code> (eligible existing users)</td>
+            <td>Legacy free grounding for eligible existing 2.5 users; newer models require billing</td>
           </tr>
           <tr>
             <td><strong>Perplexity</strong> <span class="badge badge-paid">Paid</span></td>
@@ -118,17 +119,17 @@
           </tr>
           <tr>
             <td><strong>OpenAI GPT</strong> <span class="badge badge-paid">Paid</span></td>
-            <td><code>gpt-5.6-sol</code></td>
+            <td><code>gpt-6.1-sol</code></td>
             <td>High-quality summaries with web search</td>
           </tr>
           <tr>
             <td><strong>Anthropic Claude</strong> <span class="badge badge-paid">Paid</span></td>
-            <td><code>claude-sonnet-5</code></td>
+            <td><code>claude-sonnet-5.5</code></td>
             <td>Deep analysis &amp; reasoning</td>
           </tr>
           <tr>
             <td><strong>Grok (xAI)</strong> <span class="badge badge-paid">Paid</span></td>
-            <td><code>grok-4.5</code></td>
+            <td><code>grok-4.7</code></td>
             <td>X/Twitter data &amp; fast processing</td>
           </tr>
           <tr>
@@ -166,7 +167,7 @@ graph LR
         <div class="feature-box">
           <h5>Google Custom Search</h5>
           <p>Searches the web using 5 parallel strategies (optimized, specific, broad, recent, simple). Results are deduplicated, quality-filtered, and ranked by AI.</p>
-          <p style="margin-top:10px"><strong>Requires:</strong> Google Search API Key + Search Engine ID (both free)</p>
+          <p style="margin-top:10px"><strong>Requires:</strong> Existing Google Search API Key + Search Engine ID. Closed to new customers; service ends January 1, 2027. Use Perplexity Search, RSS, or agentic search instead.</p>
           <p><strong>Optional:</strong> Gemini API Key for AI-powered query generation and news judging</p>
         </div>
         <div class="feature-box">
@@ -187,25 +188,25 @@ graph LR
         <tbody>
           <tr>
             <td><strong>Gemini</strong> <span class="badge badge-free">FREE</span></td>
-            <td><code>gemini-3.5-flash</code></td>
-            <td>Free (1,500 req/day)</td>
+            <td><code>gemini-3.8-flash</code></td>
+            <td>Free API tier; quotas vary by project</td>
             <td><a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></td>
           </tr>
           <tr>
             <td><strong>GPT</strong></td>
-            <td><code>gpt-5.6-sol</code></td>
+            <td><code>gpt-6.1-sol</code></td>
             <td>Pay-per-use</td>
             <td><a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a></td>
           </tr>
           <tr>
             <td><strong>Claude</strong></td>
-            <td><code>claude-sonnet-5</code></td>
+            <td><code>claude-sonnet-5.5</code></td>
             <td>Pay-per-use</td>
             <td><a href="https://console.anthropic.com/" target="_blank">Anthropic</a></td>
           </tr>
           <tr>
             <td><strong>Grok</strong></td>
-            <td><code>grok-4.5</code></td>
+            <td><code>grok-4.7</code></td>
             <td>Pay-per-use</td>
             <td><a href="https://x.ai/" target="_blank">xAI</a></td>
           </tr>
@@ -219,7 +220,7 @@ graph LR
       </table>
 
       <div class="alert alert-success">
-        <strong>Best free option:</strong> Gemini Agentic Search. Just one free Gemini API key (1,500 req/day) — Gemini handles both search and summarization. More than enough for daily news.
+        <strong>Best free option:</strong> RSS + Gemini summaries (automatic default: gemini-3.8-flash). Gemini 3.8 Flash text generation has a free API tier, but its Google Search grounding requires billing. The agentic default gemini-2.5-flash retains free grounding only for eligible existing users, subject to project quotas.
       </div>
     </section>
 
@@ -263,7 +264,7 @@ graph LR
           <tr>
             <td><strong>OpenRouter</strong></td>
             <td><a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></td>
-            <td>"OpenRouter (Agentic Search)" + enter model ID (e.g. <code>anthropic/claude-sonnet-5</code>)</td>
+            <td>"OpenRouter (Agentic Search)" + enter model ID (e.g. <code>anthropic/claude-sonnet-5.5</code>)</td>
           </tr>
         </tbody>
       </table>
@@ -273,12 +274,12 @@ graph LR
       <p>All modular Google pipelines share the same two Google keys. Then add the summarizer key.</p>
 
       <details open>
-        <summary>Step 1: Google Keys (required for all Google pipelines) <span class="badge badge-free">FREE</span></summary>
+        <summary>Step 1: Legacy Google Keys (existing customers only) <span class="badge badge-free">FREE</span></summary>
         <div class="feature-box">
           <p><strong>Google Custom Search API Key:</strong></p>
           <ol>
             <li>Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
-            <li>Create a project &gt; Enable <strong>"Custom Search API"</strong></li>
+            <li>Use your existing authorized project. New customers cannot enable this API; switch to RSS or Perplexity Search.</li>
             <li>Go to Credentials &gt; Create Credentials &gt; API Key</li>
           </ol>
           <p style="margin-top:16px"><strong>Google Search Engine ID:</strong></p>
@@ -311,7 +312,7 @@ graph LR
       <div class="alert alert-success">
         <strong>Free Tier Limits:</strong>
         Google Custom Search: 100 queries/day &bull;
-        Gemini API: 1,500 requests/day &bull;
+        Gemini API: project-specific model and tool quotas &bull;
         More than enough for daily news generation.
       </div>
 
