@@ -26,8 +26,7 @@
  * - {{SECOND}} - Second (SS)
  *
  * METADATA (Individual fields):
- * - {{METADATA_DATE}} - Date from metadata
- * - {{METADATA_TIME}} - Time from metadata
+ * - {{METADATA_DATETIME}} - Date and time from metadata
  * - {{METADATA_TAGS}} - Comma-separated tags
  * - {{METADATA_LANGUAGE}} - Language from metadata
  * - {{METADATA_PROVIDER}} - API provider name

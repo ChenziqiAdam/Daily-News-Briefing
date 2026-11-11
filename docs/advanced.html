@@ -181,20 +181,27 @@ graph TD
       </table>
 
       <h4>File Structure</h4>
-      <pre><code>src/
-  types.ts                    # Type definitions & settings
-  constants.ts                # Translations & constants
-  utils.ts                    # FileUtils, LanguageUtils, ContentUtils, MetadataUtils
-  settings-tab.ts             # Settings UI
+      <pre><code>main.ts                       # Plugin entry: commands, scheduler, generation flow
+src/
+  types.ts                    # Type definitions &amp; default settings
+  constants.ts                # Model names, API URLs, briefing presets
+  i18n.ts                     # All translated note strings (one table)
+  briefing.ts                 # Prompts, source/date validation, Markdown rendering
+  runtime-utils.ts            # Pure helpers (dates, cache keys, concurrency)
+  settings-migration.ts       # Upgrades settings saved by older versions
+  settings-tab.ts             # Settings UI (one method per section)
+  note-manager.ts             # Reorganizing and auto-deleting notes
+  utils.ts                    # FileUtils, ContentUtils, MetadataUtils
   providers/
-    base-news-provider.ts     # Abstract base class
-    news-provider-factory.ts  # Factory
-    agentic/                  # Perplexity, GPT, Claude, Grok, OpenRouter, Gemini
+    news-provider-factory.ts  # Builds the pipeline from settings
+    model-client.ts           # One client for every AI model
+    agentic-news-provider.ts  # Agentic pipeline (search + summarize)
+    structured-summarizer.ts  # Summarizer for the modular pipeline
     coordinators/             # Search-Summarize coordinator
-    retrievers/               # Google Search, RSS, Perplexity Search
-    summarizers/              # Gemini, GPT, Claude, Grok, OpenRouter
+    retrievers/               # Google Search, RSS (feed parser), Perplexity Search
   template/
     template-engine.ts        # Rendering engine
+    template-data.ts          # Values available to templates
     template-presets.ts       # Template preset definitions</code></pre>
     </section>
 
@@ -217,23 +224,23 @@ npm run build  # Production build</code></pre>
 
       <h4>Adding a New Provider</h4>
       <details>
-        <summary>Agentic Provider</summary>
+        <summary>AI model (agentic or summarizer)</summary>
         <div>
           <ol>
-            <li>Create <code>src/providers/agentic/your-provider.ts</code></li>
-            <li>Extend <code>BaseNewsProvider</code>, implement <code>fetchAndSummarizeNews(topic): Promise&lt;BriefingResult&gt;</code></li>
-            <li>Register in <code>NewsProviderFactory</code></li>
-            <li>Add settings UI and types</li>
+            <li>Add the name to <code>ModelKind</code> in <code>src/providers/native-response.ts</code> and parse its response there</li>
+            <li>Add the request to <code>ModelClient.generate</code> in <code>src/providers/model-client.ts</code></li>
+            <li>Add its label to <code>MODEL_LABELS</code> in <code>NewsProviderFactory</code></li>
+            <li>Add the setting types and a <code>MODEL_SECTIONS</code> entry in <code>src/settings-tab.ts</code></li>
           </ol>
         </div>
       </details>
       <details>
-        <summary>Summarizer</summary>
+        <summary>News source (retriever)</summary>
         <div>
           <ol>
-            <li>Create <code>src/providers/summarizers/your-summarizer.ts</code></li>
-            <li>Extend <code>BaseSummarizer</code>, implement <code>summarize(topic, articles, language)</code></li>
-            <li>Register in coordinator factory</li>
+            <li>Create <code>src/providers/retrievers/your-retriever.ts</code> implementing <code>NewsRetriever</code></li>
+            <li>Register it in <code>NewsProviderFactory.createProvider</code> and <code>SOURCE_LABELS</code></li>
+            <li>Add it to the News source dropdown in the settings tab</li>
           </ol>
         </div>
       </details>

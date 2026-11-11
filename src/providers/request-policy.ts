@@ -16,14 +16,14 @@ export async function retryRequest<T>(request: () => Promise<T>, retries: number
 }
 
 /** Obsidian's transport has no cancellation API: timeout stops waiting, not server billing. */
-export async function requestJson(options: import('obsidian').RequestUrlParam, settings: import('../types').DailyNewsSettings): Promise<unknown> {
+async function request(options: import('obsidian').RequestUrlParam, settings: import('../types').DailyNewsSettings): Promise<import('obsidian').RequestUrlResponse> {
     return retryRequest(async () => {
         let timer: ReturnType<typeof setTimeout> | undefined;
         try {
             return await Promise.race([
                 requestUrl({ ...options, throw: false }).then(response => {
                     if (response.status < 200 || response.status >= 300) throw Object.assign(new Error(`HTTP ${response.status}: request failed`), { status: response.status });
-                    return response.json as unknown;
+                    return response;
                 }),
                 new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error('Request timed out; the server may still complete it.')), Math.max(10, Math.min(300, settings.requestTimeoutSeconds)) * 1000); }),
             ]);
@@ -31,3 +31,10 @@ export async function requestJson(options: import('obsidian').RequestUrlParam, s
     }, Math.max(0, Math.min(2, settings.requestRetries)));
 }
 
+export async function requestJson(options: import('obsidian').RequestUrlParam, settings: import('../types').DailyNewsSettings): Promise<unknown> {
+    return (await request(options, settings)).json as unknown;
+}
+
+export async function requestText(options: import('obsidian').RequestUrlParam, settings: import('../types').DailyNewsSettings): Promise<string> {
+    return (await request(options, settings)).text;
+}

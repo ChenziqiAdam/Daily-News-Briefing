@@ -1,9 +1,14 @@
+import { errorMessage } from '../../runtime-utils';
 import { requestJson, retryRequest } from '../request-policy';
 import { filterRecentNews } from '../../briefing';
 import { GoogleGenAI } from "@google/genai";
 import type { NewsItem, SearchResponse, DailyNewsSettings } from '../../types';
 import { GEMINI_SUMMARY_MODEL_NAME, GOOGLE_API_URL } from '../../constants';
 import type { NewsRetriever } from './base-retriever';
+
+function hostname(link: string): string {
+    try { return new URL(link).hostname.replace(/^www\./, ''); } catch { return ''; }
+}
 
 export class GoogleSearchRetriever implements NewsRetriever {
     private settings: DailyNewsSettings;
@@ -47,7 +52,6 @@ export class GoogleSearchRetriever implements NewsRetriever {
         const selectedQueries = Object.entries(queries).slice(0, Math.max(1, Math.min(10, this.settings.maxSearchCalls)));
         const maxResultsPerQuery = Math.min(10, this.settings.maxSearchResults / selectedQueries.length);
         
-        let successfulQueries = 0;
         let failedQueries = 0;
         
         await Promise.all(selectedQueries.map(async ([queryType, queryString]) => {
@@ -67,10 +71,6 @@ export class GoogleSearchRetriever implements NewsRetriever {
                         allNews.push(item);
                     }
                 }
-                
-                if (results.length > 0) {
-                    successfulQueries++;
-                }
             } catch (error) {
                 console.error(`Error fetching ${queryType} news:`, error);
                 failedQueries++;
@@ -88,7 +88,7 @@ export class GoogleSearchRetriever implements NewsRetriever {
                 judgedNews = await this.judgeNewsWithAI(recentNews, topic);
             }
         } catch (error) {
-            console.error(`Error while judging news with AI: ${error.message}`);
+            console.error(`Error while judging news with AI: ${errorMessage(error)}`);
             judgedNews = recentNews.slice(0, this.settings.resultsPerTopic);
         }
         
@@ -219,9 +219,8 @@ Only return the search query string itself, without any explanations or addition
 
     private formatNewsForJudge(newsItems: NewsItem[]): string {
         return newsItems.map((item, index) => {
-            const url = new URL(item.link);
-            const domain = url.hostname.replace('www.', '');
-            
+            const domain = hostname(item.link);
+
             return `ITEM_${index + 1}:
     Title: ${item.title}
     Source: ${item.source || domain}
@@ -289,86 +288,46 @@ Only return the search query string itself, without any explanations or addition
     }
 
     private async fetchNewsFromGoogle(
-        query: string, 
-        dateRestrict: string, 
-        maxResults: number = 10
+        query: string,
+        dateRestrict: string,
+        maxResults = 10
     ): Promise<NewsItem[]> {
-        const requestsNeeded = Math.ceil(maxResults / 10);
-        const actualRequests = Math.min(requestsNeeded, 3);
-        
-        let allResults: NewsItem[] = [];
-        let requestErrors = 0;
-        
-        for (let i = 0; i < actualRequests; i++) {
-            if (allResults.length >= maxResults) break;
-            
-            const startIndex = (i * 10) + 1;
-            
-            const params = new URLSearchParams({
-                key: this.settings.googleSearchApiKey,
-                cx: this.settings.googleSearchEngineId,
-                q: query,
-                num: '10',
-                dateRestrict: dateRestrict,
-                fields: 'items(title,link,snippet,pagemap/metatags)',
-                sort: i === 0 ? 'date' : 'relevance',
-                start: startIndex.toString()
+        // The API returns at most 10 results per request and callers never ask for more.
+        const params = new URLSearchParams({
+            key: this.settings.googleSearchApiKey,
+            cx: this.settings.googleSearchEngineId,
+            q: query,
+            num: String(Math.max(1, Math.min(10, Math.ceil(maxResults)))),
+            dateRestrict: dateRestrict,
+            fields: 'items(title,link,snippet,pagemap/metatags)',
+            sort: 'date'
+        });
+
+        const data = await requestJson({
+            url: `${GOOGLE_API_URL}?${params.toString()}`
+        }, this.settings) as SearchResponse;
+
+        if (data?.error) {
+            throw new Error(`Google Search API error: ${data.error.message} (${data.error.status})`);
+        }
+
+        const results: NewsItem[] = [];
+        for (const item of data?.items ?? []) {
+            const domain = hostname(item.link);
+            // One malformed result must not discard the rest of the page.
+            if (!domain || results.some(existing => existing.link === item.link)) continue;
+            const meta = item.pagemap?.metatags?.[0];
+            results.push({
+                title: item.title,
+                link: item.link,
+                snippet: this.cleanNewsContent(item.snippet),
+                publishedTime: meta?.['article:published_time'] || meta?.publishedTime || meta?.date,
+                source: meta?.og_site_name || domain
             });
-            
-            try {
-                const response = await requestJson({
-                    url: `${GOOGLE_API_URL}?${params.toString()}`
-                }, this.settings);
-                
-                const data = response as SearchResponse;
-                
-                if (data.error) {
-                    console.error(`Google Search API error: ${data.error.message} (${data.error.status})`);
-                    requestErrors++;
-                    continue;
-                }
-                
-                if (!data || !data.items || data.items.length === 0) {
-                    continue;
-                }
-                
-                const pageResults = data.items.map(item => {
-                    const url = new URL(item.link);
-                    const domain = url.hostname.replace('www.', '');
-                    const source = item.pagemap?.metatags?.[0]?.og_site_name || domain;
-                    
-                    return {
-                        title: item.title,
-                        link: item.link,
-                        snippet: this.cleanNewsContent(item.snippet),
-                        publishedTime: item.pagemap?.metatags?.[0]?.['article:published_time'] || item.pagemap?.metatags?.[0]?.publishedTime || item.pagemap?.metatags?.[0]?.date,
-                        source: source
-                    };
-                });
-                
-                for (const item of pageResults) {
-                    if (!allResults.some(existing => existing.link === item.link)) {
-                        allResults.push(item);
-                    }
-                }
-                
-                if (i < actualRequests - 1) {
-                    await new Promise(r => activeWindow.setTimeout(r, 600));
-                }
-                
-            } catch (error) {
-                console.error(`Search API error on page ${i+1}:`, error);
-                requestErrors++;
-            }
         }
-        
-        if (requestErrors === actualRequests && allResults.length === 0) {
-            throw new Error(`All ${requestErrors} API requests failed for query: ${query}`);
-        }
-        
-        return allResults;
+        return results;
     }
-    
+
     private cleanNewsContent(text: string): string {
         if (!text) return '';
         

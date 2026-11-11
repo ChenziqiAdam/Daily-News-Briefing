@@ -2,8 +2,9 @@
 
 Run `npm test` for offline checks, and `npm run build` for production type checking
 and bundling. The tests cover release metadata, source/date/schema rules, rendering,
-model migration, cache invalidation, native response parsing and the packaged host
-HTTP transport/retry policy.
+model migration, settings migration, translations, feed parsing, RSS relevance,
+templates, cache invalidation, native response parsing and the packaged host
+HTTP transport/retry policy. `tests/obsidian-stub.ts` stands in for the Obsidian API.
 
 This is a rebuilt core suite after the previous test directory was deleted. It does
 not reproduce all earlier tests: provider SDK request integration, persisted cache,

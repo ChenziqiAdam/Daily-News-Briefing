@@ -8,7 +8,9 @@ const directory = await mkdtemp(join(tmpdir(), 'daily-news-tests-'));
 try {
     const outfile = join(directory, 'regression.cjs');
     await build({ entryPoints: ['tests/regression.test.ts'], outfile, bundle: true, platform: 'node', format: 'cjs',
-        external: ['obsidian'],
+        plugins: [{ name: 'obsidian-stub', setup(build) {
+            build.onResolve({ filter: /^obsidian$/ }, () => ({ path: resolve('tests/obsidian-stub.ts') }));
+        } }],
     });
     const result = spawnSync(process.execPath, ['--test', outfile, resolve('tests/release.test.mjs'), resolve('tests/packaged-transport.mjs')], {
         stdio: 'inherit', env: { ...process.env, TZ: 'Asia/Shanghai' },

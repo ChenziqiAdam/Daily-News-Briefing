@@ -4,89 +4,91 @@ import type DailyNewsPlugin from '../main';
 import { NewsProviderFactory } from './providers/news-provider-factory';
 import {
     BRIEFING_PRESETS,
-    LANGUAGE_NAMES,
     GEMINI_MODEL_NAME,
     GEMINI_SUMMARY_MODEL_NAME,
     GPT_MODEL_NAME,
     PERPLEXITY_MODEL_NAME,
     GROK_MODEL_NAME,
-    CLAUDE_MODEL_NAME
+    CLAUDE_MODEL_NAME,
+    OPENROUTER_DEFAULT_MODEL
 } from './constants';
 import { TemplateEngine } from './template/template-engine';
 import { TEMPLATE_DESCRIPTIONS, TEMPLATE_EXAMPLE, TEMPLATE_FILE_EXAMPLE } from './template/template-presets';
-import { GeminiSummarizer } from './providers/summarizers/gemini-summarizer';
-import { GptSummarizer } from './providers/summarizers/gpt-summarizer';
-import { ClaudeSummarizer } from './providers/summarizers/claude-summarizer';
-import { GrokSummarizer } from './providers/summarizers/grok-summarizer';
-import { OpenRouterSummarizer } from './providers/summarizers/openrouter-summarizer';
-import { GeminiAgenticProvider } from './providers/agentic/gemini-agentic-provider';
-import { GptAgenticProvider } from './providers/agentic/gpt-agentic-provider';
-import { ClaudeAgenticProvider } from './providers/agentic/claude-agentic-provider';
-import { GrokAgenticProvider } from './providers/agentic/grok-agentic-provider';
-import { OpenRouterAgenticProvider } from './providers/agentic/openrouter-agentic-provider';
-import { PerplexityNewsProvider } from './providers/agentic/perplexity-provider';
+import { StructuredSummarizer } from './providers/structured-summarizer';
+import { AgenticNewsProvider } from './providers/agentic-news-provider';
+import type { ModelKind } from './providers/native-response';
+import { STRINGS } from './i18n';
+
+/** Names of the settings whose value has type T. */
+type KeysOf<T> = { [K in keyof DailyNewsSettings]: DailyNewsSettings[K] extends T ? K : never }[keyof DailyNewsSettings];
+
+/** API section shown for the model that writes the briefing. */
+const MODEL_SECTIONS: Record<ModelKind, { heading: string; keyDesc: string; key: KeysOf<string>; model: KeysOf<string>; defaultModel: string; placeholder: string }> = {
+    gemini: { heading: 'Gemini API', keyDesc: 'Select the Google Gemini API key from Obsidian Secret Storage', key: 'geminiApiKey', model: 'geminiModel', defaultModel: GEMINI_SUMMARY_MODEL_NAME, placeholder: 'Leave blank for the mode-specific default' },
+    gpt: { heading: 'OpenAI API', keyDesc: 'Select the OpenAI API key from Obsidian Secret Storage', key: 'openaiApiKey', model: 'gptModel', defaultModel: GPT_MODEL_NAME, placeholder: `e.g. ${GPT_MODEL_NAME}` },
+    sonar: { heading: 'Perplexity API', keyDesc: 'Select the Perplexity API key from Obsidian Secret Storage', key: 'perplexityApiKey', model: 'perplexityModel', defaultModel: PERPLEXITY_MODEL_NAME, placeholder: 'e.g. sonar' },
+    grok: { heading: 'Grok API', keyDesc: 'Select the Grok API key from Obsidian Secret Storage', key: 'grokApiKey', model: 'grokModel', defaultModel: GROK_MODEL_NAME, placeholder: `e.g. ${GROK_MODEL_NAME}` },
+    claude: { heading: 'Anthropic API', keyDesc: 'Select the Anthropic API key from Obsidian Secret Storage', key: 'anthropicApiKey', model: 'claudeModel', defaultModel: CLAUDE_MODEL_NAME, placeholder: `e.g. ${CLAUDE_MODEL_NAME}` },
+    openrouter: { heading: 'OpenRouter API', keyDesc: 'Select the OpenRouter API key from Obsidian Secret Storage', key: 'openrouterApiKey', model: 'openrouterModel', defaultModel: OPENROUTER_DEFAULT_MODEL, placeholder: OPENROUTER_DEFAULT_MODEL },
+};
 
 export class DailyNewsSettingTab extends PluginSettingTab {
     plugin: DailyNewsPlugin;
-    showAdvanced: boolean = false;
-    showMetadataDetails: boolean = false;
-    showTemplatePlaceholders: boolean = false;
+    showAdvanced = false;
+    showMetadataDetails = false;
+    showTemplatePlaceholders = false;
 
     constructor(app: App, plugin: DailyNewsPlugin) {
         super(app, plugin);
         this.plugin = plugin;
     }
 
-    /** Sends a minimal request to the active AI provider to verify the API key and model are valid. */
-    private async testAIConnection(): Promise<{ success: boolean; message: string }> {
-        const { pipelineMode, summarizer, agenticProvider } = this.plugin.settings;
-        const s = this.plugin.resolveSecrets();
+    private get config(): DailyNewsSettings {
+        return this.plugin.settings;
+    }
 
-        if (pipelineMode === 'modular') {
-            if (summarizer === 'gemini') return new GeminiSummarizer(s).testConnection();
-            if (summarizer === 'gpt') return new GptSummarizer(s).testConnection();
-            if (summarizer === 'claude') return new ClaudeSummarizer(s).testConnection();
-            if (summarizer === 'grok') return new GrokSummarizer(s).testConnection();
-            if (summarizer === 'openrouter') return new OpenRouterSummarizer(s).testConnection();
-        } else {
-            if (agenticProvider === 'gemini') return new GeminiAgenticProvider(s).testConnection();
-            if (agenticProvider === 'gpt') return new GptAgenticProvider(s).testConnection();
-            if (agenticProvider === 'claude') return new ClaudeAgenticProvider(s).testConnection();
-            if (agenticProvider === 'grok') return new GrokAgenticProvider(s).testConnection();
-            if (agenticProvider === 'openrouter') return new OpenRouterAgenticProvider(s).testConnection();
-            if (agenticProvider === 'sonar') return new PerplexityNewsProvider(s).testConnection();
-        }
+    /** The model that writes the briefing in the selected pipeline. */
+    private get modelKind(): ModelKind {
+        return this.config.pipelineMode === 'agentic' ? this.config.agenticProvider : this.config.summarizer;
+    }
 
-        return { success: false, message: `Unknown AI provider.` };
+    // ----- Reusable controls: each stores one setting and optionally redraws the tab -----
+
+    private async store<K extends keyof DailyNewsSettings>(key: K, value: DailyNewsSettings[K], refresh = false): Promise<void> {
+        this.config[key] = value;
+        await this.plugin.saveSettings();
+        if (refresh) this.display();
+    }
+
+    private addToggle(el: HTMLElement, key: KeysOf<boolean>, name: string, desc: string, refresh = false): Setting {
+        return new Setting(el).setName(name).setDesc(desc)
+            .addToggle(toggle => toggle.setValue(this.config[key]).onChange(value => this.store(key, value, refresh)));
+    }
+
+    private addDropdown<K extends KeysOf<string>>(el: HTMLElement, key: K, name: string, desc: string, options: Record<string, string>, refresh = false): Setting {
+        return new Setting(el).setName(name).setDesc(desc)
+            .addDropdown(dropdown => dropdown.addOptions(options).setValue(this.config[key] as string)
+                .onChange(value => this.store(key, value as DailyNewsSettings[K], refresh)));
+    }
+
+    private addSlider(el: HTMLElement, key: KeysOf<number>, name: string, desc: string, min: number, max: number, step: number): Setting {
+        return new Setting(el).setName(name).setDesc(desc)
+            .addSlider(slider => slider.setLimits(min, max, step).setValue(this.config[key]).setDynamicTooltip()
+                .onChange(value => this.store(key, value)));
+    }
+
+    private addText<K extends KeysOf<string>>(el: HTMLElement, key: K, name: string, desc: string, placeholder: string, trim = false): Setting {
+        return new Setting(el).setName(name).setDesc(desc)
+            .addText(text => text.setPlaceholder(placeholder).setValue((this.config[key] as string) || '')
+                .onChange(value => this.store(key, (trim ? value.trim() : value) as DailyNewsSettings[K])));
     }
 
     /** Creates an API key setting backed by Obsidian's SecretStorage selector. */
-    private addApiKeySetting(containerEl: HTMLElement, name: string, desc: string, settingKey: keyof DailyNewsSettings): void {
-        const setting = new Setting(containerEl)
-            .setName(name)
-            .setDesc(desc);
-
-        const currentValue = (this.plugin.settings[settingKey] as string) || '';
-
-        setting.addComponent(el => new SecretComponent(this.app, el)
-            .setValue(currentValue)
-            .onChange(async (value) => {
-                (this.plugin.settings as any)[settingKey] = value;
-                await this.plugin.saveSettings();
-            }));
-    }
-
-    private addModelSetting(containerEl: HTMLElement, settingKey: keyof DailyNewsSettings, defaultModel: string, placeholder: string): void {
-        new Setting(containerEl)
-            .setName('Model')
-            .setDesc(`Enter the model ID to use. Leave blank to use the default (${defaultModel}).`)
-            .addText(text => text
-                .setPlaceholder(placeholder)
-                .setValue((this.plugin.settings[settingKey] as string) || '')
-                .onChange(async (value) => {
-                    (this.plugin.settings as any)[settingKey] = value.trim();
-                    await this.plugin.saveSettings();
-                }));
+    private addApiKeySetting<K extends KeysOf<string>>(el: HTMLElement, desc: string, key: K): void {
+        new Setting(el).setName('API key').setDesc(desc)
+            .addComponent(componentEl => new SecretComponent(this.app, componentEl)
+                .setValue((this.config[key] as string) || '')
+                .onChange(value => this.store(key, value as DailyNewsSettings[K])));
     }
 
     private createSection(containerEl: HTMLElement, title: string, description?: string): HTMLElement {
@@ -98,31 +100,11 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         return section;
     }
 
-    private async applyBriefingPreset(presetId: BriefingPresetId): Promise<void> {
-        if (presetId === 'none') {
-            this.plugin.settings.briefingPreset = 'none';
-            await this.plugin.saveSettings();
-            return;
-        }
-
-        const preset = BRIEFING_PRESETS[presetId];
-        if (!preset) {
-            new Notice('Unknown briefing preset.');
-            return;
-        }
-
-        this.plugin.settings.briefingPreset = preset.id;
-        this.plugin.settings.topics = [...preset.topics];
-        this.plugin.settings.outputFormat = preset.outputFormat;
-        this.plugin.settings.enableAnalysisContext = preset.enableAnalysisContext;
-        this.plugin.settings.templateType = preset.templateType;
-
-        await this.plugin.saveSettings();
-        new Notice(`Applied ${preset.name}. You can edit topics and settings anytime.`, 4000);
-        this.display();
+    private addSubheading(el: HTMLElement, text: string): void {
+        el.createDiv({text, cls: 'setting-item-heading'});
     }
 
-    private createCollapsible(containerEl: HTMLElement, title: string, isExpanded: boolean, onToggle: (expanded: boolean) => void): { header: HTMLElement; content: HTMLElement } {
+    private createCollapsible(containerEl: HTMLElement, title: string, isExpanded: boolean, onToggle: (expanded: boolean) => void): HTMLElement {
         const header = containerEl.createDiv('collapsible-header');
         const icon = header.createSpan({ text: '▶', cls: 'collapsible-icon' });
         if (isExpanded) {
@@ -136,136 +118,127 @@ export class DailyNewsSettingTab extends PluginSettingTab {
         }
 
         header.addEventListener('click', () => {
-            const newState = !isExpanded;
-            isExpanded = newState;
-            icon.toggleClass('expanded', newState);
-            content.toggleClass('is-collapsed', !newState);
-            onToggle(newState);
+            isExpanded = !isExpanded;
+            icon.toggleClass('expanded', isExpanded);
+            content.toggleClass('is-collapsed', !isExpanded);
+            onToggle(isExpanded);
         });
 
-        return { header, content };
+        return content;
     }
+
+    // ----- Actions -----
+
+    /** Sends a minimal request to the active AI provider to verify the API key and model are valid. */
+    private async testAIConnection(): Promise<{ success: boolean; message: string }> {
+        const { pipelineMode, summarizer, agenticProvider } = this.config;
+        const s = this.plugin.resolveSecrets();
+
+        return pipelineMode === 'modular'
+            ? new StructuredSummarizer(s, summarizer).testConnection()
+            : new AgenticNewsProvider(s, agenticProvider).testConnection();
+    }
+
+    private async applyBriefingPreset(presetId: BriefingPresetId): Promise<void> {
+        if (presetId === 'none') {
+            await this.store('briefingPreset', 'none');
+            return;
+        }
+
+        const preset = BRIEFING_PRESETS[presetId];
+        if (!preset) {
+            new Notice('Unknown briefing preset.');
+            return;
+        }
+
+        this.config.briefingPreset = preset.id;
+        this.config.topics = [...preset.topics];
+        this.config.outputFormat = preset.outputFormat;
+        this.config.enableAnalysisContext = preset.enableAnalysisContext;
+        this.config.templateType = preset.templateType;
+
+        await this.plugin.saveSettings();
+        new Notice(`Applied ${preset.name}. You can edit topics and settings anytime.`, 4000);
+        this.display();
+    }
+
+    private reportTemplateValidation(template: string, label: string): void {
+        const validation = TemplateEngine.validateTemplate(template);
+        if (validation.valid) {
+            new Notice(`✓ ${label} is valid!`, 3000);
+        } else {
+            new Notice(`✗ Template errors:\n${validation.errors.join('\n')}`, 5000);
+        }
+    }
+
+    // ----- Sections -----
 
     display(): void {
         const {containerEl} = this;
         containerEl.empty();
 
-        // =========================
-        // Briefing Presets
-        // =========================
-        const presetSection = this.createSection(containerEl, 'Briefing Presets', 'Start from a user goal, then edit topics and settings as needed');
+        this.renderPresets(containerEl);
+        this.renderPipeline(containerEl);
+        this.renderApi(containerEl);
+        this.renderNews(containerEl);
+        this.renderLimits(containerEl);
+        this.renderSchedule(containerEl);
+        this.renderMetadata(containerEl);
+        this.renderTemplate(containerEl);
+        this.renderAdvanced(containerEl);
+    }
 
-        const currentPreset = this.plugin.settings.briefingPreset || 'none';
-        const currentPresetDesc = currentPreset !== 'none' && BRIEFING_PRESETS[currentPreset]
-            ? BRIEFING_PRESETS[currentPreset].description
-            : 'No preset selected. Existing custom settings stay active.';
+    private renderPresets(containerEl: HTMLElement): void {
+        const section = this.createSection(containerEl, 'Briefing Presets', 'Start from a user goal, then edit topics and settings as needed');
 
-        new Setting(presetSection)
+        const currentPreset = this.config.briefingPreset || 'none';
+        const preset = currentPreset !== 'none' ? BRIEFING_PRESETS[currentPreset] : undefined;
+        const options: Record<string, string> = { none: 'None / Custom' };
+        Object.values(BRIEFING_PRESETS).forEach(definition => { options[definition.id] = definition.name; });
+
+        new Setting(section)
             .setName('Preset')
-            .setDesc(currentPresetDesc)
-            .addDropdown(dropdown => {
-                dropdown.addOption('none', 'None / Custom');
-                Object.values(BRIEFING_PRESETS).forEach(preset => {
-                    dropdown.addOption(preset.id, preset.name);
-                });
-                return dropdown
-                    .setValue(currentPreset)
-                    .onChange(async (value: BriefingPresetId) => {
-                        this.plugin.settings.briefingPreset = value;
-                        await this.plugin.saveSettings();
-                        this.display();
-                    });
-            })
+            .setDesc(preset ? preset.description : 'No preset selected. Existing custom settings stay active.')
+            .addDropdown(dropdown => dropdown.addOptions(options).setValue(currentPreset)
+                .onChange(value => this.store('briefingPreset', value as BriefingPresetId, true)))
             .addButton(button => button
                 .setButtonText('Apply preset')
                 .setCta()
                 .onClick(async () => {
-                    await this.applyBriefingPreset(this.plugin.settings.briefingPreset || 'none');
+                    await this.applyBriefingPreset(this.config.briefingPreset || 'none');
                 }));
 
-        if (currentPreset !== 'none' && BRIEFING_PRESETS[currentPreset]) {
-            const preset = BRIEFING_PRESETS[currentPreset];
-            presetSection.createEl('p', {
+        if (preset) {
+            section.createEl('p', {
                 text: `Apply preset changes: topics (${preset.topics.join(', ')}), output style (${preset.outputFormat}), analysis (${preset.enableAnalysisContext ? 'on' : 'off'}), template (${preset.templateType}), and briefing focus. Preserves API keys, providers, schedule, archive folder, language, RSS feeds, retention, metadata, and cache.`,
                 cls: 'settings-section-description'
             });
         }
+    }
 
-        // =========================
-        // Pipeline Configuration
-        // =========================
-        const pipelineSection = this.createSection(containerEl, 'News Pipeline', 'Choose your news retrieval and summarization pipeline');
+    private renderPipeline(containerEl: HTMLElement): void {
+        const section = this.createSection(containerEl, 'News Pipeline', 'Choose your news retrieval and summarization pipeline');
 
-        new Setting(pipelineSection)
-            .setName('Pipeline mode')
-            .setDesc('Modular: pick a news source + AI summarizer independently. Agentic: a single provider handles both search and summarization.')
-            .addDropdown(dropdown => dropdown
-                .addOption('modular', 'Modular (News Source + Summarizer)')
-                .addOption('agentic', 'Agentic (Unified Provider)')
-                .setValue(this.plugin.settings.pipelineMode)
-                .onChange(async (value: 'modular' | 'agentic') => {
-                    this.plugin.settings.pipelineMode = value;
-                    await this.plugin.saveSettings();
-                    this.display();
-                }));
+        this.addDropdown(section, 'pipelineMode', 'Pipeline mode',
+            'Modular: pick a news source + AI summarizer independently. Agentic: a single provider handles both search and summarization.',
+            { modular: 'Modular (News Source + Summarizer)', agentic: 'Agentic (Unified Provider)' }, true);
 
-        if (this.plugin.settings.pipelineMode === 'modular') {
-            new Setting(pipelineSection)
-                .setName('News source')
-                .setDesc('Where to retrieve news articles from')
-                .addDropdown(dropdown => dropdown
-                    .addOption('google', 'Google Search (legacy; ends 2027-01-01)')
-                    .addOption('rss', 'RSS Feeds')
-                    .addOption('perplexity', 'Perplexity Search')
-                    .setValue(this.plugin.settings.newsSource)
-                    .onChange(async (value: 'google' | 'rss' | 'perplexity') => {
-                        this.plugin.settings.newsSource = value;
-                        await this.plugin.saveSettings();
-                        this.display();
-                    }));
-
-            new Setting(pipelineSection)
-                .setName('AI summarizer')
-                .setDesc('AI model used to summarize retrieved articles')
-                .addDropdown(dropdown => dropdown
-                    .addOption('gemini', 'Gemini')
-                    .addOption('gpt', 'GPT')
-                    .addOption('grok', 'Grok')
-                    .addOption('claude', 'Claude')
-                    .addOption('openrouter', 'OpenRouter')
-                    .setValue(this.plugin.settings.summarizer)
-                    .onChange(async (value: 'gemini' | 'gpt' | 'grok' | 'claude' | 'openrouter') => {
-                        this.plugin.settings.summarizer = value;
-                        await this.plugin.saveSettings();
-                        this.display();
-                    }));
+        if (this.config.pipelineMode === 'modular') {
+            this.addDropdown(section, 'newsSource', 'News source', 'Where to retrieve news articles from',
+                { google: 'Google Search (legacy; ends 2027-01-01)', rss: 'RSS Feeds', perplexity: 'Perplexity Search' }, true);
+            this.addDropdown(section, 'summarizer', 'AI summarizer', 'AI model used to summarize retrieved articles',
+                { gemini: 'Gemini', gpt: 'GPT', grok: 'Grok', claude: 'Claude', openrouter: 'OpenRouter' }, true);
         } else {
-            new Setting(pipelineSection)
-                .setName('Provider')
-                .setDesc('Unified provider that handles both search and summarization')
-                .addDropdown(dropdown => dropdown
-                    .addOption('sonar', 'Perplexity')
-                    .addOption('gpt', 'GPT')
-                    .addOption('grok', 'Grok')
-                    .addOption('claude', 'Claude')
-                    .addOption('openrouter', 'OpenRouter')
-                    .addOption('gemini', 'Gemini')
-                    .setValue(this.plugin.settings.agenticProvider)
-                    .onChange(async (value: 'sonar' | 'gpt' | 'grok' | 'claude' | 'openrouter' | 'gemini') => {
-                        this.plugin.settings.agenticProvider = value;
-                        await this.plugin.saveSettings();
-                        this.display();
-                    }));
+            this.addDropdown(section, 'agenticProvider', 'Provider', 'Unified provider that handles both search and summarization',
+                { sonar: 'Perplexity', gpt: 'GPT', grok: 'Grok', claude: 'Claude', openrouter: 'OpenRouter', gemini: 'Gemini' }, true);
         }
+    }
 
-        // =========================
-        // API Configuration
-        // =========================
-        const apiSection = this.createSection(containerEl, 'API Configuration', 'Configure API keys for your selected pipeline');
+    private renderApi(containerEl: HTMLElement): void {
+        const section = this.createSection(containerEl, 'API Configuration', 'Configure API keys for your selected pipeline');
+        const { pipelineMode, newsSource } = this.config;
 
-        const { pipelineMode, newsSource, summarizer, agenticProvider } = this.plugin.settings;
-
-        new Setting(apiSection)
+        new Setting(section)
             .setName('Migrate legacy API keys')
             .setDesc('If you installed this plugin before v1.11.4 and have raw API keys stored in data.json, click to move them into Obsidian SecretStorage.')
             .addButton(btn => btn
@@ -281,105 +254,53 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                 }));
 
         if (pipelineMode === 'modular' && newsSource === 'google') {
-            apiSection.createDiv({text: 'Google Search API (legacy)', cls: 'setting-item-heading'});
-            apiSection.createEl('p', { text: 'Closed to new customers; service ends January 1, 2027. Switch News source to Perplexity Search or RSS, or use an agentic provider. Your existing configuration is preserved.' });
-
-            this.addApiKeySetting(apiSection, 'API key', 'Select the Google Custom Search API key from Obsidian Secret Storage', 'googleSearchApiKey');
-
-            new Setting(apiSection)
-                .setName('Search engine ID')
-                .setDesc('Your Google Custom Search Engine ID')
-                .addText(text => text
-                    .setPlaceholder('Enter search engine ID')
-                    .setValue(this.plugin.settings.googleSearchEngineId)
-                    .onChange(async (value) => {
-                        this.plugin.settings.googleSearchEngineId = value;
-                        await this.plugin.saveSettings();
-                    }));
+            this.addSubheading(section, 'Google Search API (legacy)');
+            section.createEl('p', { text: 'Closed to new customers; service ends January 1, 2027. Switch News source to Perplexity Search or RSS, or use an agentic provider. Your existing configuration is preserved.' });
+            this.addApiKeySetting(section, 'Select the Google Custom Search API key from Obsidian Secret Storage', 'googleSearchApiKey');
+            this.addText(section, 'googleSearchEngineId', 'Search engine ID', 'Your Google Custom Search Engine ID', 'Enter search engine ID');
         }
 
         if (pipelineMode === 'modular' && newsSource === 'perplexity') {
-            apiSection.createDiv({text: 'Perplexity Search API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Select the Perplexity API key from Obsidian Secret Storage', 'perplexityApiKey');
+            this.addSubheading(section, 'Perplexity Search API');
+            this.addApiKeySetting(section, 'Select the Perplexity API key from Obsidian Secret Storage', 'perplexityApiKey');
         }
 
         if (pipelineMode === 'modular' && newsSource === 'rss') {
-            apiSection.createDiv({text: 'RSS Feeds', cls: 'setting-item-heading'});
-
-            apiSection.createEl('p', {
+            this.addSubheading(section, 'RSS Feeds');
+            section.createEl('p', {
                 text: 'Add RSS feed URLs (one per line). The plugin will fetch news from these feeds and filter by topic.',
                 cls: 'setting-item-description'
             });
 
-            new Setting(apiSection)
+            new Setting(section)
                 .setName('RSS feed URLs')
                 .setDesc('Enter RSS feed URLs, one per line')
                 .addTextArea(text => {
                     text.setPlaceholder('https://example.com/feed.xml\nhttps://news.example.org/rss')
-                        .setValue(this.plugin.settings.rssFeeds.join('\n'))
-                        .onChange(async (value) => {
-                            // Split by newlines and filter empty lines
-                            this.plugin.settings.rssFeeds = value
-                                .split('\n')
-                                .map(line => line.trim())
-                                .filter(line => line.length > 0);
-                            await this.plugin.saveSettings();
-                        });
+                        .setValue(this.config.rssFeeds.join('\n'))
+                        .onChange(value => this.store('rssFeeds', value.split('\n').map(line => line.trim()).filter(line => line.length > 0)));
                     text.inputEl.rows = 6;
                     text.inputEl.addClass('full-width-input');
                 });
         }
 
-        if ((pipelineMode === 'modular' && summarizer === 'gemini') || (pipelineMode === 'agentic' && agenticProvider === 'gemini')) {
-            apiSection.createDiv({text: 'Gemini API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Select the Google Gemini API key from Obsidian Secret Storage', 'geminiApiKey');
-            this.addModelSetting(apiSection, 'geminiModel', pipelineMode === 'agentic' ? GEMINI_MODEL_NAME : GEMINI_SUMMARY_MODEL_NAME, 'Leave blank for the mode-specific default');
-            apiSection.createEl('p', { text: 'Free API tier: Gemini 3.8 Flash supports text summaries, but Google Search grounding requires billing. The agentic default remains Gemini 2.5 Flash: free Search is limited to eligible existing users and project quotas. New free users: choose RSS + Gemini with the Model field blank. You can enter a newer model for agentic search if billing is enabled. AI Studio chat access does not guarantee API tool access.' });
+        const kind = this.modelKind;
+        const model = MODEL_SECTIONS[kind];
+        if (model) {
+            this.addSubheading(section, model.heading);
+            this.addApiKeySetting(section, model.keyDesc, model.key);
+            if (kind === 'openrouter') {
+                this.addText(section, model.model, 'Model', `Enter the OpenRouter model ID to use (e.g. ${model.defaultModel})`, model.placeholder, true);
+            } else {
+                const defaultModel = kind === 'gemini' && pipelineMode === 'agentic' ? GEMINI_MODEL_NAME : model.defaultModel;
+                this.addText(section, model.model, 'Model', `Enter the model ID to use. Leave blank to use the default (${defaultModel}).`, model.placeholder, true);
+            }
+            if (kind === 'gemini') {
+                section.createEl('p', { text: 'Free API tier: Gemini 3.8 Flash supports text summaries, but Google Search grounding requires billing. The agentic default remains Gemini 2.5 Flash: free Search is limited to eligible existing users and project quotas. New free users: choose RSS + Gemini with the Model field blank. You can enter a newer model for agentic search if billing is enabled. AI Studio chat access does not guarantee API tool access.' });
+            }
         }
 
-        if ((pipelineMode === 'modular' && summarizer === 'gpt') || (pipelineMode === 'agentic' && agenticProvider === 'gpt')) {
-            apiSection.createDiv({text: 'OpenAI API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Select the OpenAI API key from Obsidian Secret Storage', 'openaiApiKey');
-            this.addModelSetting(apiSection, 'gptModel', GPT_MODEL_NAME, `e.g. ${GPT_MODEL_NAME}`);
-        }
-
-        if (pipelineMode === 'agentic' && agenticProvider === 'sonar') {
-            apiSection.createDiv({text: 'Perplexity API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Select the Perplexity API key from Obsidian Secret Storage', 'perplexityApiKey');
-            this.addModelSetting(apiSection, 'perplexityModel', PERPLEXITY_MODEL_NAME, 'e.g. sonar');
-        }
-
-        if ((pipelineMode === 'modular' && summarizer === 'grok') || (pipelineMode === 'agentic' && agenticProvider === 'grok')) {
-            apiSection.createDiv({text: 'Grok API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Select the Grok API key from Obsidian Secret Storage', 'grokApiKey');
-            this.addModelSetting(apiSection, 'grokModel', GROK_MODEL_NAME, `e.g. ${GROK_MODEL_NAME}`);
-        }
-
-        if ((pipelineMode === 'modular' && summarizer === 'claude') || (pipelineMode === 'agentic' && agenticProvider === 'claude')) {
-            apiSection.createDiv({text: 'Anthropic API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Select the Anthropic API key from Obsidian Secret Storage', 'anthropicApiKey');
-            this.addModelSetting(apiSection, 'claudeModel', CLAUDE_MODEL_NAME, `e.g. ${CLAUDE_MODEL_NAME}`);
-        }
-
-        if ((pipelineMode === 'modular' && summarizer === 'openrouter') || (pipelineMode === 'agentic' && agenticProvider === 'openrouter')) {
-            apiSection.createDiv({text: 'OpenRouter API', cls: 'setting-item-heading'});
-            this.addApiKeySetting(apiSection, 'API key', 'Select the OpenRouter API key from Obsidian Secret Storage', 'openrouterApiKey');
-
-            new Setting(apiSection)
-                .setName('Model')
-                .setDesc('Enter the OpenRouter model ID to use (e.g. anthropic/claude-sonnet-5.5)')
-                .addText(text => {
-                    return text
-                        .setPlaceholder('anthropic/claude-sonnet-5.5')
-                        .setValue(this.plugin.settings.openrouterModel)
-                        .onChange(async (value) => {
-                            this.plugin.settings.openrouterModel = value.trim();
-                            await this.plugin.saveSettings();
-                        });
-                });
-        }
-
-        new Setting(apiSection)
+        new Setting(section)
             .setName('Test connection')
             .setDesc('Verify your key and model. In agentic mode, every provider sends a search request; standard API/search charges and quotas apply.')
             .addButton(btn => btn
@@ -392,227 +313,84 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     btn.setDisabled(false);
                     new Notice(result.success ? `✓ ${result.message}` : `✗ ${result.message}`, 6000);
                 }));
+    }
 
-        // =========================
-        // News Configuration
-        // =========================
-        const newsSection = this.createSection(containerEl, 'News Configuration', 'Configure news topics, language, and output preferences');
+    private renderNews(containerEl: HTMLElement): void {
+        const section = this.createSection(containerEl, 'News Configuration', 'Configure news topics, language, and output preferences');
+        const { pipelineMode, newsSource } = this.config;
 
-        new Setting(newsSection)
-            .setName('Language')
-            .setDesc('Language for news content and UI elements')
-            .addDropdown(dropdown => {
-                Object.entries(LANGUAGE_NAMES).forEach(([code, name]) => {
-                    dropdown.addOption(code, name);
-                });
+        const languages: Record<string, string> = {};
+        Object.entries(STRINGS).forEach(([code, text]) => { languages[code] = text.name; });
+        this.addDropdown(section, 'language', 'Language', 'Language for news content and UI elements', languages);
 
-                return dropdown
-                    .setValue(this.plugin.settings.language)
-                    .onChange(async (value) => {
-                        this.plugin.settings.language = value;
-                        await this.plugin.saveSettings();
-                    });
-            });
-
-        new Setting(newsSection)
+        new Setting(section)
             .setName('Topics')
             .setDesc('News topics to follow (comma-separated)')
             .addText(text => text
                 .setPlaceholder('Technology, World News, Science')
-                .setValue(this.plugin.settings.topics.join(', '))
-                .onChange(async (value) => {
-                    this.plugin.settings.topics = value.split(',').map(t => t.trim());
-                    await this.plugin.saveSettings();
-                }));
+                .setValue(this.config.topics.join(', '))
+                .onChange(value => this.store('topics', value.split(',').map(t => t.trim()).filter(t => t.length > 0))));
 
-        new Setting(newsSection)
-            .setName('Output style')
-            .setDesc('Choose level of detail for news summaries')
-            .addDropdown(dropdown => dropdown
-                .addOption('detailed', 'Detailed - with analysis')
-                .addOption('concise', 'Concise - just facts')
-                .setValue(this.plugin.settings.outputFormat)
-                .onChange(async (value: 'detailed' | 'concise') => {
-                    this.plugin.settings.outputFormat = value;
-                    await this.plugin.saveSettings();
-                }));
+        this.addDropdown(section, 'outputFormat', 'Output style', 'Choose level of detail for news summaries',
+            { detailed: 'Detailed - with analysis', concise: 'Concise - just facts' });
+        this.addToggle(section, 'enableAnalysisContext', 'Enable analysis & context', 'Include analytical section in detailed news summaries');
+        this.addSlider(section, 'resultsPerTopic', 'News items per topic', 'Maximum number of news items to include per topic', 3, 15, 1);
 
-        new Setting(newsSection)
-            .setName('Enable analysis & context')
-            .setDesc('Include analytical section in detailed news summaries')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.enableAnalysisContext)
-                .onChange(async (value) => {
-                    this.plugin.settings.enableAnalysisContext = value;
-                    await this.plugin.saveSettings();
-                }));
-
-        if (pipelineMode === 'modular' && newsSource === 'google') {
-            newsSection.createDiv({text: 'Search Settings', cls: 'setting-item-heading'});
-
-            new Setting(newsSection)
-                .setName('News items per topic')
-                .setDesc('Maximum number of news items to include per topic')
-                .addSlider(slider => slider
-                    .setLimits(3, 15, 1)
-                    .setValue(this.plugin.settings.resultsPerTopic)
-                    .setDynamicTooltip()
-                    .onChange(async (value) => {
-                        this.plugin.settings.resultsPerTopic = value;
-                        await this.plugin.saveSettings();
-                    }));
-
-            new Setting(newsSection)
-                .setName('Maximum search results')
-                .setDesc('Total search results to fetch (higher values give more options but use more API quota)')
-                .addSlider(slider => slider
-                    .setLimits(10, 50, 5)
-                    .setValue(this.plugin.settings.maxSearchResults)
-                    .setDynamicTooltip()
-                    .onChange(async (value) => {
-                        this.plugin.settings.maxSearchResults = value;
-                        await this.plugin.saveSettings();
-                    }));
-
-            new Setting(newsSection)
-                .setName('Search date range')
-                .setDesc('How far back to search for news (d1 = 1 day, d3 = 3 days, w1 = 1 week)')
-                .addText(text => text
-                    .setPlaceholder('d3')
-                    .setValue(this.plugin.settings.dateRange)
-                    .onChange(async (value) => {
-                        this.plugin.settings.dateRange = value;
-                        await this.plugin.saveSettings();
-                    }));
+        if (pipelineMode === 'modular' && newsSource !== 'rss') {
+            this.addSubheading(section, 'Search Settings');
+            this.addSlider(section, 'maxSearchResults', 'Maximum search results',
+                newsSource === 'google' ? 'Total search results to fetch (higher values give more options but use more API quota)' : 'Total search results to fetch',
+                10, 50, 5);
         }
 
-        if (pipelineMode === 'modular' && newsSource === 'perplexity') {
-            newsSection.createDiv({text: 'Search Settings', cls: 'setting-item-heading'});
-
-            new Setting(newsSection)
-                .setName('News items per topic')
-                .setDesc('Maximum number of news items to include per topic')
-                .addSlider(slider => slider
-                    .setLimits(3, 15, 1)
-                    .setValue(this.plugin.settings.resultsPerTopic)
-                    .setDynamicTooltip()
-                    .onChange(async (value) => {
-                        this.plugin.settings.resultsPerTopic = value;
-                        await this.plugin.saveSettings();
-                    }));
-
-            new Setting(newsSection)
-                .setName('Maximum search results')
-                .setDesc('Total search results to fetch')
-                .addSlider(slider => slider
-                    .setLimits(10, 50, 5)
-                    .setValue(this.plugin.settings.maxSearchResults)
-                    .setDynamicTooltip()
-                    .onChange(async (value) => {
-                        this.plugin.settings.maxSearchResults = value;
-                        await this.plugin.saveSettings();
-                    }));
-        }
-
-        if (pipelineMode === 'modular' && newsSource === 'rss') {
-            newsSection.createDiv({text: 'RSS Settings', cls: 'setting-item-heading'});
-
-            new Setting(newsSection)
-                .setName('News items per topic')
-                .setDesc('Maximum number of news items to include per topic')
-                .addSlider(slider => slider
-                    .setLimits(3, 15, 1)
-                    .setValue(this.plugin.settings.resultsPerTopic)
-                    .setDynamicTooltip()
-                    .onChange(async (value) => {
-                        this.plugin.settings.resultsPerTopic = value;
-                        await this.plugin.saveSettings();
-                    }));
-
-
-        }
-
-        new Setting(newsSection)
+        new Setting(section)
             .setName('News time window')
             .setDesc('Applies to every pipeline. d1 = last 24 hours, d3 = 3 days, w1 = 1 week. Existing settings are preserved.')
-            .addText(text => text.setPlaceholder('d1').setValue(this.plugin.settings.dateRange)
+            .addText(text => text.setPlaceholder('d1').setValue(this.config.dateRange)
                 .onChange(async value => {
                     if (!/^([dw])([1-9]\d{0,2})$/.test(value)) return;
-                    this.plugin.settings.dateRange = value;
-                    await this.plugin.saveSettings();
+                    await this.store('dateRange', value);
                 }));
-        new Setting(newsSection)
-            .setName('Include news without publication dates')
-            .setDesc('Off by default. Undated items, when enabled, are explicitly marked and freshness cannot be confirmed.')
-            .addToggle(toggle => toggle.setValue(this.plugin.settings.includeUndatedNews).onChange(async value => {
-                this.plugin.settings.includeUndatedNews = value;
-                await this.plugin.saveSettings();
-            }));
-        const limits = this.createSection(containerEl, 'Request limits & usage', 'Native search is followed by a structured summary call. Limits apply per request; provider billing remains authoritative.');
-        for (const [key, label, min, max, step] of [
-            ['maxOutputTokens', 'Maximum output tokens', 1024, 16384, 1024],
-            ['maxSearchCalls', 'Maximum search calls (where supported)', 1, 10, 1],
-            ['requestTimeoutSeconds', 'Request timeout (seconds)', 30, 300, 30],
-            ['requestRetries', 'Retries for throttling/server errors', 0, 2, 1],
-        ] as const) {
-            new Setting(limits).setName(label).addSlider(slider => slider.setLimits(min, max, step)
-                .setValue(this.plugin.settings[key]).setDynamicTooltip().onChange(async value => {
-                    this.plugin.settings[key] = value;
-                    await this.plugin.saveSettings();
-                }));
-        }
-        limits.createEl('p', { text: 'Google grounding and Grok may not honor a hard search-count limit. Retries can incur additional usage. HTTP timeouts stop waiting but cannot cancel Obsidian transport requests. No automatic provider/model fallback is used.' });
-        new Setting(limits).setName('Show reported API usage in notes')
-            .setDesc('Shows returned token/search counts for generation calls. Missing provider counts, retriever calls and failed/retried calls may not be included; this is not a bill estimate.')
-            .addToggle(toggle => toggle.setValue(this.plugin.settings.showUsage).onChange(async value => {
-                this.plugin.settings.showUsage = value;
-                await this.plugin.saveSettings();
-            }));
+        this.addToggle(section, 'includeUndatedNews', 'Include news without publication dates',
+            'Off by default. Undated items, when enabled, are explicitly marked and freshness cannot be confirmed.');
+    }
 
-        // =========================
-        // Scheduling & Storage
-        // =========================
-        const scheduleSection = this.createSection(containerEl, 'Scheduling & Storage', 'Configure when and where to generate news, and how long to keep notes');
+    private renderLimits(containerEl: HTMLElement): void {
+        const section = this.createSection(containerEl, 'Request limits & usage', 'Native search is followed by a structured summary call. Limits apply per request; provider billing remains authoritative.');
+        this.addSlider(section, 'maxOutputTokens', 'Maximum output tokens', '', 1024, 16384, 1024);
+        this.addSlider(section, 'maxSearchCalls', 'Maximum search calls (where supported)', '', 1, 10, 1);
+        this.addSlider(section, 'requestTimeoutSeconds', 'Request timeout (seconds)', '', 30, 300, 30);
+        this.addSlider(section, 'requestRetries', 'Retries for throttling/server errors', '', 0, 2, 1);
+        section.createEl('p', { text: 'Google grounding and Grok may not honor a hard search-count limit. Retries can incur additional usage. HTTP timeouts stop waiting but cannot cancel Obsidian transport requests. No automatic provider/model fallback is used.' });
+        this.addToggle(section, 'showUsage', 'Show reported API usage in notes',
+            'Shows returned token/search counts for generation calls. Missing provider counts, retriever calls and failed/retried calls may not be included; this is not a bill estimate.');
+    }
 
-        new Setting(scheduleSection)
-            .setName('Enable auto-generation')
-            .setDesc('Automatically generate news briefing at the scheduled time. Note: This will perform background network calls to your selected AI and news providers.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.autoGenerateEnabled)
-                .onChange(async (value) => {
-                    this.plugin.settings.autoGenerateEnabled = value;
-                    await this.plugin.saveSettings();
-                }));
+    private renderSchedule(containerEl: HTMLElement): void {
+        const section = this.createSection(containerEl, 'Scheduling & Storage', 'Configure when and where to generate news, and how long to keep notes');
 
-        new Setting(scheduleSection)
+        this.addToggle(section, 'autoGenerateEnabled', 'Enable auto-generation',
+            'Automatically generate news briefing at the scheduled time. Note: This will perform background network calls to your selected AI and news providers.');
+
+        new Setting(section)
             .setName('Schedule time')
             .setDesc('When to generate daily news (24-hour format, e.g., 08:00)')
             .addText(text => text
                 .setPlaceholder('HH:MM')
-                .setValue(this.plugin.settings.scheduleTime)
+                .setValue(this.config.scheduleTime)
                 .onChange(async (value) => {
                     const isValid = /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
                     if (!isValid) {
                         new Notice('Invalid time format. Please use HH:MM (e.g., 08:00).', 4000);
-                        text.setValue(this.plugin.settings.scheduleTime);
+                        text.setValue(this.config.scheduleTime);
                         return;
                     }
-                    this.plugin.settings.scheduleTime = value;
-                    await this.plugin.saveSettings();
+                    await this.store('scheduleTime', value);
                 }));
 
-        new Setting(scheduleSection)
-            .setName('Archive folder')
-            .setDesc('Folder to store daily news notes')
-            .addText(text => text
-                .setPlaceholder('News Archive')
-                .setValue(this.plugin.settings.archiveFolder)
-                .onChange(async (value) => {
-                    this.plugin.settings.archiveFolder = value;
-                    await this.plugin.saveSettings();
-                }));
+        this.addText(section, 'archiveFolder', 'Archive folder', 'Folder to store daily news notes', 'News Archive');
 
-        new Setting(scheduleSection)
+        new Setting(section)
             .setName('Organize notes into monthly folders')
             .setDesc('Daily news notes are automatically organized into monthly subfolders (YYYY-MM). Click below to reorganize existing notes.')
             .addButton(button => button
@@ -626,48 +404,13 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     button.setButtonText('Reorganize existing notes');
                 }));
 
-        new Setting(scheduleSection)
-            .setName('Enable notifications')
-            .setDesc('Show notifications when news is generated')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.enableNotifications)
-                .onChange(async (value) => {
-                    this.plugin.settings.enableNotifications = value;
-                    await this.plugin.saveSettings();
-                }));
+        this.addToggle(section, 'enableNotifications', 'Enable notifications', 'Show progress and result notifications when news is generated');
+        this.addToggle(section, 'autoDeleteEnabled', 'Enable auto-delete', 'Automatically delete news notes older than the retention period on plugin startup');
+        this.addDropdown(section, 'autoDeleteRetention', 'Retention period',
+            'Delete news notes older than this period (applies to both auto-delete and manual deletion)',
+            { '1d': '1 day', '3d': '3 days', '1w': '1 week', '2w': '2 weeks', '1m': '1 month', '3m': '3 months', '6m': '6 months', '1y': '1 year', never: 'Never (disabled)' });
 
-        new Setting(scheduleSection)
-            .setName('Enable auto-delete')
-            .setDesc('Automatically delete news notes older than the retention period on plugin startup')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.autoDeleteEnabled)
-                .onChange(async (value) => {
-                    this.plugin.settings.autoDeleteEnabled = value;
-                    await this.plugin.saveSettings();
-                }));
-
-        new Setting(scheduleSection)
-            .setName('Retention period')
-            .setDesc('Delete news notes older than this period (applies to both auto-delete and manual deletion)')
-            .addDropdown(dropdown => {
-                dropdown.addOption('1d', '1 day');
-                dropdown.addOption('3d', '3 days');
-                dropdown.addOption('1w', '1 week');
-                dropdown.addOption('2w', '2 weeks');
-                dropdown.addOption('1m', '1 month');
-                dropdown.addOption('3m', '3 months');
-                dropdown.addOption('6m', '6 months');
-                dropdown.addOption('1y', '1 year');
-                dropdown.addOption('never', 'Never (disabled)');
-                return dropdown
-                    .setValue(this.plugin.settings.autoDeleteRetention)
-                    .onChange(async (value: DailyNewsSettings['autoDeleteRetention']) => {
-                        this.plugin.settings.autoDeleteRetention = value;
-                        await this.plugin.saveSettings();
-                    });
-            });
-
-        new Setting(scheduleSection)
+        new Setting(section)
             .setName('Delete old notes now')
             .setDesc('Manually delete notes older than the retention period')
             .addButton(button => button
@@ -680,187 +423,80 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     button.setDisabled(false);
                     button.setButtonText('Delete old notes');
                 }));
+    }
 
-        // =========================
-        // Metadata Configuration
-        // =========================
-        const metadataSection = this.createSection(containerEl, 'Metadata Configuration', 'Configure YAML frontmatter metadata for generated news files');
+    private renderMetadata(containerEl: HTMLElement): void {
+        const section = this.createSection(containerEl, 'Metadata Configuration', 'Configure YAML frontmatter metadata for generated news files');
 
-        new Setting(metadataSection)
-            .setName('Enable metadata')
-            .setDesc('Add YAML frontmatter metadata to generated news files')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.enableMetadata)
-                .onChange(async (value) => {
-                    this.plugin.settings.enableMetadata = value;
-                    await this.plugin.saveSettings();
-                    this.display();
-                }));
+        this.addToggle(section, 'enableMetadata', 'Enable metadata', 'Add YAML frontmatter metadata to generated news files', true);
+        if (!this.config.enableMetadata) return;
 
-        if (this.plugin.settings.enableMetadata) {
-            const { content: metadataContent } = this.createCollapsible(
-                metadataSection,
-                'Metadata Fields',
-                this.showMetadataDetails,
-                (expanded) => { this.showMetadataDetails = expanded; }
-            );
+        const content = this.createCollapsible(section, 'Metadata Fields', this.showMetadataDetails,
+            (expanded) => { this.showMetadataDetails = expanded; });
 
-            new Setting(metadataContent)
-                .setName('Include datetime')
-                .setDesc('Add datetime field (YYYY-MM-DD HH:MM:SS)')
-                .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.includeDatetime)
-                    .onChange(async (value) => {
-                        this.plugin.settings.includeDatetime = value;
-                        await this.plugin.saveSettings();
-                    }));
+        this.addToggle(content, 'includeDatetime', 'Include datetime', 'Add datetime field (YYYY-MM-DD HH:MM:SS)');
+        this.addToggle(content, 'includeTopics', 'Include topics', 'Add topics array');
+        this.addToggle(content, 'includeTags', 'Include tags', 'Add tags array (auto-generated from topics)');
+        this.addToggle(content, 'includeLanguage', 'Include language', 'Add language code');
+        this.addToggle(content, 'includeSource', 'Include source', 'Add news source/provider information');
+        this.addToggle(content, 'includeProcessingTime', 'Include processing time', 'Add processing duration');
+        this.addToggle(content, 'includeOutputFormat', 'Include output format', 'Add output format (detailed/concise)');
+    }
 
-            new Setting(metadataContent)
-                .setName('Include topics')
-                .setDesc('Add topics array')
-                .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.includeTopics)
-                    .onChange(async (value) => {
-                        this.plugin.settings.includeTopics = value;
-                        await this.plugin.saveSettings();
-                    }));
+    private renderPlaceholderHelp(section: HTMLElement, intro?: string): void {
+        const content = this.createCollapsible(section, 'Available Placeholders', this.showTemplatePlaceholders,
+            (expanded) => { this.showTemplatePlaceholders = expanded; });
 
-            new Setting(metadataContent)
-                .setName('Include tags')
-                .setDesc('Add tags array (auto-generated from topics)')
-                .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.includeTags)
-                    .onChange(async (value) => {
-                        this.plugin.settings.includeTags = value;
-                        await this.plugin.saveSettings();
-                    }));
-
-            new Setting(metadataContent)
-                .setName('Include language')
-                .setDesc('Add language code')
-                .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.includeLanguage)
-                    .onChange(async (value) => {
-                        this.plugin.settings.includeLanguage = value;
-                        await this.plugin.saveSettings();
-                    }));
-
-            new Setting(metadataContent)
-                .setName('Include source')
-                .setDesc('Add news source/provider information')
-                .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.includeSource)
-                    .onChange(async (value) => {
-                        this.plugin.settings.includeSource = value;
-                        await this.plugin.saveSettings();
-                    }));
-
-            new Setting(metadataContent)
-                .setName('Include processing time')
-                .setDesc('Add processing duration')
-                .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.includeProcessingTime)
-                    .onChange(async (value) => {
-                        this.plugin.settings.includeProcessingTime = value;
-                        await this.plugin.saveSettings();
-                    }));
-
-            new Setting(metadataContent)
-                .setName('Include output format')
-                .setDesc('Add output format (detailed/concise)')
-                .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.includeOutputFormat)
-                    .onChange(async (value) => {
-                        this.plugin.settings.includeOutputFormat = value;
-                        await this.plugin.saveSettings();
-                    }));
+        const infoEl = content.createDiv('template-placeholder-info');
+        if (intro) {
+            infoEl.createEl('p', { text: intro, cls: 'settings-section-description' });
         }
 
-        // =========================
-        // Template Configuration
-        // =========================
-        const templateSection = this.createSection(containerEl, 'Template Configuration', 'Customize the format of your daily news notes');
+        TemplateEngine.getPlaceholderInfo().forEach(category => {
+            const categoryEl = infoEl.createDiv({cls: 'placeholder-category'});
+            categoryEl.createEl('strong', {text: category.category + ':'});
+            const placeholderList = categoryEl.createEl('ul');
 
-        new Setting(templateSection)
-            .setName('Template type')
-            .setDesc('Choose a template style for your daily news notes')
-            .addDropdown(dropdown => dropdown
-                .addOption('default', TEMPLATE_DESCRIPTIONS.default)
-                .addOption('minimal', TEMPLATE_DESCRIPTIONS.minimal)
-                .addOption('detailed', TEMPLATE_DESCRIPTIONS.detailed)
-                .addOption('custom', TEMPLATE_DESCRIPTIONS.custom)
-                .addOption('file', TEMPLATE_DESCRIPTIONS.file)
-                .setValue(this.plugin.settings.templateType)
-                .onChange(async (value: 'default' | 'minimal' | 'detailed' | 'custom' | 'file') => {
-                    this.plugin.settings.templateType = value;
-                    await this.plugin.saveSettings();
-                    this.display();
-                }));
+            category.placeholders.forEach(info => {
+                const li = placeholderList.createEl('li');
+                li.createEl('code', {text: info.placeholder});
+                li.appendText(` - ${info.description}`);
+            });
+        });
+    }
 
-        if (this.plugin.settings.templateType === 'custom') {
-            new Setting(templateSection)
+    private renderTemplate(containerEl: HTMLElement): void {
+        const section = this.createSection(containerEl, 'Template Configuration', 'Customize the format of your daily news notes');
+
+        this.addDropdown(section, 'templateType', 'Template type', 'Choose a template style for your daily news notes', { ...TEMPLATE_DESCRIPTIONS }, true);
+
+        if (this.config.templateType === 'custom') {
+            new Setting(section)
                 .setName('Custom template')
                 .setDesc('Define your own template using placeholders')
                 .addTextArea(text => {
                     text.setPlaceholder(TEMPLATE_EXAMPLE)
-                        .setValue(this.plugin.settings.customTemplate)
-                        .onChange(async (value) => {
-                            this.plugin.settings.customTemplate = value;
-                            await this.plugin.saveSettings();
-                        });
+                        .setValue(this.config.customTemplate)
+                        .onChange(value => this.store('customTemplate', value));
                     text.inputEl.rows = 12;
                     text.inputEl.cols = 50;
                     return text;
                 });
 
-            new Setting(templateSection)
+            new Setting(section)
                 .setName('Validate template')
                 .setDesc('Check if your custom template is valid')
                 .addButton(button => button
                     .setButtonText('Validate')
-                    .onClick(() => {
-                        const validation = TemplateEngine.validateTemplate(this.plugin.settings.customTemplate);
-                        if (validation.valid) {
-                            new Notice('✓ Template is valid!', 3000);
-                        } else {
-                            new Notice(`✗ Template errors:\n${validation.errors.join('\n')}`, 5000);
-                        }
-                    }));
+                    .onClick(() => this.reportTemplateValidation(this.config.customTemplate, 'Template')));
 
-            const { content: placeholdersContent } = this.createCollapsible(
-                templateSection,
-                'Available Placeholders',
-                this.showTemplatePlaceholders,
-                (expanded) => { this.showTemplatePlaceholders = expanded; }
-            );
-
-            const placeholderInfoEl = placeholdersContent.createDiv('template-placeholder-info');
-            TemplateEngine.getPlaceholderInfo().forEach(category => {
-                const categoryEl = placeholderInfoEl.createDiv({cls: 'placeholder-category'});
-                categoryEl.createEl('strong', {text: category.category + ':'});
-                const placeholderList = categoryEl.createEl('ul');
-
-                category.placeholders.forEach(info => {
-                    const li = placeholderList.createEl('li');
-                    li.createEl('code', {text: info.placeholder});
-                    li.appendText(` - ${info.description}`);
-                });
-            });
+            this.renderPlaceholderHelp(section);
         }
 
-        if (this.plugin.settings.templateType === 'file') {
-            new Setting(templateSection)
-                .setName('Template file path')
-                .setDesc('Path to your template note (e.g., "Templates/Daily News.md")')
-                .addText(text => text
-                    .setPlaceholder('Templates/Daily News.md')
-                    .setValue(this.plugin.settings.templateFilePath)
-                    .onChange(async (value) => {
-                        this.plugin.settings.templateFilePath = value;
-                        await this.plugin.saveSettings();
-                    }));
+        if (this.config.templateType === 'file') {
+            this.addText(section, 'templateFilePath', 'Template file path', 'Path to your template note (e.g., "Templates/Daily News.md")', 'Templates/Daily News.md');
 
-            const copyExampleSetting = new Setting(templateSection)
+            const copyExampleSetting = new Setting(section)
                 .setName('Copy template example')
                 .setDesc('Copy a template file example to clipboard')
                 .addButton(button => button
@@ -870,71 +506,34 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                         new Notice('Template example copied to clipboard!', 3000);
                     }));
 
-            // Display the example content consistently
-            const previewEl = templateSection.createDiv({
-                cls: 'template-preview'
-            });
+            // Display the example directly below the copy button
+            const previewEl = section.createDiv({ cls: 'template-preview' });
             previewEl.setText(TEMPLATE_FILE_EXAMPLE);
-
-            // Insert after the copy button setting
             copyExampleSetting.settingEl.insertAdjacentElement('afterend', previewEl);
 
-            new Setting(templateSection)
+            new Setting(section)
                 .setName('Validate template file')
                 .setDesc('Check if your template file exists and is valid')
                 .addButton(button => button
                     .setButtonText('Validate')
                     .onClick(async () => {
-                        const fileContent = await TemplateEngine.loadTemplateFile(
-                            this.app,
-                            this.plugin.settings.templateFilePath
-                        );
-
+                        const fileContent = await TemplateEngine.loadTemplateFile(this.app, this.config.templateFilePath);
                         if (!fileContent) {
-                            new Notice(`✗ Template file not found: ${this.plugin.settings.templateFilePath}`, 5000);
+                            new Notice(`✗ Template file not found: ${this.config.templateFilePath}`, 5000);
                             return;
                         }
-
-                        const validation = TemplateEngine.validateTemplate(fileContent);
-                        if (validation.valid) {
-                            new Notice('✓ Template file is valid!', 3000);
-                        } else {
-                            new Notice(`✗ Template errors:\n${validation.errors.join('\n')}`, 5000);
-                        }
+                        this.reportTemplateValidation(fileContent, 'Template file');
                     }));
 
-            const { content: placeholdersContent } = this.createCollapsible(
-                templateSection,
-                'Available Placeholders',
-                this.showTemplatePlaceholders,
-                (expanded) => { this.showTemplatePlaceholders = expanded; }
-            );
-
-            const placeholderInfoEl = placeholdersContent.createDiv('template-placeholder-info');
-            placeholderInfoEl.createEl('p', {
-                text: 'Use these placeholders in your template file.',
-                cls: 'settings-section-description'
-            });
-
-            TemplateEngine.getPlaceholderInfo().forEach(category => {
-                const categoryEl = placeholderInfoEl.createDiv({cls: 'placeholder-category'});
-                categoryEl.createEl('strong', {text: category.category + ':'});
-                const placeholderList = categoryEl.createEl('ul');
-
-                category.placeholders.forEach(info => {
-                    const li = placeholderList.createEl('li');
-                    li.createEl('code', {text: info.placeholder});
-                    li.appendText(` - ${info.description}`);
-                });
-            });
+            this.renderPlaceholderHelp(section, 'Use these placeholders in your template file.');
         }
+    }
 
-        // =========================
-        // Advanced Configuration
-        // =========================
-        const advancedSection = this.createSection(containerEl, 'Advanced Configuration', 'Advanced settings for fine-tuning');
+    private renderAdvanced(containerEl: HTMLElement): void {
+        const section = this.createSection(containerEl, 'Advanced Configuration', 'Advanced settings for fine-tuning');
+        const { pipelineMode, newsSource } = this.config;
 
-        new Setting(advancedSection)
+        new Setting(section)
             .setName('Show advanced settings')
             .setDesc('Toggle advanced configuration options')
             .addToggle(toggle => toggle
@@ -944,147 +543,105 @@ export class DailyNewsSettingTab extends PluginSettingTab {
                     this.display();
                 }));
 
-        if (this.showAdvanced) {
-            if (pipelineMode === 'modular' && newsSource === 'google') {
-                advancedSection.createDiv({text: 'Search Optimization', cls: 'setting-item-heading'});
+        if (!this.showAdvanced) return;
 
-                new Setting(advancedSection)
-                    .setName('Use AI for search queries')
-                    .setDesc('Use Gemini AI to generate optimized Google search queries (requires Gemini API key)')
-                    .addToggle(toggle => toggle
-                        .setValue(this.plugin.settings.useAIForQueries)
-                        .onChange(async (value) => {
-                            if (value && !this.plugin.settings.geminiApiKey) {
-                                new Notice('AI search query generation requires a Gemini API key. Please add it in the API Keys section.', 6000);
-                            }
-                            this.plugin.settings.useAIForQueries = value;
-                            await this.plugin.saveSettings();
-                        }));
+        if (pipelineMode === 'modular' && newsSource === 'google') {
+            this.addSubheading(section, 'Search Optimization');
 
-                new Setting(advancedSection)
-                    .setName('Use AI news judgment')
-                    .setDesc('Let AI evaluate and select the most relevant news items')
-                    .addToggle(toggle => toggle
-                        .setValue(this.plugin.settings.useAIJudge)
-                        .onChange(async (value) => {
-                            this.plugin.settings.useAIJudge = value;
-                            await this.plugin.saveSettings();
-                            this.display();
-                        }));
-
-                if (this.plugin.settings.useAIJudge) {
-                    new Setting(advancedSection)
-                        .setName('Custom AI judge prompt')
-                        .setDesc('Optional: Custom prompt for AI news evaluation (use {{NEWS_TEXT}} and {{TOPIC}} as placeholders)')
-                        .addTextArea(text => text
-                            .setPlaceholder('Leave empty to use default prompt...')
-                            .setValue(this.plugin.settings.aiJudgePrompt || '')
-                            .onChange(async (value) => {
-                                this.plugin.settings.aiJudgePrompt = value;
-                                await this.plugin.saveSettings();
-                            }));
-                }
-
-
-                advancedSection.createDiv({text: 'Cache Management', cls: 'setting-item-heading'});
-
-                new Setting(advancedSection)
-                    .setName('Clear query cache')
-                    .setDesc(`Clear cached AI-generated search queries (${Object.keys(this.plugin.settings.queryCache).length} cached)`)
-                    .addButton(button => button
-                        .setButtonText('Clear cache')
-                        .setWarning()
-                        .onClick(async () => {
-                            this.plugin.settings.queryCache = {};
-                            await this.plugin.saveSettings();
-                            new Notice('Query cache cleared successfully');
-                            this.display();
-                        }));
-            }
-
-            // Daily topic cache (available for all providers)
-            advancedSection.createDiv({text: 'Content Cache', cls: 'setting-item-heading'});
-
-            new Setting(advancedSection)
-                .setName('Enable content cache')
-                .setDesc('Cache daily news content to avoid redundant API calls when regenerating for the same day')
+            new Setting(section)
+                .setName('Use AI for search queries')
+                .setDesc('Use Gemini AI to generate optimized Google search queries (requires Gemini API key)')
                 .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.dailyTopicCacheEnabled)
+                    .setValue(this.config.useAIForQueries)
                     .onChange(async (value) => {
-                        this.plugin.settings.dailyTopicCacheEnabled = value;
-                        await this.plugin.saveSettings();
+                        if (value && !this.config.geminiApiKey) {
+                            new Notice('AI search query generation requires a Gemini API key. Please add it in the API Keys section.', 6000);
+                        }
+                        await this.store('useAIForQueries', value);
                     }));
 
-            // Count cache entries for current provider
-            const currentProvider = NewsProviderFactory.getProviderKey(this.plugin.settings);
-            const allCacheKeys = Object.keys(this.plugin.settings.dailyTopicCache);
-            const providerCacheCount = allCacheKeys.filter(key => key.includes(`_${currentProvider}_`)).length;
+            this.addToggle(section, 'useAIJudge', 'Use AI news judgment', 'Let AI evaluate and select the most relevant news items', true);
 
-            new Setting(advancedSection)
-                .setName('Clear daily topic cache')
-                .setDesc(`Clear cached daily news topics for current provider (${providerCacheCount} topics cached)`)
+            if (this.config.useAIJudge) {
+                new Setting(section)
+                    .setName('Custom AI judge prompt')
+                    .setDesc('Optional: Custom prompt for AI news evaluation (use {{NEWS_TEXT}} and {{TOPIC}} as placeholders)')
+                    .addTextArea(text => text
+                        .setPlaceholder('Leave empty to use default prompt...')
+                        .setValue(this.config.aiJudgePrompt || '')
+                        .onChange(value => this.store('aiJudgePrompt', value)));
+            }
+
+            this.addSubheading(section, 'Cache Management');
+
+            new Setting(section)
+                .setName('Clear query cache')
+                .setDesc(`Clear cached AI-generated search queries (${Object.keys(this.config.queryCache).length} cached)`)
                 .addButton(button => button
                     .setButtonText('Clear cache')
                     .setWarning()
                     .onClick(async () => {
-                        // Clear only current provider's cache entries
-                        const keysToDelete = allCacheKeys.filter(key => key.includes(`_${currentProvider}_`));
-                        keysToDelete.forEach(key => {
-                            delete this.plugin.settings.dailyTopicCache[key];
-                        });
-                        await this.plugin.saveSettings();
-                        new Notice(`Cleared ${keysToDelete.length} cached topics for ${currentProvider}`);
+                        await this.store('queryCache', {});
+                        new Notice('Query cache cleared successfully');
                         this.display();
-                    }));
-
-            advancedSection.createDiv({text: 'Custom Prompts', cls: 'setting-item-heading'});
-
-            new Setting(advancedSection)
-                .setName('Use custom AI prompt')
-                .setDesc('Enable to use your own custom AI prompt for summarization')
-                .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.useCustomPrompt)
-                    .onChange(async (value) => {
-                        this.plugin.settings.useCustomPrompt = value;
-                        await this.plugin.saveSettings();
-                        this.display();
-                    }));
-
-            if (this.plugin.settings.useCustomPrompt) {
-                let customPromptDesc = 'Your custom prompt for the AI.';
-                if (pipelineMode === 'modular') {
-                    customPromptDesc += ' (use {{NEWS_TEXT}} as placeholder for the news content)';
-                } else {
-                    customPromptDesc += ' For agentic providers, this is used as the main instruction (e.g. "What is the latest news on {{TOPIC}}?")';
-                }
-
-                new Setting(advancedSection)
-                    .setName('Custom AI prompt')
-                    .setDesc(customPromptDesc)
-                    .addTextArea(text => {
-                        text.setPlaceholder('You are a professional news analyst...')
-                            .setValue(this.plugin.settings.customPrompt)
-                            .onChange(async (value) => {
-                                this.plugin.settings.customPrompt = value;
-                                await this.plugin.saveSettings();
-                            });
-                        text.inputEl.rows = 6;
-                        return text;
-                    });
-            }
-
-            advancedSection.createDiv({text: 'Manual Actions', cls: 'setting-item-heading'});
-
-            new Setting(advancedSection)
-                .setName('Generate news now')
-                .setDesc('Manually trigger news generation')
-                .addButton(button => button
-                    .setButtonText('Generate')
-                    .setCta()
-                    .onClick(async () => {
-                        new Notice('Generating news...');
-                        await this.plugin.generateDailyNews();
                     }));
         }
+
+        // Daily topic cache (available for all providers)
+        this.addSubheading(section, 'Content Cache');
+        this.addToggle(section, 'dailyTopicCacheEnabled', 'Enable content cache',
+            'Cache daily news content to avoid redundant API calls when regenerating for the same day');
+
+        // Count cache entries for current provider
+        const currentProvider = NewsProviderFactory.getProviderKey(this.config);
+        const providerCacheKeys = Object.keys(this.config.dailyTopicCache).filter(key => key.includes(`_${currentProvider}_`));
+
+        new Setting(section)
+            .setName('Clear daily topic cache')
+            .setDesc(`Clear cached daily news topics for current provider (${providerCacheKeys.length} topics cached)`)
+            .addButton(button => button
+                .setButtonText('Clear cache')
+                .setWarning()
+                .onClick(async () => {
+                    providerCacheKeys.forEach(key => {
+                        delete this.config.dailyTopicCache[key];
+                    });
+                    await this.plugin.saveTopicCache();
+                    new Notice(`Cleared ${providerCacheKeys.length} cached topics for ${currentProvider}`);
+                    this.display();
+                }));
+
+        this.addSubheading(section, 'Custom Prompts');
+        this.addToggle(section, 'useCustomPrompt', 'Use custom AI prompt', 'Enable to use your own custom AI prompt for summarization', true);
+
+        if (this.config.useCustomPrompt) {
+            const customPromptDesc = 'Your custom prompt for the AI.' + (pipelineMode === 'modular'
+                ? ' (use {{NEWS_TEXT}} as placeholder for the news content)'
+                : ' For agentic providers, this is used as the main instruction (e.g. "What is the latest news on {{TOPIC}}?")');
+
+            new Setting(section)
+                .setName('Custom AI prompt')
+                .setDesc(customPromptDesc)
+                .addTextArea(text => {
+                    text.setPlaceholder('You are a professional news analyst...')
+                        .setValue(this.config.customPrompt)
+                        .onChange(value => this.store('customPrompt', value));
+                    text.inputEl.rows = 6;
+                    return text;
+                });
+        }
+
+        this.addSubheading(section, 'Manual Actions');
+
+        new Setting(section)
+            .setName('Generate news now')
+            .setDesc('Manually trigger news generation')
+            .addButton(button => button
+                .setButtonText('Generate')
+                .setCta()
+                .onClick(async () => {
+                    new Notice('Generating news...');
+                    await this.plugin.generateDailyNews();
+                }));
     }
 }

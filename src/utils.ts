@@ -1,7 +1,7 @@
-import { localDate } from './runtime-utils';
+import { localDate, topicTag } from './runtime-utils';
 import { App, TFile, Notice } from 'obsidian';
-import type { DailyNewsSettings, TopicStatus, NewsMetadata} from './types';
-import { BRIEFING_PRESETS, LANGUAGE_TRANSLATIONS } from './constants';
+import type { DailyNewsSettings, TopicStatus, NewsMetadata } from './types';
+import { strings } from './i18n';
 import { NewsProviderFactory } from './providers/news-provider-factory';
 
 export class FileUtils {
@@ -48,40 +48,6 @@ export class FileUtils {
     }
 }
 
-export class ValidationUtils {
-    // This class can be extended with other validation methods in the future
-    // API validation is now handled by the NewsProviderFactory
-}
-
-export class LanguageUtils {
-    static getTranslation(key: string, language: string): string {
-        // Get the language-specific translations or default to English
-        const translations = LANGUAGE_TRANSLATIONS[language] || LANGUAGE_TRANSLATIONS['en'];
-        
-        // Return the translation for the key or the key itself if no translation exists
-        return translations[key] || LANGUAGE_TRANSLATIONS['en'][key] || key;
-    }
-}
-
-export class PresetUtils {
-    static getPromptGuidance(settings: DailyNewsSettings): string {
-        if (!settings.briefingPreset || settings.briefingPreset === 'none') {
-            return '';
-        }
-
-        const preset = BRIEFING_PRESETS[settings.briefingPreset];
-        if (!preset) {
-            return '';
-        }
-
-        const formatGuidance = settings.outputFormat === 'detailed'
-            ? preset.detailedOutputGuidance
-            : preset.conciseOutputGuidance;
-
-        return `\n\nPRESET GUIDANCE (${preset.name}):\n${preset.promptGuidance}\n${formatGuidance}`;
-    }
-}
-
 export class MetadataUtils {
     static generateMetadata(
         settings: DailyNewsSettings, 
@@ -111,9 +77,7 @@ export class MetadataUtils {
 
         if (settings.includeTags) {
             // Generate tags from topics and add some standard tags
-            const topicTags = settings.topics.map(topic =>
-                topic.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-            );
+            const topicTags = settings.topics.map(topicTag).filter(Boolean);
             const providerKey = NewsProviderFactory.getProviderKey(settings);
             const standardTags = ['daily-news', providerKey];
             metadata.tags = [...new Set([...topicTags, ...standardTags])];
@@ -178,15 +142,10 @@ export class ContentUtils {
     }
 
     static buildProcessingStatus(topicStatuses: TopicStatus[], language: string): string {
-        let content = '\n---\n\n';
-        content += `## ${LanguageUtils.getTranslation('processingStatus', language)}\n\n`;
-        content += 'Some topics encountered issues during processing:\n\n';
-        
+        const text = strings(language);
+        let content = `\n---\n\n## ${text.processingStatus}\n\n${text.issuesIntro}\n\n`;
         for (const status of topicStatuses) {
-            if (status.error) {
-                const stage = !status.retrievalSuccess ? 'News Retrieval' : 'News Summarization';
-                content += `- **${status.topic}**: Issue during ${stage} - ${status.error}\n`;
-            }
+            if (status.error) content += `- **${status.topic}**: ${status.error}\n`;
         }
         return content;
     }

@@ -85,11 +85,8 @@ export interface DailyNewsSettings {
     
     // Advanced settings
     dateRange: string;
-    minContentLength: number;
     useCustomPrompt: boolean;
     customPrompt: string;
-    strictQualityFiltering: boolean;
-    qualityThreshold: number; // New setting for fine-tuning filtering
     useAIForQueries: boolean; // New setting: whether to use AI to generate search queries
     useAIJudge: boolean; // Whether to use AI for judging content quality
     aiJudgePrompt: string; // Custom prompt for AI judge, empty by default
@@ -106,7 +103,7 @@ export interface DailyNewsSettings {
     // Cache settings
     dailyTopicCacheEnabled: boolean; // Whether to cache daily topic content (avoids redundant API calls)
     queryCache: { [topic: string]: string }; // AI-generated query cache: topic -> query
-    dailyTopicCache: { [cacheKey: string]: TopicContent }; // Per-topic cache: date/provider + versioned content configuration -> TopicContent
+    dailyTopicCache: { [cacheKey: string]: TopicContent }; // In memory only; persisted to cache.json, not data.json. Per-topic cache: date/provider + versioned content configuration -> TopicContent
 }
 
 export const DEFAULT_SETTINGS: DailyNewsSettings = {
@@ -186,14 +183,11 @@ export const DEFAULT_SETTINGS: DailyNewsSettings = {
     
     // Advanced settings
     dateRange: 'd1', // New configurations default to the last 24 hours
-    minContentLength: 80,
     useCustomPrompt: false,
     customPrompt: '',
     useAIForQueries: true, // Enable AI query generation by default
     useAIJudge: true,
     aiJudgePrompt: '', // Custom prompt for AI judge, empty by default
-    strictQualityFiltering: false,
-    qualityThreshold: 3,
 
     // Template settings
     templateType: 'default',

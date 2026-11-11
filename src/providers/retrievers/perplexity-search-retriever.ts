@@ -1,3 +1,4 @@
+import { errorMessage } from '../../runtime-utils';
 import { requestJson } from '../request-policy';
 import { filterRecentNews, timeWindow } from '../../briefing';
 import type { NewsItem, DailyNewsSettings } from '../../types';
@@ -62,7 +63,7 @@ export class PerplexitySearchRetriever implements NewsRetriever {
 
             return filterRecentNews(items, this.settings).slice(0, this.settings.resultsPerTopic);
         } catch (error) {
-            throw new Error(`Perplexity Search failed for "${topic}": ${error.message}`);
+            throw new Error(`Perplexity Search failed for "${topic}": ${errorMessage(error)}`);
         }
     }
 }

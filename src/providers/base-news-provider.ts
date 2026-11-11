@@ -14,11 +14,6 @@ export abstract class BaseNewsProvider {
     abstract fetchAndSummarizeNews(topic: string): Promise<BriefingResult>;
 
     /**
-     * Validate that the provider has the necessary configuration
-     */
-    abstract validateConfiguration(): boolean;
-
-    /**
      * Get the provider name for logging/debugging
      */
     abstract getProviderName(): string;

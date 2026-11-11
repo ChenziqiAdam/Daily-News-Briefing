@@ -1,6 +1,7 @@
 main.js
 
 data.json
+cache.json
 
 /node_modules
 .npmrc

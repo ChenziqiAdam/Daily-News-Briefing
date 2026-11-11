@@ -3,6 +3,18 @@ import { TEMPLATE_PRESETS } from './template-presets';
 import type { App } from 'obsidian';
 import { TFile } from 'obsidian';
 
+/** The single source of truth for placeholders: rendering and validation both use it. */
+const PLACEHOLDERS: Record<string, keyof TemplateData> = {
+    METADATA: 'metadata', TIMESTAMP: 'timestamp', DATE: 'date', TIME: 'time',
+    TABLE_OF_CONTENTS: 'tableOfContents', TOPICS: 'topics', PROCESSING_STATUS: 'processingStatus', LANGUAGE: 'language',
+    YEAR: 'year', MONTH: 'month', MONTH_NAME: 'monthName', MONTH_NAME_SHORT: 'monthNameShort',
+    DAY: 'day', DAY_NAME: 'dayName', DAY_NAME_SHORT: 'dayNameShort',
+    HOUR: 'hour', MINUTE: 'minute', SECOND: 'second',
+    METADATA_DATETIME: 'metadataDatetime', METADATA_TAGS: 'metadataTags',
+    METADATA_LANGUAGE: 'metadataLanguage', METADATA_PROVIDER: 'metadataProvider',
+    TOPIC_COUNT: 'topicCount', TOPIC_LIST: 'topicList',
+};
+
 export class TemplateEngine {
     /**
      * Render a template with provided data
@@ -27,40 +39,12 @@ export class TemplateEngine {
             template = TEMPLATE_PRESETS[templateType];
         }
 
-        // Replace all placeholders with actual data
-        let result = template;
-
-        // Basic placeholders
-        result = result.replace(/\{\{METADATA\}\}/g, data.metadata);
-        result = result.replace(/\{\{TIMESTAMP\}\}/g, data.timestamp);
-        result = result.replace(/\{\{DATE\}\}/g, data.date);
-        result = result.replace(/\{\{TIME\}\}/g, data.time);
-        result = result.replace(/\{\{TABLE_OF_CONTENTS\}\}/g, data.tableOfContents);
-        result = result.replace(/\{\{TOPICS\}\}/g, data.topics);
-        result = result.replace(/\{\{PROCESSING_STATUS\}\}/g, data.processingStatus);
-        result = result.replace(/\{\{LANGUAGE\}\}/g, data.language);
-
-        // Fine-grained date/time placeholders
-        result = result.replace(/\{\{YEAR\}\}/g, data.year);
-        result = result.replace(/\{\{MONTH\}\}/g, data.month);
-        result = result.replace(/\{\{MONTH_NAME\}\}/g, data.monthName);
-        result = result.replace(/\{\{MONTH_NAME_SHORT\}\}/g, data.monthNameShort);
-        result = result.replace(/\{\{DAY\}\}/g, data.day);
-        result = result.replace(/\{\{DAY_NAME\}\}/g, data.dayName);
-        result = result.replace(/\{\{DAY_NAME_SHORT\}\}/g, data.dayNameShort);
-        result = result.replace(/\{\{HOUR\}\}/g, data.hour);
-        result = result.replace(/\{\{MINUTE\}\}/g, data.minute);
-        result = result.replace(/\{\{SECOND\}\}/g, data.second);
-
-        // Metadata field placeholders
-        result = result.replace(/\{\{METADATA_DATETIME\}\}/g, data.metadataDatetime);
-        result = result.replace(/\{\{METADATA_TAGS\}\}/g, data.metadataTags);
-        result = result.replace(/\{\{METADATA_LANGUAGE\}\}/g, data.metadataLanguage);
-        result = result.replace(/\{\{METADATA_PROVIDER\}\}/g, data.metadataProvider);
-
-        // Topic info placeholders
-        result = result.replace(/\{\{TOPIC_COUNT\}\}/g, data.topicCount);
-        result = result.replace(/\{\{TOPIC_LIST\}\}/g, data.topicList);
+        // Single pass with a function replacer: values are inserted literally, so "$&" or
+        // "{{DATE}}" inside news text is never interpreted.
+        let result = template.replace(/\{\{([A-Z_]+)\}\}/g, (match, name: string) => {
+            const key = PLACEHOLDERS[name];
+            return key ? String(data[key] ?? '') : match;
+        });
 
         // Clean up any empty sections
         result = this.cleanupEmptyLines(result);
@@ -147,20 +131,7 @@ export class TemplateEngine {
      * Get all valid placeholder names
      */
     static getValidPlaceholders(): string[] {
-        return [
-            // Basic
-            '{{METADATA}}', '{{TIMESTAMP}}', '{{DATE}}', '{{TIME}}',
-            '{{TABLE_OF_CONTENTS}}', '{{TOPICS}}', '{{PROCESSING_STATUS}}', '{{LANGUAGE}}',
-            // Date/Time
-            '{{YEAR}}', '{{MONTH}}', '{{MONTH_NAME}}', '{{MONTH_NAME_SHORT}}',
-            '{{DAY}}', '{{DAY_NAME}}', '{{DAY_NAME_SHORT}}',
-            '{{HOUR}}', '{{MINUTE}}', '{{SECOND}}',
-            // Metadata
-            '{{METADATA_DATE}}', '{{METADATA_TIME}}', '{{METADATA_TAGS}}',
-            '{{METADATA_LANGUAGE}}', '{{METADATA_PROVIDER}}',
-            // Topic info
-            '{{TOPIC_COUNT}}', '{{TOPIC_LIST}}'
-        ];
+        return Object.keys(PLACEHOLDERS).map(name => `{{${name}}}`);
     }
 
     /**
@@ -240,8 +211,7 @@ export class TemplateEngine {
             {
                 category: 'Metadata Fields',
                 placeholders: [
-                    { placeholder: '{{METADATA_DATE}}', description: 'Date from metadata' },
-                    { placeholder: '{{METADATA_TIME}}', description: 'Time from metadata' },
+                    { placeholder: '{{METADATA_DATETIME}}', description: 'Date and time from metadata' },
                     { placeholder: '{{METADATA_TAGS}}', description: 'Comma-separated tags' },
                     { placeholder: '{{METADATA_LANGUAGE}}', description: 'Language from metadata' },
                     { placeholder: '{{METADATA_PROVIDER}}', description: 'API provider name' }

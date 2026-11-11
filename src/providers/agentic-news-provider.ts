@@ -10,7 +10,6 @@ export class AgenticNewsProvider extends BaseNewsProvider {
     private client: ModelClient;
     constructor(settings: DailyNewsSettings, private kind: ModelKind) { super(settings); this.client = new ModelClient(settings, kind); }
     getProviderName(): string { return `${this.kind} (Agentic Search)`; }
-    validateConfiguration(): boolean { return this.client.configured; }
     async testConnection(): Promise<{ success: boolean; message: string }> {
         try {
             await this.client.generate('Search for the official website of your API provider and cite it.', true);

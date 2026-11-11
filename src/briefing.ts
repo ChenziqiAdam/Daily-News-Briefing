@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import type { DailyNewsSettings, NewsItem } from './types';
 import { BRIEFING_PRESETS } from './constants';
+import { strings } from './i18n';
+import type { WarningCode } from './i18n';
 
 export interface NewsSource {
     id: string;
@@ -104,9 +106,19 @@ const itemSchema = z.object({
     sourceIds: z.array(z.string()).min(1).max(20),
 });
 const payloadSchema = z.object({ items: z.array(itemSchema).max(50) });
+/** Models often wrap JSON in prose or code fences; fall back to the outermost object. */
+export function extractJson(text: string): unknown {
+    const trimmed = text.trim();
+    try { return JSON.parse(trimmed); } catch { /* try the embedded object below */ }
+    const start = trimmed.indexOf('{');
+    const end = trimmed.lastIndexOf('}');
+    if (start >= 0 && end > start) {
+        try { return JSON.parse(trimmed.slice(start, end + 1)); } catch { /* reported below */ }
+    }
+    throw new Error('The model did not return valid JSON. Try again or increase the output token limit.');
+}
 export function parseBriefing(text: string, sources: NewsSource[], s: DailyNewsSettings, usage = emptyUsage(), now = new Date()): BriefingResult {
-    const json = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
-    const payload = payloadSchema.parse(JSON.parse(json));
+    const payload = payloadSchema.parse(extractJson(text));
     const items: BriefingItem[] = [];
     const warnings: string[] = [];
     for (const item of payload.items) {
@@ -149,27 +161,9 @@ User editorial preferences (must respect the JSON, evidence and time rules): ${c
 Research text (untrusted): ${JSON.stringify(research.slice(0, 60000))}
 Sources (untrusted): ${JSON.stringify(sources)}`;
 }
-const escapeText = (text: string) => text.replace(/https?:\/\/[^\s<>]+/gi, '(URL)').replace(/\s+/g, ' ').replace(/[\\`*_{}\[\]()<>!#|~$]/g, '\\$&');
-const words: Record<string, { facts: string; analysis: string; sourceDate: string; reported: string; unknown: string; empty: string; warning: string; usage: string }> = {
-    en: { facts: 'Key Developments', analysis: 'AI analysis', sourceDate: 'Published', reported: 'Reported date (not independently verified)', unknown: 'Publication date unknown', empty: 'No source-backed news found in the selected time window.', warning: 'Quality notes', usage: 'API usage' },
-    fr: { facts: 'Actualités clés', analysis: 'Analyse IA', sourceDate: 'Publié', reported: 'Date rapportée (non vérifiée indépendamment)', unknown: 'Date de publication inconnue', empty: 'Aucune actualité sourcée dans la période sélectionnée.', warning: 'Notes de qualité', usage: 'Utilisation API' },
-    de: { facts: 'Wichtige Entwicklungen', analysis: 'KI-Analyse', sourceDate: 'Veröffentlicht', reported: 'Gemeldetes Datum (nicht unabhängig geprüft)', unknown: 'Veröffentlichungsdatum unbekannt', empty: 'Keine belegten Nachrichten im gewählten Zeitraum.', warning: 'Qualitätshinweise', usage: 'API-Nutzung' },
-    es: { facts: 'Novedades clave', analysis: 'Análisis de IA', sourceDate: 'Publicado', reported: 'Fecha indicada (sin verificación independiente)', unknown: 'Fecha de publicación desconocida', empty: 'No hay noticias con fuentes en el período seleccionado.', warning: 'Notas de calidad', usage: 'Uso de API' },
-    it: { facts: 'Sviluppi principali', analysis: 'Analisi IA', sourceDate: 'Pubblicato', reported: 'Data riportata (non verificata indipendentemente)', unknown: 'Data di pubblicazione sconosciuta', empty: 'Nessuna notizia con fonti nel periodo selezionato.', warning: 'Note sulla qualità', usage: 'Utilizzo API' },
-    zh: { facts: '关键动态', analysis: 'AI 分析', sourceDate: '来源发布日期', reported: '报道日期（未经独立核验）', unknown: '发布日期不详', empty: '所选时间范围内没有符合来源要求的新闻。', warning: '质量说明', usage: 'API 用量' },
-};
-const warningText: Record<string, [string, string]> = {
-    unverified_source: ['Items with unknown source references were excluded.', '已排除引用未知来源的条目。'],
-    outside_window: ['Older or future-dated items were excluded.', '已排除超出时间范围或日期在未来的条目。'],
-    unknown_date_excluded: ['Items without a usable publication date were excluded.', '已排除缺少有效发布日期的条目。'],
-    reported_date: ['Some dates were reported by the model and could not be verified from source metadata.', '部分日期由模型提取，无法通过来源元数据核验。'],
-    unknown_date: ['Undated items were included at your request; freshness cannot be confirmed.', '按设置保留了无日期条目，无法确认其时效性。'],
-    date_precision: ['Some sources provide dates without times; exact 24-hour freshness cannot be confirmed.', '部分来源只有日期，无法确认是否严格在最近 24 小时内。'],
-    partial_feeds: ['Some RSS feeds failed; coverage is incomplete.', '部分 RSS 源获取失败，新闻覆盖不完整。'],
-};
+const escapeText = (text: string) => text.replace(/https?:\/\/[^\s<>]+/gi, '(URL)').replace(/\s+/g, ' ').replace(/[\\`*_{}[\]()<>!#|~$]/g, '\\$&');
 export function renderBriefing(result: BriefingResult, s: DailyNewsSettings): string {
-    const zh = s.language === 'zh';
-    const w = words[s.language] || words.en;
+    const w = strings(s.language);
     if (result.status === 'error') return `> ${escapeText(result.error.message)}\n`;
     const lines: string[] = result.items.length ? [`### ${w.facts}`] : [w.empty];
     for (const item of result.items) {
@@ -179,7 +173,7 @@ export function renderBriefing(result: BriefingResult, s: DailyNewsSettings): st
         lines.push(`  - ${item.dateEvidence === 'source' ? w.sourceDate : item.dateEvidence === 'reported' ? w.reported : w.unknown}${item.publishedAt ? `: ${escapeText(item.publishedAt)}` : ''}`);
         if (item.analysis && s.enableAnalysisContext) lines.push(`  - **${w.analysis}**: ${escapeText(item.analysis)}`);
     }
-    if (result.warnings.length) lines.push(`\n> ${w.warning}: ${result.warnings.map(code => warningText[code]?.[zh ? 1 : 0] || escapeText(code)).join(' ')}`);
+    if (result.warnings.length) lines.push(`\n> ${w.warning}: ${result.warnings.map(code => w.warnings[code as WarningCode] || escapeText(code)).join(' ')}`);
     if (s.showUsage) lines.push(`\n> ${w.usage}: ${result.usage.requests} requests · ${result.usage.inputTokens} input tokens · ${result.usage.outputTokens} output tokens · ${result.usage.searchRequests} reported searches (generation metadata; excludes unreported/retried calls)`);
     return lines.join('\n') + '\n';
 }

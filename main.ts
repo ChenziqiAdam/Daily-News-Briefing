@@ -1,22 +1,29 @@
-import { Plugin, Notice, TFolder, TFile } from 'obsidian';
-import type { DailyNewsSettings, TopicStatus, TemplateData, TopicContent } from './src/types';
+import { Plugin, Notice } from 'obsidian';
+import type { DailyNewsSettings, TopicStatus, TopicContent } from './src/types';
 import { DEFAULT_SETTINGS } from './src/types';
 import { DailyNewsSettingTab } from './src/settings-tab';
 import { NewsProviderFactory } from './src/providers/news-provider-factory';
-import type { BaseNewsProvider } from './src/providers/base-news-provider';
-import { FileUtils, ContentUtils, MetadataUtils, LanguageUtils } from './src/utils';
-import { SECRET_FIELDS, LANGUAGE_TRANSLATIONS } from './src/constants';
+import { FileUtils, ContentUtils } from './src/utils';
+import { buildTemplateData } from './src/template/template-data';
+import { SECRET_FIELDS } from './src/constants';
+import { STRINGS, strings } from './src/i18n';
 import { TemplateEngine } from './src/template/template-engine';
 import { SearchSummarizeCoordinator } from './src/providers/coordinators/search-summarize-coordinator';
 import { renderBriefing, parseBriefing, failure } from './src/briefing';
 import type { BriefingResult } from './src/briefing';
-import { localDate, scheduleIsDue, topicCacheKey, migrateModelDefaults } from './src/runtime-utils';
+import { localDate, scheduleIsDue, topicCacheKey, mapLimit, errorMessage } from './src/runtime-utils';
+import { migrateSettings } from './src/settings-migration';
+import { reorganizeExistingNotes, deleteOldNewsNotes } from './src/note-manager';
+
+const SCHEDULE_MAX_ATTEMPTS = 3;
+const SCHEDULE_RETRY_MS = 15 * 60 * 1000;
+// Small enough to stay inside free-tier rate limits.
+const TOPIC_CONCURRENCY = 3;
 
 export default class DailyNewsPlugin extends Plugin {
-    settings: DailyNewsSettings;
-    private newsProvider: BaseNewsProvider;
+    settings!: DailyNewsSettings;
     private generationPromise: Promise<string | null> | null = null;
-    private lastScheduledAttemptDate = '';
+    private scheduled = { date: '', attempts: 0, nextAt: 0 };
 
     /** Returns a copy of settings with secret IDs resolved to actual key values. */
     resolveSecrets(): DailyNewsSettings {
@@ -60,7 +67,7 @@ export default class DailyNewsPlugin extends Plugin {
             count++;
         }
         if (count > 0) {
-            await this.saveData(this.settings);
+            await this.saveSettings();
         }
         return count;
     }
@@ -75,9 +82,6 @@ export default class DailyNewsPlugin extends Plugin {
         if (this.settings.autoDeleteEnabled) {
             await this.deleteOldNewsNotes();
         }
-
-        // Initialize news provider
-        this.initializeNewsProvider();
 
         // Add settings tab
         this.addSettingTab(new DailyNewsSettingTab(this.app, this));
@@ -121,57 +125,51 @@ export default class DailyNewsPlugin extends Plugin {
     async loadSettings() {
         const loadedData = await this.loadData();
         this.settings = Object.assign(structuredClone(DEFAULT_SETTINGS), loadedData);
+        await this.loadTopicCache(loadedData?.dailyTopicCache);
 
-        // Migration: old single-field apiProvider -> new pipelineMode/newsSource/summarizer/agenticProvider
-        if (loadedData && loadedData.apiProvider && !loadedData.pipelineMode) {
-            const old = loadedData.apiProvider as string;
-            const agenticProviders = ['sonar', 'gpt', 'grok', 'claude', 'openrouter'];
-            if (agenticProviders.includes(old)) {
-                this.settings.pipelineMode = 'agentic';
-                this.settings.agenticProvider = old as DailyNewsSettings['agenticProvider'];
-            } else {
-                this.settings.pipelineMode = 'modular';
-                this.settings.newsSource = old.startsWith('rss') ? 'rss' : 'google';
-                const sumPart = old.split('-').pop();
-                this.settings.summarizer = (sumPart as DailyNewsSettings['summarizer']) || 'gemini';
-            }
-            await this.saveData(this.settings);
-        }
-
-        // Migration for very old 'google' value
-        const oldProvider = this.settings.apiProvider as string;
-        if (oldProvider === 'google') {
-            this.settings.apiProvider = 'google-gemini';
-            await this.saveData(this.settings);
-        }
-
-        if (loadedData && migrateModelDefaults(this.settings, loadedData.modelDefaultsVersion)) {
-            await this.saveData(this.settings);
-        }
-
-        // Migration logic for old date/time settings (v1.11.0 -> v1.12.0)
-        if (loadedData && ('includeDate' in loadedData || 'includeTime' in loadedData)) {
-            const oldIncludeDate = (loadedData as Record<string, unknown>).includeDate;
-            const oldIncludeTime = (loadedData as Record<string, unknown>).includeTime;
-            // If either was true, enable the new combined setting
-            if (oldIncludeDate || oldIncludeTime) {
-                this.settings.includeDatetime = true;
-            }
-            await this.saveData(this.settings); // Save migrated settings
-        }
+        if (migrateSettings(this.settings, loadedData)) await this.saveSettings();
     }
 
     async saveSettings() {
-        await this.saveData(this.settings);
-        // Update news provider when settings change
-        this.initializeNewsProvider();
+        // The topic cache is large and device-specific; it lives in cache.json, not data.json.
+        const persisted: Partial<DailyNewsSettings> = { ...this.settings };
+        delete persisted.dailyTopicCache;
+        await this.saveData(persisted);
     }
 
-    private initializeNewsProvider() {
-        this.newsProvider = NewsProviderFactory.createProvider(
-            this.resolveSecrets(),
-            async () => await this.saveSettings()
-        );
+    private get topicCachePath(): string {
+        const dir = this.manifest.dir ?? `${this.app.vault.configDir}/plugins/${this.manifest.id}`;
+        return `${dir}/cache.json`;
+    }
+
+    async saveTopicCache() {
+        try {
+            await this.app.vault.adapter.write(this.topicCachePath, JSON.stringify(this.settings.dailyTopicCache));
+        } catch (error) {
+            console.error('Failed to save the daily topic cache:', error);
+        }
+    }
+
+    /** Loads cache.json; a cache still stored in data.json by older versions is moved over once. */
+    private async loadTopicCache(legacyCache: unknown) {
+        try {
+            if (await this.app.vault.adapter.exists(this.topicCachePath)) {
+                const cache: unknown = JSON.parse(await this.app.vault.adapter.read(this.topicCachePath));
+                this.settings.dailyTopicCache = cache && typeof cache === 'object' && !Array.isArray(cache)
+                    ? cache as DailyNewsSettings['dailyTopicCache'] : {};
+            }
+        } catch (error) {
+            console.error('Ignoring unreadable daily topic cache:', error);
+            this.settings.dailyTopicCache = {};
+        }
+        if (legacyCache !== undefined) {
+            await this.saveTopicCache();
+            await this.saveSettings();
+        }
+    }
+
+    private dailyNotePath(date: string): string {
+        return FileUtils.normalizePath(`${this.settings.archiveFolder}/${date.substring(0, 7)}/Daily News - ${date}.md`);
     }
 
     private async cleanupOldCache() {
@@ -188,33 +186,35 @@ export default class DailyNewsPlugin extends Plugin {
         }
 
         if (cleaned > 0) {
-            await this.saveSettings();
+            await this.saveTopicCache();
             console.log(`Cleaned ${cleaned} old cache entries from previous days`);
         }
     }
 
-    private buildTopicsSections(topicContents: TopicContent[]): string {
-        let sections = '';
-        for (const topicContent of topicContents) {
-            sections += `\n---\n\n`;
-            sections += `## ${topicContent.topic}\n\n`;
-            sections += topicContent.content;
-        }
-        return sections;
-    }
-
     async checkAndGenerateNews() {
         if (!this.settings.autoGenerateEnabled) return;
+        if (this.generationPromise) return;
         const now = new Date();
         const today = localDate(now);
-        if (!scheduleIsDue(this.settings.scheduleTime, now) || this.lastScheduledAttemptDate === today) return;
-        this.lastScheduledAttemptDate = today;
-        await this.generateDailyNews();
+        if (!scheduleIsDue(this.settings.scheduleTime, now)) return;
+        if (this.scheduled.date !== today) this.scheduled = { date: today, attempts: 0, nextAt: 0 };
+        if (this.scheduled.attempts >= SCHEDULE_MAX_ATTEMPTS || now.getTime() < this.scheduled.nextAt) return;
+        // Already generated (e.g. on restart): stay silent instead of showing notices.
+        if (await this.app.vault.adapter.exists(this.dailyNotePath(today))) {
+            this.scheduled.attempts = SCHEDULE_MAX_ATTEMPTS;
+            return;
+        }
+        // A missing configuration cannot be fixed by retrying; report it once per day.
+        if (!NewsProviderFactory.validateProviderConfig(this.resolveSecrets())) this.scheduled.attempts = SCHEDULE_MAX_ATTEMPTS;
+        else this.scheduled.attempts++;
+        this.scheduled.nextAt = now.getTime() + SCHEDULE_RETRY_MS;
+        // Until the last attempt, a run where every topic fails is retried later instead of saved.
+        await this.generateDailyNews(false, this.scheduled.attempts < SCHEDULE_MAX_ATTEMPTS);
     }
 
-    async generateDailyNews(retry = false) {
+    async generateDailyNews(retry = false, deferOnTotalFailure = false) {
         if (this.generationPromise) return this.generationPromise;
-        this.generationPromise = this.generateDailyNewsInternal(retry);
+        this.generationPromise = this.generateDailyNewsInternal(retry, deferOnTotalFailure);
         try {
             return await this.generationPromise;
         } finally {
@@ -222,7 +222,7 @@ export default class DailyNewsPlugin extends Plugin {
         }
     }
 
-    private async generateDailyNewsInternal(retry = false): Promise<string | null> {
+    private async generateDailyNewsInternal(retry = false, deferOnTotalFailure = false): Promise<string | null> {
         // Validate API configuration first
         const resolvedSettings = this.resolveSecrets();
         if (!NewsProviderFactory.validateProviderConfig(resolvedSettings)) {
@@ -237,7 +237,7 @@ export default class DailyNewsPlugin extends Plugin {
         }
         
         // If language doesn't have translations, warn but continue with English
-        if (!LANGUAGE_TRANSLATIONS[this.settings.language]) {
+        if (!Object.prototype.hasOwnProperty.call(STRINGS, this.settings.language)) {
             console.warn(`No translations available for language code "${this.settings.language}". Using English as fallback for UI elements.`);
             new Notice(`No translations available for "${this.settings.language}". UI will show in English, but content will be in the selected language.`, 4000);
         }
@@ -250,10 +250,14 @@ export default class DailyNewsPlugin extends Plugin {
 
         const date = localDate();
         const processingStartTime = Date.now();
+        let progress: Notice | undefined;
+        // Built per run so API keys changed in secret storage are always current.
+        const newsProvider = NewsProviderFactory.createProvider(resolvedSettings, async () => await this.saveSettings());
+        const deferNotice = () => {
+            if (this.settings.enableNotifications) new Notice(`Daily news: all topics failed. Retrying in ${SCHEDULE_RETRY_MS / 60000} minutes.`, 6000);
+        };
 
         try {
-            new Notice('Generating daily news...');
-
             // Normalize the path
             const archiveFolder = FileUtils.normalizePath(this.settings.archiveFolder);
 
@@ -268,11 +272,17 @@ export default class DailyNewsPlugin extends Plugin {
                 return fileName;
             }
 
+            // One updating notice instead of one per topic; honours the notifications setting.
+            const total = this.settings.topics.length;
+            let finished = 0;
+            if (this.settings.enableNotifications) progress = new Notice(`Generating daily news... 0/${total} topics`, 0);
+            const topicDone = () => progress?.setMessage(`Generating daily news... ${++finished}/${total} topics`);
+
             const topicStatuses: TopicStatus[] = [];
             const topicContents: TopicContent[] = [];
 
-            // Process each topic
-            for (const topic of this.settings.topics) {
+            // Process topics with bounded concurrency; results keep the configured order.
+            const processed = await mapLimit(this.settings.topics, TOPIC_CONCURRENCY, async (topic): Promise<TopicContent> => {
                 // Create per-topic cache key
                 const cacheKey = topicCacheKey(date, NewsProviderFactory.getProviderKey(this.settings), topic, this.settings);
 
@@ -285,10 +295,8 @@ export default class DailyNewsPlugin extends Plugin {
                             if (refreshed.status === 'success' && refreshed.items.length === cached.result.items.length) {
                                 cached.result = refreshed;
                                 cached.content = renderBriefing(refreshed, this.settings);
-                                new Notice(`Using cached content for ${topic}...`);
-                                topicStatuses.push(cached.status);
-                                topicContents.push(cached);
-                                continue;
+                                topicDone();
+                                return cached;
                             }
                         } catch {
                             // An invalid persisted cache should trigger a fresh fetch, not fail the day.
@@ -308,11 +316,9 @@ export default class DailyNewsPlugin extends Plugin {
                 let briefingResult: BriefingResult | undefined;
 
                 try {
-                    new Notice(`Fetching news for ${topic}...`);
-
                     try {
                         // Use the news provider to fetch and summarize news
-                        briefingResult = await this.newsProvider.fetchAndSummarizeNews(topic);
+                        briefingResult = await newsProvider.fetchAndSummarizeNews(topic);
                         topicContent = renderBriefing(briefingResult, this.settings);
                         topicStatus.outcome = briefingResult.status;
                         if (briefingResult.status === 'error') {
@@ -322,16 +328,8 @@ export default class DailyNewsPlugin extends Plugin {
                             topicStatus.summarizationSuccess = true;
                             topicStatus.newsCount = briefingResult.items.length;
                         }
-
-                        // Warn user about any RSS feeds that partially failed
-                        if (this.newsProvider instanceof SearchSummarizeCoordinator) {
-                            const failedFeeds = this.newsProvider.getLastFailedFeeds();
-                            if (failedFeeds.length > 0) {
-                                new Notice(`Some RSS feeds failed to load for "${topic}":\n${failedFeeds.join('\n')}`, 7000);
-                            }
-                        }
                     } catch (providerError) {
-                        console.error(`${this.newsProvider.getProviderName()} error for ${topic}:`, providerError);
+                        console.error(`${newsProvider.getProviderName()} error for ${topic}:`, providerError);
                         briefingResult = failure(providerError);
                         topicStatus.outcome = 'error';
                         topicStatus.error = briefingResult.status === 'error' ? briefingResult.error.message : 'Provider failed';
@@ -340,8 +338,9 @@ export default class DailyNewsPlugin extends Plugin {
 
                 } catch (topicError) {
                     console.error(`Unexpected error processing topic ${topic}:`, topicError);
-                    topicStatus.error = `Unexpected error: ${topicError.message}`;
-                    topicContent = `${LanguageUtils.getTranslation('errorRetrieving', this.settings.language)} ${topic}. Please try again later.\n\n`;
+                    topicStatus.outcome = 'error';
+                    topicStatus.error = `Unexpected error: ${errorMessage(topicError)}`;
+                    topicContent = `${strings(this.settings.language).errorRetrieving} ${topic}. Please try again later.\n\n`;
                 }
 
                 const topicContentObj: TopicContent = {
@@ -351,13 +350,31 @@ export default class DailyNewsPlugin extends Plugin {
                     result: briefingResult
                 };
 
-                topicStatuses.push(topicStatus);
-                topicContents.push(topicContentObj);
-
                 // Cache this topic's content only if successful (no errors) and content is non-empty
                 if (this.settings.dailyTopicCacheEnabled && briefingResult?.status === 'success' && !briefingResult.warnings.includes('partial_feeds')) {
                     this.settings.dailyTopicCache[cacheKey] = topicContentObj;
                 }
+                topicDone();
+                return topicContentObj;
+            });
+            progress?.hide();
+            for (const topicContent of processed) {
+                topicStatuses.push(topicContent.status);
+                topicContents.push(topicContent);
+            }
+
+            // Feeds are downloaded once per run, so report partial failures once.
+            if (newsProvider instanceof SearchSummarizeCoordinator) {
+                const failedFeeds = newsProvider.getLastFailedFeeds();
+                if (failedFeeds.length > 0) {
+                    new Notice(`Some RSS feeds failed to load:\n${failedFeeds.join('\n')}`, 7000);
+                }
+            }
+
+            if (deferOnTotalFailure && topicStatuses.length > 0 && topicStatuses.every(status => status.outcome === 'error')) {
+                console.warn('Daily news: all topics failed; no note saved, the scheduler will retry.');
+                deferNotice();
+                return null;
             }
 
             // Analyze results
@@ -385,61 +402,7 @@ export default class DailyNewsPlugin extends Plugin {
                 return null;
             }
 
-            // Prepare fine-grained date/time data
-            const now = new Date();
-            const metadata = this.settings.enableMetadata
-                ? MetadataUtils.generateMetadata(this.settings, processingStartTime)
-                : {};
-
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'];
-            const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const dayNamesShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-            // Prepare template data with all placeholders
-            const templateData: TemplateData = {
-                // Basic placeholders
-                metadata: this.settings.enableMetadata
-                    ? MetadataUtils.formatMetadataAsYAML(metadata)
-                    : '',
-                timestamp: `${LanguageUtils.getTranslation('generatedAt', this.settings.language)} ${now.toLocaleTimeString()}`,
-                date: date,
-                time: now.toLocaleTimeString('en-US', { hour12: false }),
-                tableOfContents: ContentUtils.buildTableOfContents(this.settings.topics),
-                topics: this.buildTopicsSections(topicContents),
-                topicContents: topicContents,
-                processingStatus: topicStatuses.some(status => status.error)
-                    ? ContentUtils.buildProcessingStatus(topicStatuses, this.settings.language)
-                    : '',
-                language: this.settings.language,
-
-                // Fine-grained date/time placeholders
-                year: now.getFullYear().toString(),
-                month: (now.getMonth() + 1).toString().padStart(2, '0'),
-                monthName: monthNames[now.getMonth()],
-                monthNameShort: monthNamesShort[now.getMonth()],
-                day: now.getDate().toString().padStart(2, '0'),
-                dayName: dayNames[now.getDay()],
-                dayNameShort: dayNamesShort[now.getDay()],
-                hour: now.getHours().toString().padStart(2, '0'),
-                minute: now.getMinutes().toString().padStart(2, '0'),
-                second: now.getSeconds().toString().padStart(2, '0'),
-
-                // Metadata field placeholders
-                metadataDatetime: metadata.datetime || '',
-                metadataTags: metadata.tags ? metadata.tags.join(', ') : '',
-                metadataLanguage: metadata.language || '',
-                metadataProvider: metadata.source || '',
-
-                // Topic info placeholders
-                topicCount: this.settings.topics.length.toString(),
-                topicList: this.settings.topics.join(', '),
-
-                // Topic sections (for future loop support)
-                topicSections: this.buildTopicsSections(topicContents)
-            };
+            const templateData = buildTemplateData(this.settings, date, topicContents, topicStatuses, processingStartTime);
 
             // Load template file if using file type
             let templateFileContent: string | undefined;
@@ -471,8 +434,7 @@ export default class DailyNewsPlugin extends Plugin {
                     }
                 }
 
-                // Save settings to persist the cache
-                await this.saveSettings();
+                await this.saveTopicCache();
 
                 if (this.settings.enableNotifications) {
                     const successCount = topicStatuses.filter(s => s.outcome === 'success').length;
@@ -492,12 +454,17 @@ export default class DailyNewsPlugin extends Plugin {
                 return fileName;
             } catch (createError) {
                 console.error('Failed to create note file:', createError);
-                new Notice(`Failed to create note file: ${createError.message}`, 7000);
+                new Notice(`Failed to create note file: ${errorMessage(createError)}`, 7000);
                 return null;
             }
 
         } catch (error) {
             console.error('Failed to generate news:', error);
+            progress?.hide();
+            if (deferOnTotalFailure) {
+                deferNotice();
+                return null;
+            }
 
             // Last resort: try to create a note with the error message
             try {
@@ -505,7 +472,7 @@ export default class DailyNewsPlugin extends Plugin {
                 const yearMonth = date.substring(0, 7); // Get YYYY-MM
                 const monthlyFolder = `${archiveFolder}/${yearMonth}`;
                 const fileName = `${monthlyFolder}/Daily News - ${date}${retry ? ` - Retry ${Date.now()}` : ''}.md`;
-                const errorContent = `# Daily News - ${date}\n\n**Error generating news**\n\nAn unexpected error occurred:\n\n\`\`\`\n${error.message}\n\`\`\`\n\nPlease check the console for more details.`;
+                const errorContent = `# Daily News - ${date}\n\n**Error generating news**\n\nAn unexpected error occurred:\n\n\`\`\`\n${errorMessage(error)}\n\`\`\`\n\nPlease check the console for more details.`;
 
                 // Ensure monthly folder exists
                 if (!(await this.app.vault.adapter.exists(archiveFolder))) {
@@ -528,8 +495,7 @@ export default class DailyNewsPlugin extends Plugin {
 
     async openOrCreateDailyNews() {
         const date = localDate();
-        const yearMonth = date.substring(0, 7); // Get YYYY-MM
-        const filePath = FileUtils.normalizePath(`${this.settings.archiveFolder}/${yearMonth}/Daily News - ${date}.md`);
+        const filePath = this.dailyNotePath(date);
 
         try {
             // Check if file exists
@@ -551,157 +517,15 @@ export default class DailyNewsPlugin extends Plugin {
             }
         } catch (error) {
             console.error('Error opening or creating daily news:', error);
-            new Notice(`Unable to open or create daily news: ${error.message}`, 6000);
+            new Notice(`Unable to open or create daily news: ${errorMessage(error)}`, 6000);
         }
     }
 
     async reorganizeExistingNotes() {
-        try {
-            const archiveFolder = FileUtils.normalizePath(this.settings.archiveFolder);
-
-            // Check if archive folder exists
-            if (!(await this.app.vault.adapter.exists(archiveFolder))) {
-                new Notice('Archive folder not found. Nothing to reorganize.', 3000);
-                return;
-            }
-
-            // Get all files in the archive folder (non-recursive)
-            const files = this.app.vault.getFiles().filter(file => {
-                const normalizedPath = FileUtils.normalizePath(file.path);
-                const parentFolder = normalizedPath.substring(0, normalizedPath.lastIndexOf('/'));
-
-                // Only include files directly in archive folder (not in subfolders)
-                return parentFolder === archiveFolder &&
-                       file.extension === 'md' &&
-                       file.name.startsWith('Daily News - ');
-            });
-
-            if (files.length === 0) {
-                new Notice('No daily news files found to reorganize.', 3000);
-                return;
-            }
-
-            new Notice(`Found ${files.length} file(s) to reorganize...`, 3000);
-            let moved = 0;
-            let skipped = 0;
-            let errors = 0;
-
-            for (const file of files) {
-                try {
-                    // Extract date from filename (format: "Daily News - YYYY-MM-DD.md")
-                    const dateMatch = file.name.match(/Daily News - (\d{4}-\d{2}-\d{2})\.md/);
-
-                    if (!dateMatch) {
-                        console.warn(`Skipping file with unexpected format: ${file.name}`);
-                        skipped++;
-                        continue;
-                    }
-
-                    const dateStr = dateMatch[1];
-                    const yearMonth = dateStr.substring(0, 7); // Extract YYYY-MM
-                    const monthlyFolder = `${archiveFolder}/${yearMonth}`;
-                    const newPath = `${monthlyFolder}/${file.name}`;
-
-                    // Skip if file is already in the correct location
-                    if (file.path === newPath) {
-                        skipped++;
-                        continue;
-                    }
-
-                    // Create monthly folder if it doesn't exist
-                    if (!(await this.app.vault.adapter.exists(monthlyFolder))) {
-                        await this.app.vault.createFolder(monthlyFolder);
-                    }
-
-                    // Check if a file with the same name already exists in the target folder
-                    if (await this.app.vault.adapter.exists(newPath)) {
-                        console.warn(`File already exists at target location: ${newPath}`);
-                        skipped++;
-                        continue;
-                    }
-
-                    // Move the file
-                    await this.app.fileManager.renameFile(file, newPath);
-                    moved++;
-
-                } catch (fileError) {
-                    console.error(`Error moving file ${file.name}:`, fileError);
-                    errors++;
-                }
-            }
-
-            // Show summary
-            const summary = [];
-            if (moved > 0) summary.push(`${moved} moved`);
-            if (skipped > 0) summary.push(`${skipped} skipped`);
-            if (errors > 0) summary.push(`${errors} errors`);
-
-            new Notice(`Reorganization complete: ${summary.join(', ')}`, 5000);
-
-        } catch (error) {
-            console.error('Error during reorganization:', error);
-            new Notice('Failed to reorganize notes. Check console for details.', 5000);
-        }
+        await reorganizeExistingNotes(this.app, this.settings);
     }
 
     async deleteOldNewsNotes() {
-        if (this.settings.autoDeleteRetention === 'never') {
-            return;
-        }
-
-        const retentionDays: Record<string, number> = {
-            '1d': 1, '3d': 3, '1w': 7, '2w': 14,
-            '1m': 30, '3m': 90, '6m': 180, '1y': 365
-        };
-
-        const days = retentionDays[this.settings.autoDeleteRetention];
-        if (!days) return;
-
-        const cutoff = new Date();
-        cutoff.setDate(cutoff.getDate() - days);
-        const cutoffStr = cutoff.toISOString().split('T')[0];
-
-        const archiveFolder = FileUtils.normalizePath(this.settings.archiveFolder);
-        const files = this.app.vault.getFiles().filter(file => {
-            const normalizedPath = FileUtils.normalizePath(file.path);
-            return normalizedPath.startsWith(archiveFolder + '/') &&
-                   file.extension === 'md' &&
-                   file.name.startsWith('Daily News - ');
-        });
-
-        let deletedFiles = 0;
-        const affectedFolders = new Set<string>();
-        for (const file of files) {
-            const dateMatch = file.name.match(/Daily News - (\d{4}-\d{2}-\d{2})\.md/);
-            if (!dateMatch) continue;
-            if (dateMatch[1] < cutoffStr) {
-                try {
-                    affectedFolders.add(FileUtils.normalizePath(file.parent?.path ?? ''));
-                    await this.app.fileManager.trashFile(file);
-                    deletedFiles++;
-                } catch {
-                    console.error(`Failed to delete ${file.path}`);
-                }
-            }
-        }
-
-        // Remove any monthly folders that are now empty
-        let deletedFolders = 0;
-        for (const folderPath of affectedFolders) {
-            if (!folderPath || folderPath === archiveFolder) continue;
-            const folder = this.app.vault.getAbstractFileByPath(folderPath);
-            if (folder instanceof TFolder && folder.children.length === 0) {
-                try {
-                    await this.app.fileManager.trashFile(folder);
-                    deletedFolders++;
-                } catch {
-                    console.error(`Failed to delete empty folder ${folderPath}`);
-                }
-            }
-        }
-
-        if (deletedFiles > 0 || deletedFolders > 0) {
-            new Notice(`Deleted ${deletedFiles} old news note${deletedFiles > 1 ? 's' : ''} and ${deletedFolders} empty folder${deletedFolders > 1 ? 's' : ''}.`, 4000);
-        }
+        await deleteOldNewsNotes(this.app, this.settings);
     }
 }
